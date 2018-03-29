@@ -1,0 +1,91 @@
+﻿<div>Icons made by <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>﻿
+<div>Icons made by <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+
+
+10/23/2017
+(Nathan Boehm)
+- Created the intial file structure for PS6. 
+- Implemented a way to switch the selected cell by using the arrow keys or TAB.
+  However this removed the ability to scroll through the spreadsheet with the arrow
+  keys.
+TODO: - add convienent scrolling features (scroll wheel, automatic scrolling when changing selected cell, etc.)
+
+
+10/24/2017
+(Nathan Boehm)
+- Implemnted a method for writing user keyboard input to the currently selected cell.
+	- Added Backspace functionality
+
+NOTE: After today's lecture I've realized that my implementation could be significantly improved by putting the 
+arrow key/tab cell selection functionality into SpreadsheetPanel.
+NEW TODO:	-  put cell selection functionality into SPreadsheetPanel
+			-  Change the way a cell is written, to be more in line with the specification.
+
+
+10/25/2017
+(Nathan Boehm)
+NOTE: have been having issues with pulled repository not working on partner's computer. looking for a fix...
+- revamped the file structure of PS6 due to issues with projects not compiling.
+- ported the cell selection functionality into SpreadsheetPanel.
+- added UI elements for open, save, close and new.
+- implemented close() and new().
+
+
+10/26/2017
+(Brady Jacobson)
+- Fixed the issues involving opening the project.
+- Implemented the help menu to give the user information on how to use the spreadsheet.
+- Had to be recreated from scratch due to an issue with Github.
+- The basics of the spreadsheet work, so now we will begin implementing the dependency graphs.
+
+[Personal Software Process]
+My original estimate was that this project would last around 5-6 hours.
+My estimates are getting worse, as I underestimate the time it took to fix the issues with the repository.
+
+(Nathan Boehm)
+NOTE: problems with Brady's repository have been resolved.
+- Modified UI.
+- Implemented new system for writing text to cells.
+	- setting focus to formula text box.
+	- setting cell value on enter key or EnterButton click.
+	- "Quality of life" feature: setting cursor to end of text in the formula box.
+	- Formula box set to contents of cell on cell selection change.
+- Implemented use of spreadsheet object to handle spreadsheet logic.
+- implemented Save As and Quicksave.
+- Implemented helper methods for the various methods i've implemented.
+- Added documentation and modified file structure.
+- Modified Help menu descriptions and placement.
+- Added formula evaluation functionality to cells.
+- Modified Spreadsheet file so that GetContents returns a string with "=" appended.
+- Modified Spreadsheet file and spreadsheet gui again so that cells would be updated properly when a dependee is changed.
+- Modified UpdateCells() so that only dependent cells are updated.
+- Modified CellNameOutput and CellValueOutput: created new delegate to handle them on selection changed.
+
+10/27/2017
+(Nathan Boehm)
+- modified spreadsheet file due to issue with the Changed parameter.
+- Implemented system method to check if a spreadsheet has unsvaed changes when close is clicked and display
+  a confirm message box if so.
+- Implemented system for catching formula errors
+- Implemented Open spreadsheet functionality
+	- fixed issue with cell value not being displayed properly.
+- Added feature to stop reading of files containing invalid data. Displays message box.
+- Fixed Issue with saving/loading. Problem came from Spreadsheet file again. Fixed, rebuilt, reimported.
+
+Basic PS6 functionality complete!
+
+- Finished Documentation for my code.
+- Added final documentation and file structuring to PS6
+- fixed small visual bug with some cells not being cleared on spreadsheet load.
+
+PS6 Complete!
+
+
+10/27/2017
+(Brady Jacobson)
+-Added bonus code that finds the sum, average, and count of either a selected row or column. 
+-Uses two buttons on the menu. Also has close buttons if you want to get rid of the information.
+-Commented out my code in Form1.cs.
+
+-In total, I would say I personally spent about 6-7 hours on this project. There were some issues with github that cause the time taken to increase.
+-This is above my initial estimatated time spent. My estimation was off. My biggest issue was misunderstanding how long it would take to get our repository issues sorted out.

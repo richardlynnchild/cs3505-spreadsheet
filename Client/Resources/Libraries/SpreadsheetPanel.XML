@@ -61,6 +61,13 @@
             <param name="row"></param>
             <returns></returns>
         </member>
+        <member name="M:SS.SpreadsheetPanel.MovementKey(System.Windows.Forms.Message@,System.Windows.Forms.Keys)">
+            <summary>
+            Processes Cell Selection Keys: up, down, right, left and TAB.
+            </summary>
+            <param name="KeyData"></param>
+            <returns></returns>
+        </member>
         <member name="M:SS.SpreadsheetPanel.GetSelection(System.Int32@,System.Int32@)">
             <summary>
             Assigns the column and row of the current selection to the

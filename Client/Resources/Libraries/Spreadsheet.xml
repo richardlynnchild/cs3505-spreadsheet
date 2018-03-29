@@ -315,10 +315,29 @@
             Spreadhseet class that inherits from AbstractSpreadsheet, represents the state of a spreadsheet.
             </summary>
         </member>
+        <member name="P:SS.Spreadsheet.Changed">
+            <summary>
+            Returns true if the spreadsheet has been changed since the last save.
+            </summary>
+        </member>
         <member name="M:SS.Spreadsheet.#ctor(System.Func{System.String,System.Boolean},System.Func{System.String,System.String},System.String)">
             <summary>
             Constructor that creates a new empty spreadsheet.
             </summary>
+        </member>
+        <member name="M:SS.Spreadsheet.#ctor">
+            <summary>
+            Zero argument constructor that creates a new empty spreadsheet
+            </summary>
+        </member>
+        <member name="M:SS.Spreadsheet.#ctor(System.String,System.Func{System.String,System.Boolean},System.Func{System.String,System.String},System.String)">
+            <summary>
+            4 argument constructor that creates a spreadsheet from a file
+            </summary>
+            <param name="pathToFile"></param>
+            <param name="isValid"></param>
+            <param name="normalize"></param>
+            <param name="version"></param>
         </member>
         <member name="M:SS.Spreadsheet.GetCellContents(System.String)">
             <summary>
@@ -425,6 +444,7 @@
             Verifies that the given cell name is valid.
             </summary>
             <param name="name">Cell's name</param>
+            <param name ="content">Cell's content</param>param>
         </member>
         <member name="M:SS.Spreadsheet.Lookup(System.String)">
             <summary>
@@ -446,6 +466,7 @@
             </summary>
             <param name="name">Cell's name</param>
             <param name="formula">Cell's new Contents</param>
+            <param name="FormulaResult">Formula's evaluated result</param>
         </member>
         <member name="M:SS.Spreadsheet.SetContents(System.String,System.Double)">
             <summary>
@@ -466,13 +487,25 @@
             Class for containing and returning any information of a spreadsheet cell.
             </summary>
         </member>
+        <member name="P:SS.Cell.Name">
+            <summary>
+            Cell's Name
+            </summary>
+        </member>
+        <member name="M:SS.Cell.UpdateValue(System.Object)">
+            <summary>
+            Changes a cell's value to the given value.
+            </summary>
+            <param name="updatedValue"></param>
+        </member>
         <member name="M:SS.Cell.#ctor(System.String,System.Object,System.Object)">
             <summary>
             Constructs a cell with a given object as the cell contents. Expects an evaluated formula result.
             Used for formulas.
             </summary>
             <param name="name">Cell Name</param>
-            <param name="value">Cell Contents</param>
+            <param name="contents">Cell's contents</param>
+            <param name="FormulaResult">Formula's evaluated result</param>
         </member>
         <member name="M:SS.Cell.#ctor(System.String,System.Object)">
             <summary>
