@@ -1,4 +1,4 @@
-# Install script for directory: /home/nathan/SourceCode/Spreadsheet/Server
+# Install script for directory: /home/nathan/SourceCode/Spreadsheet/cs3505-spreadsheet/Server
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/nathan/SourceCode/Spreadsheet/Server/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/nathan/SourceCode/Spreadsheet/cs3505-spreadsheet/Server/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
