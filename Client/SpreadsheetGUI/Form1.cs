@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using SS;
+using Networking;
 using SpreadsheetUtilities;
 
 namespace SpreadsheetGUI
@@ -16,6 +17,7 @@ namespace SpreadsheetGUI
     {
         public Spreadsheet ss1;
         public string filename;
+        private string hostname;
         public Form1()
         {
             //
@@ -134,6 +136,19 @@ namespace SpreadsheetGUI
             CloseOther.Visible = false;
             ColumnExit.Visible = false;
             OutputColumnInfo.Visible = false;
+        }
+
+        /// <summary>
+        /// Connects this Spreadsheet client to a Server
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ConnectBtn_Click(object sender, EventArgs e) {
+
+            hostname = HostnameBox.Text;
+            HostnameBox.ReadOnly = true;
+            Networking.Networking.ConnectToServer(RegisterMessage, hostname);
+
         }
 
         /// <summary>
@@ -334,6 +349,16 @@ namespace SpreadsheetGUI
         #endregion
 
         #region Helper Methods
+
+        /// <summary>
+        /// After connection with server established, send the register message
+        /// </summary>
+        /// <param name="state"></param>
+        private void RegisterMessage(SocketState state) {
+            string message = "register \\3";
+            Networking.Networking.Send(state.sock, message);
+
+        }
 
         /// <summary>
         /// Returns a string Cell name based on a numeric row, column position.
@@ -600,6 +625,8 @@ namespace SpreadsheetGUI
              OutputRowInfo.Visible = false;
              RowExit.Visible = false;
          }
-       #endregion
+        #endregion
+
+       
     }
 }

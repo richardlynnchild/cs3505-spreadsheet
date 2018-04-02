@@ -58,6 +58,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Resources\Libraries\Formula.dll</HintPath>
     </Reference>
+    <Reference Include="Networking">
+      <HintPath>..\Networking\obj\Debug\Networking.dll</HintPath>
+    </Reference>
     <Reference Include="Spreadsheet, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Resources\Libraries\Spreadsheet.dll</HintPath>
