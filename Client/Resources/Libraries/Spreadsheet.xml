@@ -339,6 +339,20 @@
             <param name="normalize"></param>
             <param name="version"></param>
         </member>
+        <member name="M:SS.Spreadsheet.getDependentCells(System.String)">
+            <summary>
+            Returns a list of a cell's dependents. (Cells that depend on this on).
+            </summary>
+            <param name="cellName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SS.Spreadsheet.getParentCells(System.String)">
+            <summary>
+            Return's a list of a cell's parents. (Cells that this cell depends on).
+            </summary>
+            <param name="cellName"></param>
+            <returns></returns>
+        </member>
         <member name="M:SS.Spreadsheet.GetCellContents(System.String)">
             <summary>
             Returns the contents of a given cell.
@@ -418,6 +432,12 @@
             </summary>
             <param name="filename">Path to XML file</param>
         </member>
+        <member name="M:SS.Spreadsheet.UpdateDependentCells(System.String)">
+            <summary>
+            Updates dependent cells. Used when loading a spreadsheet from file.
+            </summary>
+            <param name="cellName"></param>
+        </member>
         <member name="M:SS.Spreadsheet.ReadCells(System.Xml.XmlReader,System.String@,System.String@)">
             <summary>
             Helper method for ReadSpreadsheet, sets CName and CContents to the read Cell name and Cell contents
@@ -458,6 +478,11 @@
             Recalcualtes the value of all cells given.
             </summary>
             <param name="cells"></param>
+        </member>
+        <member name="M:SS.Spreadsheet.UpdateCell(System.String)">
+            <summary>
+            Recalculates the value of a single cell. For public use.
+            </summary>
         </member>
         <member name="M:SS.Spreadsheet.SetContents(System.String,SpreadsheetUtilities.Formula,System.Object)">
             <summary>
