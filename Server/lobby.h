@@ -1,3 +1,6 @@
+#ifndef LOBBY_H
+#define LOBBY_H
+
 #include "spreadsheet.h"
 #include <string>
 #include <map>
@@ -19,4 +22,4 @@ class Lobby {
 
 };
 
-    
+#endif LOBBY_H    
