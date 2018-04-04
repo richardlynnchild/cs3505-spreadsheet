@@ -82,10 +82,10 @@
             // 
             this.spreadsheetPanel1.AutoSize = true;
             this.spreadsheetPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.spreadsheetPanel1.Location = new System.Drawing.Point(0, 127);
-            this.spreadsheetPanel1.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
+            this.spreadsheetPanel1.Location = new System.Drawing.Point(0, 106);
+            this.spreadsheetPanel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.spreadsheetPanel1.Name = "spreadsheetPanel1";
-            this.spreadsheetPanel1.Size = new System.Drawing.Size(1195, 766);
+            this.spreadsheetPanel1.Size = new System.Drawing.Size(1046, 638);
             this.spreadsheetPanel1.TabIndex = 0;
             // 
             // openFileDialog1
@@ -97,20 +97,20 @@
             this.QuickSave.BackColor = System.Drawing.SystemColors.MenuHighlight;
             this.QuickSave.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("QuickSave.BackgroundImage")));
             this.QuickSave.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.QuickSave.Location = new System.Drawing.Point(88, 0);
-            this.QuickSave.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
+            this.QuickSave.Location = new System.Drawing.Point(72, 0);
+            this.QuickSave.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.QuickSave.Name = "QuickSave";
-            this.QuickSave.Size = new System.Drawing.Size(61, 60);
+            this.QuickSave.Size = new System.Drawing.Size(50, 50);
             this.QuickSave.TabIndex = 5;
             this.QuickSave.UseVisualStyleBackColor = false;
             this.QuickSave.Click += new System.EventHandler(this.QuickSave_Click);
             // 
             // FormulaBox
             // 
-            this.FormulaBox.Location = new System.Drawing.Point(483, 74);
-            this.FormulaBox.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
+            this.FormulaBox.Location = new System.Drawing.Point(395, 62);
+            this.FormulaBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.FormulaBox.Name = "FormulaBox";
-            this.FormulaBox.Size = new System.Drawing.Size(361, 29);
+            this.FormulaBox.Size = new System.Drawing.Size(296, 26);
             this.FormulaBox.TabIndex = 6;
             // 
             // CellName
@@ -123,19 +123,18 @@
             // LabelContents
             // 
             this.LabelContents.AutoSize = true;
-            this.LabelContents.Location = new System.Drawing.Point(354, 82);
-            this.LabelContents.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.LabelContents.Location = new System.Drawing.Point(290, 68);
             this.LabelContents.Name = "LabelContents";
-            this.LabelContents.Size = new System.Drawing.Size(130, 25);
+            this.LabelContents.Size = new System.Drawing.Size(104, 20);
             this.LabelContents.TabIndex = 7;
             this.LabelContents.Text = "Cell Contents";
             // 
             // EnterButton
             // 
-            this.EnterButton.Location = new System.Drawing.Point(856, 72);
-            this.EnterButton.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
+            this.EnterButton.Location = new System.Drawing.Point(700, 60);
+            this.EnterButton.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.EnterButton.Name = "EnterButton";
-            this.EnterButton.Size = new System.Drawing.Size(92, 41);
+            this.EnterButton.Size = new System.Drawing.Size(75, 34);
             this.EnterButton.TabIndex = 8;
             this.EnterButton.Text = "Enter";
             this.EnterButton.UseVisualStyleBackColor = true;
@@ -151,12 +150,12 @@
             this.FileMenu_Close});
             this.fileToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("fileToolStripMenuItem.Image")));
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(36, 56);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(36, 46);
             // 
             // FileMenu_New
             // 
             this.FileMenu_New.Name = "FileMenu_New";
-            this.FileMenu_New.Size = new System.Drawing.Size(155, 34);
+            this.FileMenu_New.Size = new System.Drawing.Size(140, 30);
             this.FileMenu_New.Text = "New";
             this.FileMenu_New.Click += new System.EventHandler(this.FileMenu_New_Click);
             // 
@@ -166,34 +165,34 @@
             this.saveToolStripMenuItem,
             this.saveAsToolStripMenuItem});
             this.FileMenu_Save.Name = "FileMenu_Save";
-            this.FileMenu_Save.Size = new System.Drawing.Size(155, 34);
+            this.FileMenu_Save.Size = new System.Drawing.Size(140, 30);
             this.FileMenu_Save.Text = "Save";
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(191, 34);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(170, 30);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // saveAsToolStripMenuItem
             // 
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(191, 34);
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(170, 30);
             this.saveAsToolStripMenuItem.Text = "Save As...";
             this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
             // 
             // FileMenu_Open
             // 
             this.FileMenu_Open.Name = "FileMenu_Open";
-            this.FileMenu_Open.Size = new System.Drawing.Size(155, 34);
+            this.FileMenu_Open.Size = new System.Drawing.Size(140, 30);
             this.FileMenu_Open.Text = "Open";
             this.FileMenu_Open.Click += new System.EventHandler(this.FileMenu_Open_Click);
             // 
             // FileMenu_Close
             // 
             this.FileMenu_Close.Name = "FileMenu_Close";
-            this.FileMenu_Close.Size = new System.Drawing.Size(155, 34);
+            this.FileMenu_Close.Size = new System.Drawing.Size(140, 30);
             this.FileMenu_Close.Text = "Close";
             this.FileMenu_Close.Click += new System.EventHandler(this.FileMenu_Close_Click);
             // 
@@ -204,10 +203,9 @@
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.MinimumSize = new System.Drawing.Size(0, 60);
+            this.menuStrip1.MinimumSize = new System.Drawing.Size(0, 50);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Padding = new System.Windows.Forms.Padding(7, 2, 0, 2);
-            this.menuStrip1.Size = new System.Drawing.Size(1195, 60);
+            this.menuStrip1.Size = new System.Drawing.Size(1046, 50);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -217,13 +215,13 @@
             this.tableLayoutPanel1.ColumnCount = 1;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 60);
-            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
-            this.tableLayoutPanel1.MinimumSize = new System.Drawing.Size(0, 60);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 50);
+            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.tableLayoutPanel1.MinimumSize = new System.Drawing.Size(0, 50);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1195, 67);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1046, 56);
             this.tableLayoutPanel1.TabIndex = 9;
             // 
             // contextMenuStrip1
@@ -238,10 +236,10 @@
             this.menuStrip2.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.menuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.HelpMenu});
-            this.menuStrip2.Location = new System.Drawing.Point(165, 6);
+            this.menuStrip2.Location = new System.Drawing.Point(135, 5);
             this.menuStrip2.Name = "menuStrip2";
-            this.menuStrip2.Padding = new System.Windows.Forms.Padding(9, 2, 0, 2);
-            this.menuStrip2.Size = new System.Drawing.Size(99, 38);
+            this.menuStrip2.Padding = new System.Windows.Forms.Padding(7, 2, 0, 2);
+            this.menuStrip2.Size = new System.Drawing.Size(90, 33);
             this.menuStrip2.TabIndex = 11;
             this.menuStrip2.Text = "menuStrip2";
             // 
@@ -253,62 +251,62 @@
             this.HelpOtherMenu});
             this.HelpMenu.Image = ((System.Drawing.Image)(resources.GetObject("HelpMenu.Image")));
             this.HelpMenu.Name = "HelpMenu";
-            this.HelpMenu.Size = new System.Drawing.Size(88, 34);
+            this.HelpMenu.Size = new System.Drawing.Size(81, 29);
             this.HelpMenu.Text = "Help";
             // 
             // HelpMoveMenu
             // 
             this.HelpMoveMenu.Name = "HelpMoveMenu";
-            this.HelpMoveMenu.Size = new System.Drawing.Size(228, 34);
+            this.HelpMoveMenu.Size = new System.Drawing.Size(200, 30);
             this.HelpMoveMenu.Text = "Cell Selection";
             this.HelpMoveMenu.Click += new System.EventHandler(this.HelpMoveMenu_Click);
             // 
             // HelpSetMenu
             // 
             this.HelpSetMenu.Name = "HelpSetMenu";
-            this.HelpSetMenu.Size = new System.Drawing.Size(228, 34);
+            this.HelpSetMenu.Size = new System.Drawing.Size(200, 30);
             this.HelpSetMenu.Text = "Cell Editing";
             this.HelpSetMenu.Click += new System.EventHandler(this.HelpSetMenu_Click);
             // 
             // HelpOtherMenu
             // 
             this.HelpOtherMenu.Name = "HelpOtherMenu";
-            this.HelpOtherMenu.Size = new System.Drawing.Size(228, 34);
+            this.HelpOtherMenu.Size = new System.Drawing.Size(200, 30);
             this.HelpOtherMenu.Text = "File Menu";
             this.HelpOtherMenu.Click += new System.EventHandler(this.HelpOtherMenu_Click);
             // 
             // HelpMoveText
             // 
-            this.HelpMoveText.Location = new System.Drawing.Point(40, 158);
-            this.HelpMoveText.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.HelpMoveText.Location = new System.Drawing.Point(33, 132);
+            this.HelpMoveText.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.HelpMoveText.Multiline = true;
             this.HelpMoveText.Name = "HelpMoveText";
             this.HelpMoveText.ReadOnly = true;
-            this.HelpMoveText.Size = new System.Drawing.Size(740, 239);
+            this.HelpMoveText.Size = new System.Drawing.Size(606, 200);
             this.HelpMoveText.TabIndex = 12;
             this.HelpMoveText.Text = resources.GetString("HelpMoveText.Text");
             this.HelpMoveText.Visible = false;
             // 
             // HelpSetText
             // 
-            this.HelpSetText.Location = new System.Drawing.Point(40, 158);
-            this.HelpSetText.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.HelpSetText.Location = new System.Drawing.Point(33, 132);
+            this.HelpSetText.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.HelpSetText.Multiline = true;
             this.HelpSetText.Name = "HelpSetText";
             this.HelpSetText.ReadOnly = true;
-            this.HelpSetText.Size = new System.Drawing.Size(740, 239);
+            this.HelpSetText.Size = new System.Drawing.Size(606, 200);
             this.HelpSetText.TabIndex = 14;
             this.HelpSetText.Text = resources.GetString("HelpSetText.Text");
             this.HelpSetText.Visible = false;
             // 
             // HelpOtherText
             // 
-            this.HelpOtherText.Location = new System.Drawing.Point(40, 158);
-            this.HelpOtherText.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.HelpOtherText.Location = new System.Drawing.Point(33, 132);
+            this.HelpOtherText.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.HelpOtherText.Multiline = true;
             this.HelpOtherText.Name = "HelpOtherText";
             this.HelpOtherText.ReadOnly = true;
-            this.HelpOtherText.Size = new System.Drawing.Size(740, 450);
+            this.HelpOtherText.Size = new System.Drawing.Size(606, 376);
             this.HelpOtherText.TabIndex = 17;
             this.HelpOtherText.Text = resources.GetString("HelpOtherText.Text");
             this.HelpOtherText.Visible = false;
@@ -318,10 +316,10 @@
             this.CloseMove.BackColor = System.Drawing.SystemColors.ButtonShadow;
             this.CloseMove.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("CloseMove.BackgroundImage")));
             this.CloseMove.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.CloseMove.Location = new System.Drawing.Point(753, 161);
-            this.CloseMove.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.CloseMove.Location = new System.Drawing.Point(616, 134);
+            this.CloseMove.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.CloseMove.Name = "CloseMove";
-            this.CloseMove.Size = new System.Drawing.Size(27, 30);
+            this.CloseMove.Size = new System.Drawing.Size(22, 25);
             this.CloseMove.TabIndex = 13;
             this.CloseMove.Text = "_";
             this.CloseMove.UseVisualStyleBackColor = true;
@@ -333,10 +331,10 @@
             this.CloseSet.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("CloseSet.BackgroundImage")));
             this.CloseSet.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.CloseSet.FlatAppearance.BorderColor = System.Drawing.Color.Red;
-            this.CloseSet.Location = new System.Drawing.Point(753, 158);
-            this.CloseSet.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.CloseSet.Location = new System.Drawing.Point(616, 132);
+            this.CloseSet.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.CloseSet.Name = "CloseSet";
-            this.CloseSet.Size = new System.Drawing.Size(27, 30);
+            this.CloseSet.Size = new System.Drawing.Size(22, 25);
             this.CloseSet.TabIndex = 15;
             this.CloseSet.Text = "_";
             this.CloseSet.UseVisualStyleBackColor = true;
@@ -347,10 +345,10 @@
             // 
             this.CloseOther.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("CloseOther.BackgroundImage")));
             this.CloseOther.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.CloseOther.Location = new System.Drawing.Point(753, 161);
-            this.CloseOther.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.CloseOther.Location = new System.Drawing.Point(616, 134);
+            this.CloseOther.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.CloseOther.Name = "CloseOther";
-            this.CloseOther.Size = new System.Drawing.Size(27, 30);
+            this.CloseOther.Size = new System.Drawing.Size(22, 25);
             this.CloseOther.TabIndex = 16;
             this.CloseOther.Text = "_";
             this.CloseOther.UseVisualStyleBackColor = true;
@@ -360,31 +358,29 @@
             // LabelName
             // 
             this.LabelName.AutoSize = true;
-            this.LabelName.Location = new System.Drawing.Point(21, 65);
-            this.LabelName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.LabelName.Location = new System.Drawing.Point(17, 54);
             this.LabelName.Name = "LabelName";
-            this.LabelName.Size = new System.Drawing.Size(103, 25);
+            this.LabelName.Size = new System.Drawing.Size(81, 20);
             this.LabelName.TabIndex = 0;
             this.LabelName.Text = "Cell Name";
             // 
             // LabelValue
             // 
             this.LabelValue.AutoSize = true;
-            this.LabelValue.Location = new System.Drawing.Point(183, 65);
-            this.LabelValue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.LabelValue.Location = new System.Drawing.Point(150, 54);
             this.LabelValue.Name = "LabelValue";
-            this.LabelValue.Size = new System.Drawing.Size(102, 25);
+            this.LabelValue.Size = new System.Drawing.Size(80, 20);
             this.LabelValue.TabIndex = 18;
             this.LabelValue.Text = "Cell Value";
             // 
             // CellNameOutput
             // 
             this.CellNameOutput.BackColor = System.Drawing.SystemColors.InactiveBorder;
-            this.CellNameOutput.Location = new System.Drawing.Point(24, 89);
-            this.CellNameOutput.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.CellNameOutput.Location = new System.Drawing.Point(20, 74);
+            this.CellNameOutput.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.CellNameOutput.Name = "CellNameOutput";
             this.CellNameOutput.ReadOnly = true;
-            this.CellNameOutput.Size = new System.Drawing.Size(93, 29);
+            this.CellNameOutput.Size = new System.Drawing.Size(77, 26);
             this.CellNameOutput.TabIndex = 19;
             this.CellNameOutput.Text = "A1";
             this.CellNameOutput.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -392,21 +388,21 @@
             // CellValueOutput
             // 
             this.CellValueOutput.BackColor = System.Drawing.SystemColors.InactiveBorder;
-            this.CellValueOutput.Location = new System.Drawing.Point(134, 89);
-            this.CellValueOutput.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.CellValueOutput.Location = new System.Drawing.Point(110, 74);
+            this.CellValueOutput.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.CellValueOutput.Name = "CellValueOutput";
             this.CellValueOutput.ReadOnly = true;
-            this.CellValueOutput.Size = new System.Drawing.Size(182, 29);
+            this.CellValueOutput.Size = new System.Drawing.Size(150, 26);
             this.CellValueOutput.TabIndex = 20;
             this.CellValueOutput.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // ReturnColumn
             // 
             this.ReturnColumn.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ReturnColumn.Location = new System.Drawing.Point(303, 5);
-            this.ReturnColumn.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
+            this.ReturnColumn.Location = new System.Drawing.Point(265, 4);
+            this.ReturnColumn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.ReturnColumn.Name = "ReturnColumn";
-            this.ReturnColumn.Size = new System.Drawing.Size(287, 55);
+            this.ReturnColumn.Size = new System.Drawing.Size(235, 46);
             this.ReturnColumn.TabIndex = 21;
             this.ReturnColumn.Text = "Column Information";
             this.ReturnColumn.UseVisualStyleBackColor = true;
@@ -415,10 +411,10 @@
             // ReturnRow
             // 
             this.ReturnRow.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ReturnRow.Location = new System.Drawing.Point(618, 5);
-            this.ReturnRow.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
+            this.ReturnRow.Location = new System.Drawing.Point(506, 4);
+            this.ReturnRow.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.ReturnRow.Name = "ReturnRow";
-            this.ReturnRow.Size = new System.Drawing.Size(287, 55);
+            this.ReturnRow.Size = new System.Drawing.Size(235, 46);
             this.ReturnRow.TabIndex = 22;
             this.ReturnRow.Text = "Row Information";
             this.ReturnRow.UseVisualStyleBackColor = true;
@@ -426,12 +422,12 @@
             // 
             // OutputColumnInfo
             // 
-            this.OutputColumnInfo.Location = new System.Drawing.Point(303, 127);
-            this.OutputColumnInfo.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
+            this.OutputColumnInfo.Location = new System.Drawing.Point(248, 106);
+            this.OutputColumnInfo.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.OutputColumnInfo.Multiline = true;
             this.OutputColumnInfo.Name = "OutputColumnInfo";
             this.OutputColumnInfo.ReadOnly = true;
-            this.OutputColumnInfo.Size = new System.Drawing.Size(257, 194);
+            this.OutputColumnInfo.Size = new System.Drawing.Size(211, 162);
             this.OutputColumnInfo.TabIndex = 23;
             this.OutputColumnInfo.Text = " \r\n \r\n \r\n \r\n ";
             this.OutputColumnInfo.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -441,10 +437,10 @@
             // 
             this.ColumnExit.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("ColumnExit.BackgroundImage")));
             this.ColumnExit.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ColumnExit.Location = new System.Drawing.Point(535, 133);
-            this.ColumnExit.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
+            this.ColumnExit.Location = new System.Drawing.Point(438, 111);
+            this.ColumnExit.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.ColumnExit.Name = "ColumnExit";
-            this.ColumnExit.Size = new System.Drawing.Size(27, 30);
+            this.ColumnExit.Size = new System.Drawing.Size(22, 25);
             this.ColumnExit.TabIndex = 24;
             this.ColumnExit.UseVisualStyleBackColor = true;
             this.ColumnExit.Visible = false;
@@ -452,12 +448,12 @@
             // 
             // OutputRowInfo
             // 
-            this.OutputRowInfo.Location = new System.Drawing.Point(488, 132);
-            this.OutputRowInfo.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
+            this.OutputRowInfo.Location = new System.Drawing.Point(399, 110);
+            this.OutputRowInfo.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.OutputRowInfo.Multiline = true;
             this.OutputRowInfo.Name = "OutputRowInfo";
             this.OutputRowInfo.ReadOnly = true;
-            this.OutputRowInfo.Size = new System.Drawing.Size(255, 186);
+            this.OutputRowInfo.Size = new System.Drawing.Size(209, 156);
             this.OutputRowInfo.TabIndex = 25;
             this.OutputRowInfo.Text = " \r\n \r\n \r\n \r\n ";
             this.OutputRowInfo.Visible = false;
@@ -466,10 +462,10 @@
             // 
             this.RowExit.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("RowExit.BackgroundImage")));
             this.RowExit.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.RowExit.Location = new System.Drawing.Point(719, 130);
-            this.RowExit.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
+            this.RowExit.Location = new System.Drawing.Point(588, 108);
+            this.RowExit.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.RowExit.Name = "RowExit";
-            this.RowExit.Size = new System.Drawing.Size(27, 30);
+            this.RowExit.Size = new System.Drawing.Size(22, 25);
             this.RowExit.TabIndex = 26;
             this.RowExit.UseVisualStyleBackColor = true;
             this.RowExit.Visible = false;
@@ -477,9 +473,10 @@
             // 
             // ConnectBtn
             // 
-            this.ConnectBtn.Location = new System.Drawing.Point(927, 5);
+            this.ConnectBtn.Location = new System.Drawing.Point(758, 4);
+            this.ConnectBtn.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.ConnectBtn.Name = "ConnectBtn";
-            this.ConnectBtn.Size = new System.Drawing.Size(96, 55);
+            this.ConnectBtn.Size = new System.Drawing.Size(104, 46);
             this.ConnectBtn.TabIndex = 27;
             this.ConnectBtn.Text = "Connect";
             this.ConnectBtn.UseVisualStyleBackColor = true;
@@ -487,17 +484,18 @@
             // 
             // HostnameBox
             // 
-            this.HostnameBox.Location = new System.Drawing.Point(1029, 17);
+            this.HostnameBox.Location = new System.Drawing.Point(866, 14);
+            this.HostnameBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.HostnameBox.Name = "HostnameBox";
-            this.HostnameBox.Size = new System.Drawing.Size(154, 29);
+            this.HostnameBox.Size = new System.Drawing.Size(127, 26);
             this.HostnameBox.TabIndex = 28;
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 24F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.ClientSize = new System.Drawing.Size(1195, 893);
+            this.ClientSize = new System.Drawing.Size(1046, 744);
             this.Controls.Add(this.HostnameBox);
             this.Controls.Add(this.ConnectBtn);
             this.Controls.Add(this.ColumnExit);
@@ -525,7 +523,7 @@
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
-            this.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Form1";
             this.Text = "Form1";
             this.menuStrip1.ResumeLayout(false);
