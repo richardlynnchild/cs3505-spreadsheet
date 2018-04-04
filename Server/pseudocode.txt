@@ -1,0 +1,38 @@
+*************************
+Lobby Pseudocode
+**********************
+ 
+global variables
+pmutex_t spreadsheetlistfilemutex
+pmutex_t 
+queue new_clients
+
+listening(){
+  while(true){
+    setup the socket
+    listen
+    pthread_create(handshake)  
+  }
+}
+
+handshake(){
+  send list of spreadsheets
+  listen for response
+  update spreadsheet list
+  add to new_client
+}
+
+check_for_new_clients(){
+  add to subsribed_clients
+  send full state
+
+run(){
+  pthread_create(listening);
+  while(true){
+    check_for_new_clients
+    check for messages
+    shutdown
+    
+  }  
+
+}
