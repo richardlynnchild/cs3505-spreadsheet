@@ -1,6 +1,9 @@
 #include "lobby.h"
 #include <pthread.h>
 #include <sys/socket.h>
+#include <fstream>
+#include <sstream>
+#include <vector>
 
 void* ListenForClients(void* ptr);
 void* Handshake(void* ptr);
@@ -12,7 +15,29 @@ void Receive(int id);
 void AddToSheetList(std::string filename);
 void DeleteFromSheetList(std::string filename);
 
-Lobby::Lobby(int port){
+
+Lobby::Lobby(int port)
+{
+  //NOTE: for now this is assuming spreadsheet names are separated by spaces
+  //I'm working on getting it okay with parsing names separated by commas if it's not too complicated
+
+  //read spreadsheet names from a text file, and populate the 
+  //internal list of spreadsheets
+  std::ifstream in_file("sheet_list.txt");
+
+  while(true)
+  {
+    std::string spreadsheet_name;
+    in_file >> spreadsheet_name;
+
+    if(in_file.fail())
+      break;
+    
+    sheet_list.push_back(spreadsheet_name);
+  }
+
+  in_file.close();
+
   this->port = port;
 }
 

@@ -1,11 +1,15 @@
 #include "spreadsheet.h"
 using namespace std;
 
-Spreadsheet::Spreadsheet(std::string name)
+Spreadsheet::Spreadsheet(std::string sheet_name)
 {
-
+  name = sheet_name;
 }
   
+std::string Spreadsheet::GetName()
+{
+  return name;
+}
 void Spreadsheet::EditSheet(std::string cell_name, std::string contents)
 {
   spreadsheet_state[cell_name] = contents;
