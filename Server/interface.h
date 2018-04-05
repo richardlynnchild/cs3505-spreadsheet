@@ -25,8 +25,7 @@ private:
 public:
     void Receive();
     void Send();
-    void ConnectClient(int port, unsigned addr);
-    void ConnectServer(int port, unsigned addr);
+    void Connect(int port, unsigned addr);
     Interface();
     Interface(__socket_type sockType, int sockDomain, int lvl, int optName, int optVal);
 

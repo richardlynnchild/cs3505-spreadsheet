@@ -19,10 +19,6 @@ Interface::Interface()
     address_info = new sockaddr_in;
     int options_length = sizeof(options_val);
 
-
-    serverSocket_fd = socket(socket_type, socket_domain, 0);
-    setsockopt(serverSocket_fd, level, options_name, &options_val, options_length);
-
     clientSocket_fd = socket(socket_type, socket_domain, 0);
     setsockopt(clientSocket_fd, level, options_name, &options_val, options_length);
 }
@@ -36,9 +32,6 @@ Interface::Interface(__socket_type sockType, int sockDomain, int lvl, int optNam
     options_value = optVal;
     int options_length = sizeof(options_val);
 
-    serverSocket_fd = socket(socket_type, socket_domain, 0);
-    setsockopt(serverSocket_fd, level, options_name, &options_val, options_length);
-
     clientSocket_fd = socket(socket_type, socket_domain, 0);
     setsockopt(clientSocket_fd, level, options_name, &options_val, options_length);
 }
@@ -50,7 +43,7 @@ void Interface::Connect(int, port, unsigned addr)
     socket_address_info.sin_port = htons(port);
     int address_size = sizeof(address_info);
 
-    bind(server_socket_fd, address_info, address_size);
-    listen(serverSocket_fd, 100);
+    bind(clientSocket_fd, address_info, address_size);
+    listen(clientSocket_fd, 100);
 
 }
