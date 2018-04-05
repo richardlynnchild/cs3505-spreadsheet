@@ -18,27 +18,28 @@ void DeleteFromSheetList(std::string filename);
 
 Lobby::Lobby(int port)
 {
-  //NOTE: for now this is assuming spreadsheet names are separated by spaces
-  //I'm working on getting it okay with parsing names separated by commas if it's not too complicated
 
   //read spreadsheet names from a text file, and populate the 
   //internal list of spreadsheets
-  std::ifstream in_file("sheet_list.txt");
+  
+  std::ifstream in_file;
+  std::string file_name = "sheet_list.txt";
 
-  while(true)
+  in_file.open(file_name.c_str());
+
+  std::string spreadsheet_name;
+
+  while(!in_file.eof())
   {
-    std::string spreadsheet_name;
-    in_file >> spreadsheet_name;
+    getline(in_file, spreadsheet_name);
 
-    if(in_file.fail())
-      break;
-    
     sheet_list.push_back(spreadsheet_name);
   }
 
   in_file.close();
 
   this->port = port;
+
 }
 
 
