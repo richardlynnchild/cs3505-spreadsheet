@@ -58,7 +58,7 @@ Lobby::Lobby(int port)
  * Set up a socket and continuously listen for new
  * clients.
  */
-void* ListenForClients(void* ptr){
+void* Lobby::ListenForClients(void* ptr){
   while(true){
     
 
@@ -71,7 +71,7 @@ void* ListenForClients(void* ptr){
  * available spreadsheets if needed. Add this client to
  * the new client list.
  */
-void* Handshake(void* ptr){
+void* Lobby::Handshake(void* ptr){
   int id = *(int *) ptr;
   std::string message = BuildConnectAccept();
   Send(id, message);
@@ -87,7 +87,7 @@ void* Handshake(void* ptr){
  * connect_accepted message. This is a list
  * of available spreadsheets.
  */
-std::string BuildConnectAccept(){
+std::string Lobby::BuildConnectAccept(){
   std::string message = "connect_accepted ";
 
   pthread_mutex_lock (&list_mutex);
