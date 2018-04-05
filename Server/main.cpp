@@ -5,5 +5,6 @@ using namespace std;
 
 int main()
 {
-    cout << "Main.cpp" << endl;
+  server ser;
+  ser.listen_test();
 }
