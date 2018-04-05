@@ -2,11 +2,18 @@
 #include <pthread.h>
 #include <sys/socket.h>
 
+/***********************
+    Global Variables
+***********************/
+
+pthread_mutex_t list_mutex;
+char buffer[1024];
+
 void* ListenForClients(void* ptr);
 void* Handshake(void* ptr);
 bool  CheckForNewClient();
 void  InitNewClient(int id);
-std::string BuildConnectAccepted();
+std::string BuildConnectAccept();
 void Send(int id, std::string message);
 void Receive(int id);
 void AddToSheetList(std::string filename);
@@ -17,9 +24,9 @@ Lobby::Lobby(int port){
 }
 
 
-**************************
+/**************************
      Helper Methods
-**************************
+**************************/
 
 /*
  * Set up a socket and continuously listen for new
@@ -39,7 +46,13 @@ void* ListenForClients(void* ptr){
  * the new client list.
  */
 void* Handshake(void* ptr){
+  int id = *(int *) ptr;
+  std::string message = BuildConnectAccept();
+  Send(id, message);
+  recv(id,buffer,1024,NULL);
+  std::string name = buffer;
   
+   
 
 }
 
@@ -48,8 +61,20 @@ void* Handshake(void* ptr){
  * connect_accepted message. This is a list
  * of available spreadsheets.
  */
-std::string BuildConnectAccepted(){
-  
+std::string BuildConnectAccept(){
+  std::string message = "connect_accepted ";
+
+  pthread_mutex_lock (&list_mutex);
+  std::map<std::string, Spreadsheet>::iterator it = this->spreadsheets.begin();
+  for(;it != this->spreadsheets.end(); it++){
+    message += it->first;
+    message += "\n";
+  }
+  message += "\3";
+  pthread_mutex_unlock(&list_mutex);
+
+  return message;
+
 }
 
 /*
