@@ -1,6 +1,9 @@
 #include "lobby.h"
 #include <pthread.h>
 #include <sys/socket.h>
+#include <fstream>
+#include <sstream>
+#include <vector>
 
 /***********************
     Global Variables
@@ -19,8 +22,31 @@ void Receive(int id);
 void AddToSheetList(std::string filename);
 void DeleteFromSheetList(std::string filename);
 
-Lobby::Lobby(int port){
+
+Lobby::Lobby(int port)
+{
+
+  //read spreadsheet names from a text file, and populate the 
+  //internal list of spreadsheets
+  
+  std::ifstream in_file;
+  std::string file_name = "sheet_list.txt";
+
+  in_file.open(file_name.c_str());
+
+  std::string spreadsheet_name;
+
+  while(!in_file.eof())
+  {
+    getline(in_file, spreadsheet_name);
+
+    sheet_list.push_back(spreadsheet_name);
+  }
+
+  in_file.close();
+
   this->port = port;
+
 }
 
 

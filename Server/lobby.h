@@ -24,4 +24,4 @@ class Lobby {
 
 };
 
-#endif LOBBY_H    
+#endif   
