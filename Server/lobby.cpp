@@ -6,9 +6,8 @@
 #include <sstream>
 #include <vector>
 #include <iostream>
+#include <string>
 
-void* ListenForClients(void* ptr);
-void* Handshake(void* ptr);
 bool  CheckForNewClient();
 void  InitNewClient(int id);
 std::string BuildConnectAccepted();
@@ -17,6 +16,10 @@ void Receive(int id);
 void AddToSheetList(std::string filename);
 void DeleteFromSheetList(std::string filename);
 
+struct member_data {
+  int* port;
+  bool* running;
+};
 
 Lobby::Lobby(int port)
 {
@@ -26,35 +29,38 @@ Lobby::Lobby(int port)
   //read spreadsheet names from a text file, and populate the 
   //internal list of spreadsheets
   this->running = true;
-  std::ifstream in_file("sheet_list.txt");
+ // std::ifstream in_file("sheet_list.txt");
 
-  while(true)
+ // while(true)
   {
-    std::string spreadsheet_name;
-    in_file >> spreadsheet_name;
+ //   std::string spreadsheet_name;
+ //   in_file >> spreadsheet_name;
 
-    if(in_file.fail())
-      break;
+ //   if(in_file.fail())
+ //     break;
     
-    sheet_list.push_back(spreadsheet_name);
+ //   sheet_list.push_back(spreadsheet_name);
   }
 
-  in_file.close();
+ // in_file.close();
 
   this->port = port;
 }
 
 
-**************************
+/**************************
      Helper Methods
-**************************
+**************************/
 
 /*
  * Set up a socket and continuously listen for new
  * clients.
  */
-void* ListenForClients(void* ptr){
+void* Lobby::ListenForClients(void* ptr){
+  std::cout << "Bootstrapping listener..." << std::endl;
   int listen_socket;
+  struct member_data* data = (struct member_data*) ptr;
+  std::cout << *((*data).port) << std::endl;
   int new_client_socket;
   struct sockaddr_in address;
   int address_length = sizeof(address);
@@ -62,42 +68,48 @@ void* ListenForClients(void* ptr){
 
   address.sin_family = AF_INET;
   address.sin_addr.s_addr = INADDR_ANY;
-  address.sin_port = htons( this->port);
+  address.sin_port = htons( *(*data).port);
 
   if ((listen_socket = socket(AF_INET, SOCK_STREAM, 0)) == 0)
   {
     std::cerr << "failed to build socket" << std::endl;
-    this->running = false;
+    *(*data).running = false;
   }
   if (bind(listen_socket, (struct sockaddr *)&address, sizeof(address)) < 0)
   {
-    std::cerr << "failed to bind to localhost:" << this->port << std::endl;
-    this->running = false;
+    std::cerr << "failed to bind to localhost:" << *(*data).port << std::endl;
+    *(*data).running = false;
   }
+
+  std::cout << "Listener bound to port: " << *(*data).port << std::endl;
   
-  while(running)
+  while(*(*data).running)
   {  
+    std::cout << "Listening..." << std::endl;
     if (listen(listen_socket, backlog) < 0)
     {
       std::cerr << "socket listen failure" << std::endl;
-      this->running = false;
+      *(*data).running = false;
     }
 
-    if ((new_client_socket = accept(listen_socket, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0)
+    if ((new_client_socket = accept(listen_socket, (struct sockaddr *)&address, (socklen_t*)&address_length)) < 0)
     {
       std::cerr << "error accepting new client connection" << std::endl;
-      this->running = false;
+      *(*data).running = false;
     }
     else
     {
       pthread_t handshake_thread;
-      if (pthread_create(&handshake_thread, NULL, Handshake, &new_client_socket))
+      int* socket_ptr = new int;
+      *socket_ptr = new_client_socket;
+      if (pthread_create(&handshake_thread, NULL, Handshake, socket_ptr))
       {
         std::cerr << "error creating thread for new client connection" << std::endl;
-        this->running = false;
+        *(*data).running = false;
       }
     }
   }
+  delete data;
 }
 
 /*
@@ -106,9 +118,10 @@ void* ListenForClients(void* ptr){
  * available spreadsheets if needed. Add this client to
  * the new client list.
  */
-void* Handshake(void* ptr){
-  
-
+void* Lobby::Handshake(void* ptr){
+  int* client_socket = (int*) ptr;
+  std::cout << "Created handshake thread" << std::endl;
+  delete client_socket;
 }
 
 /*
@@ -116,7 +129,7 @@ void* Handshake(void* ptr){
  * connect_accepted message. This is a list
  * of available spreadsheets.
  */
-std::string BuildConnectAccepted(){
+std::string Lobby::BuildConnectAccepted(){
   
 }
 
@@ -124,7 +137,7 @@ std::string BuildConnectAccepted(){
  * Send the specified message to the specified client.
  */
 
-void Send(int id, std::string message){
+void Lobby::Send(int id, std::string message){
 
 }
 
@@ -135,7 +148,7 @@ void Send(int id, std::string message){
  * Returns true if there was a new client to process, returns
  * false otherwise.
  */
-bool CheckForNewClient(){
+bool Lobby::CheckForNewClient(){
 
 }
 
@@ -143,8 +156,24 @@ bool CheckForNewClient(){
  * Handles a new client by adding them to the subscribed client
  * list and sending them a full-state message.
  */
-void InitNewClient(int id){
+void Lobby::InitNewClient(int id){
   
 }
    
+void Lobby::Start(){
+  
+  pthread_t listen_thread;
+  struct member_data* data = new member_data;
+  (*data).port = &(this->port);
+  (*data).running = &(this->running);
+  if (pthread_create(&listen_thread, NULL, ListenForClients, data))
+  {
+    std::cerr << "error creating thread for client listener" << std::endl;
+    this->running = false;
+  }
 
+}
+
+void Lobby::Shutdown(){
+  this->running = false;
+}

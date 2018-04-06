@@ -13,9 +13,14 @@ class Lobby {
     std::map<std::string, Spreadsheet> spreadsheets;
     std::vector<std::string> sheet_list;
 
+    static void* ListenForClients(void* ptr);
+    static void* Handshake(void* ptr);
+    std::string BuildConnectAccepted();
+    bool CheckForNewClient();
+    void InitNewClient(int id);
     void GetSheetList();
     std::string ParseSheetList();
-    void Send(std::string message, int socket_id);
+    void Send(int socket_id, std::string message);
     void UpdateSheetList(std::string name);
     void OpenSpreadsheet(std::string filename);
  
