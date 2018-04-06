@@ -12,19 +12,19 @@ class Interface
 {
 private:
     //incoming and outgoing message buffers. Initialized as zeroes.
-    int buf_size = 1024;
-    char incoming_buffer[buf_size] = {0};
-    char outgoing_buffer[buf_size] = {0};
+    static const int buf_size = 1024;
+    char incoming_buffer[buf_size];
+    char outgoing_buffer[buf_size];
 
     //interface and client networking sockets
     int interfaceSocket_fd, clientSocket_fd;
 
     //socket info/options variables
     int socket_domain, level, options_name, options_value;
-    __socket_type socket_type;
+    int socket_type;
 
     //connection address struct
-    sockaddr_in  * address_info;
+    sockaddr_in address_info;
 
     //methods
     void AcceptConnection();
