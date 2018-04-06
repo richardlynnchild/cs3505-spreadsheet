@@ -16,15 +16,14 @@ class Interface
 private:
     //incoming and outgoing message buffers. Initialized as zeroes.
     static const int buf_size = 1024;
-    char incoming_buffer[buf_size] = "hello, this is my test string";
+    char incoming_buffer[buf_size];
     char outgoing_buffer[buf_size];
 
     //interface and client networking sockets
     int interfaceSocket_fd, clientSocket_fd;
 
     //socket info/options variables
-    int socket_domain, level, options_name, options_value;
-    int socket_type;
+    int socket_domain, level, options_name, options_value, socket_type;
 
     //connection address struct
     sockaddr_in address_info;

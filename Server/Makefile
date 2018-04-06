@@ -14,4 +14,4 @@ test:
 itest:
 	g++ -c interface.cpp
 	g++ -c main.cpp
-	g++ main.o interface.o -o inttest
+	g++ main.o interface.o -pthread -o inttest
