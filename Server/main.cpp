@@ -1,7 +1,13 @@
 #include <iostream>
-#include "Server.h"
+#include "interface.h"
 
 using namespace std;
+
+class SampleClient
+{
+
+};
+
 
 int main()
 {

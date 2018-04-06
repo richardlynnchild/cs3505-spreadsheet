@@ -10,3 +10,8 @@ test:
 	g++ -c Server.cpp
 	g++ -c Tester.cpp
 	g++ Tester.o Server.o -o sstest
+
+itest:
+	g++ -c interface.cpp
+	g++ main.cpp
+	g++ main.o interface.o
