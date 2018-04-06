@@ -58,9 +58,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Resources\Libraries\Formula.dll</HintPath>
     </Reference>
-    <Reference Include="Networking">
-      <HintPath>..\Networking\obj\Debug\Networking.dll</HintPath>
-    </Reference>
     <Reference Include="Spreadsheet, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Resources\Libraries\Spreadsheet.dll</HintPath>
@@ -113,6 +110,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Networking\Networking.csproj">
+      <Project>{76003832-fc23-45c0-a086-24a6b49c3eec}</Project>
+      <Name>Networking</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
