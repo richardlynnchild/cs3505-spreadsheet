@@ -22,6 +22,7 @@ class Spreadsheet
   std::pair<std::string, std::string> Undo();
   std::string Revert(std::string cell_name);
   std::string GetName();
+  std::string GetState(std::string cell_name);
 };
 
 #endif

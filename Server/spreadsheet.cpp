@@ -10,6 +10,12 @@ std::string Spreadsheet::GetName()
 {
   return name;
 }
+
+std::string Spreadsheet::GetState(std::string cell_name)
+{
+  return spreadsheet_state[cell_name];
+}
+
 void Spreadsheet::EditSheet(std::string cell_name, std::string contents)
 {
   spreadsheet_state[cell_name] = contents;

@@ -15,7 +15,7 @@ class Lobby {
 
     static void* ListenForClients(void* ptr);
     static void* Handshake(void* ptr);
-    std::string BuildConnectAccepted();
+    std::string BuildConnectAccept();
     bool CheckForNewClient();
     void InitNewClient(int id);
     void GetSheetList();
@@ -24,7 +24,7 @@ class Lobby {
     void UpdateSheetList(std::string name);
     void OpenSpreadsheet(std::string filename);
  
- public:
+  public:
     Lobby(int port);
     void Start();
     void Shutdown();

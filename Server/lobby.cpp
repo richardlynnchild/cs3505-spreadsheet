@@ -8,9 +8,18 @@
 #include <iostream>
 #include <string>
 
+/***********************
+    Global Variables
+***********************/
+
+pthread_mutex_t list_mutex;
+char buffer[1024];
+
+void* ListenForClients(void* ptr);
+void* Handshake(void* ptr);
 bool  CheckForNewClient();
 void  InitNewClient(int id);
-std::string BuildConnectAccepted();
+std::string BuildConnectAccept();
 void Send(int id, std::string message);
 void Receive(int id);
 void AddToSheetList(std::string filename);
@@ -23,28 +32,29 @@ struct member_data {
 
 Lobby::Lobby(int port)
 {
-  //NOTE: for now this is assuming spreadsheet names are separated by spaces
-  //I'm working on getting it okay with parsing names separated by commas if it's not too complicated
 
   //read spreadsheet names from a text file, and populate the 
   //internal list of spreadsheets
   this->running = true;
- // std::ifstream in_file("sheet_list.txt");
+  
+  std::ifstream in_file;
+  std::string file_name = "sheet_list.txt";
 
- // while(true)
+  in_file.open(file_name.c_str());
+
+  std::string spreadsheet_name;
+
+  while(!in_file.eof())
   {
- //   std::string spreadsheet_name;
- //   in_file >> spreadsheet_name;
+    getline(in_file, spreadsheet_name);
 
- //   if(in_file.fail())
- //     break;
-    
- //   sheet_list.push_back(spreadsheet_name);
+    sheet_list.push_back(spreadsheet_name);
   }
 
- // in_file.close();
+  in_file.close();
 
   this->port = port;
+
 }
 
 
@@ -119,9 +129,17 @@ void* Lobby::ListenForClients(void* ptr){
  * the new client list.
  */
 void* Lobby::Handshake(void* ptr){
+
   int* client_socket = (int*) ptr;
   std::cout << "Created handshake thread" << std::endl;
+  int id = *client_socket;
+  std::string message = BuildConnectAccept();
+  Send(id, message);
+  recv(id,buffer,1024,NULL);
+  std::string name = buffer;
+  
   delete client_socket;
+   
 }
 
 /*
@@ -129,8 +147,21 @@ void* Lobby::Handshake(void* ptr){
  * connect_accepted message. This is a list
  * of available spreadsheets.
  */
-std::string Lobby::BuildConnectAccepted(){
-  
+
+std::string Lobby::BuildConnectAccept(){
+  std::string message = "connect_accepted ";
+
+  pthread_mutex_lock (&list_mutex);
+  std::map<std::string, Spreadsheet>::iterator it = this->spreadsheets.begin();
+  for(;it != this->spreadsheets.end(); it++){
+    message += it->first;
+    message += "\n";
+  }
+  message += "\3";
+  pthread_mutex_unlock(&list_mutex);
+
+  return message;
+
 }
 
 /*
