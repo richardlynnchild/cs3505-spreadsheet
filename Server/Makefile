@@ -13,5 +13,5 @@ test:
 
 itest:
 	g++ -c interface.cpp
-	g++ main.cpp
-	g++ main.o interface.o
+	g++ -c main.cpp
+	g++ main.o interface.o -o inttest

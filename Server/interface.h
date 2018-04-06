@@ -8,12 +8,15 @@
 #include <string.h>
 #include <iostream>
 
+#ifndef INTERFACE_H
+#define INTERFACE_H
+
 class Interface
 {
 private:
     //incoming and outgoing message buffers. Initialized as zeroes.
     static const int buf_size = 1024;
-    char incoming_buffer[buf_size];
+    char incoming_buffer[buf_size] = "hello, this is my test string";
     char outgoing_buffer[buf_size];
 
     //interface and client networking sockets
@@ -27,16 +30,19 @@ private:
     sockaddr_in address_info;
 
     //methods
-    void AcceptConnection();
+    void ClearBuffer(char buffer[]);
 
 public:
     //methods
     std::string Receive();
     void Send(std::string);
     void Connect(int port, unsigned address);
+    std::string test();
 
     //constructors
     Interface();
     Interface(__socket_type sockType, int sockDomain, int lvl, int optName, int optVal);
 
 };
+
+#endif

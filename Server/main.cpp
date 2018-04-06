@@ -12,4 +12,5 @@ class SampleClient
 int main()
 {
     cout << "Main.cpp" << endl;
+    Interface i;
 }
