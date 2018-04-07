@@ -16,6 +16,7 @@ class Spreadsheet
   std::map<std::string, std::stack<std::string> > revert_stacks;
   std::stack<std::pair <std::string,std::string> > undo_stack;
   std::string name;
+  
  public:
   Spreadsheet(std::string name);
   void EditSheet(std::string cell_name, std::string contents);

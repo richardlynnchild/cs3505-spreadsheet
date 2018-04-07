@@ -6,7 +6,6 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <arpa/inet.h>
-#include <pthread.h>
 
 using namespace std;
 
@@ -75,20 +74,13 @@ public:
 
 };
 
-
-void * ServerSubroutine(void * ptr)
-{
-    Interface server;
-    server.Connect(2112, INADDR_ANY);
-    server.Send("hello");
-}
-
 int main()
 {
-    pthread_t thread1;
-    pthread_create(&thread1, NULL, ServerSubroutine, NULL);
     cout << "Main.cpp" << endl;
     SampleClient client;
+    Interface server;
+    server.Connect();
     client.Connect(2112, "127.0.0.1");
+    server.Send("hello");
     cout << client.Receive() << endl;
 }
