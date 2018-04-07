@@ -1,9 +1,12 @@
 #include "lobby.h"
 #include <pthread.h>
 #include <sys/socket.h>
+#include <netinet/in.h>
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <iostream>
+#include <string>
 
 /***********************
     Global Variables
@@ -22,12 +25,17 @@ void Receive(int id);
 void AddToSheetList(std::string filename);
 void DeleteFromSheetList(std::string filename);
 
+struct member_data {
+  int* port;
+  bool* running;
+};
 
 Lobby::Lobby(int port)
 {
 
   //read spreadsheet names from a text file, and populate the 
   //internal list of spreadsheets
+  this->running = true;
   
   std::ifstream in_file;
   std::string file_name = "sheet_list.txt";
@@ -59,10 +67,59 @@ Lobby::Lobby(int port)
  * clients.
  */
 void* Lobby::ListenForClients(void* ptr){
-  while(true){
-    
+  std::cout << "Bootstrapping listener..." << std::endl;
+  int listen_socket;
+  struct member_data* data = (struct member_data*) ptr;
+  std::cout << *((*data).port) << std::endl;
+  int new_client_socket;
+  struct sockaddr_in address;
+  int address_length = sizeof(address);
+  int backlog = 5;
 
+  address.sin_family = AF_INET;
+  address.sin_addr.s_addr = INADDR_ANY;
+  address.sin_port = htons( *(*data).port);
+
+  if ((listen_socket = socket(AF_INET, SOCK_STREAM, 0)) == 0)
+  {
+    std::cerr << "failed to build socket" << std::endl;
+    *(*data).running = false;
   }
+  if (bind(listen_socket, (struct sockaddr *)&address, sizeof(address)) < 0)
+  {
+    std::cerr << "failed to bind to localhost:" << *(*data).port << std::endl;
+    *(*data).running = false;
+  }
+
+  std::cout << "Listener bound to port: " << *(*data).port << std::endl;
+  
+  while(*(*data).running)
+  {  
+    std::cout << "Listening..." << std::endl;
+    if (listen(listen_socket, backlog) < 0)
+    {
+      std::cerr << "socket listen failure" << std::endl;
+      *(*data).running = false;
+    }
+
+    if ((new_client_socket = accept(listen_socket, (struct sockaddr *)&address, (socklen_t*)&address_length)) < 0)
+    {
+      std::cerr << "error accepting new client connection" << std::endl;
+      *(*data).running = false;
+    }
+    else
+    {
+      pthread_t handshake_thread;
+      int* socket_ptr = new int;
+      *socket_ptr = new_client_socket;
+      if (pthread_create(&handshake_thread, NULL, Handshake, socket_ptr))
+      {
+        std::cerr << "error creating thread for new client connection" << std::endl;
+        *(*data).running = false;
+      }
+    }
+  }
+  delete data;
 }
 
 /*
@@ -72,14 +129,17 @@ void* Lobby::ListenForClients(void* ptr){
  * the new client list.
  */
 void* Lobby::Handshake(void* ptr){
-  int id = *(int *) ptr;
+
+  int* client_socket = (int*) ptr;
+  std::cout << "Created handshake thread" << std::endl;
+  int id = *client_socket;
   std::string message = BuildConnectAccept();
   Send(id, message);
   recv(id,buffer,1024,NULL);
   std::string name = buffer;
   
+  delete client_socket;
    
-
 }
 
 /*
@@ -87,6 +147,7 @@ void* Lobby::Handshake(void* ptr){
  * connect_accepted message. This is a list
  * of available spreadsheets.
  */
+
 std::string Lobby::BuildConnectAccept(){
   std::string message = "connect_accepted ";
 
@@ -107,7 +168,7 @@ std::string Lobby::BuildConnectAccept(){
  * Send the specified message to the specified client.
  */
 
-void Send(int id, std::string message){
+void Lobby::Send(int id, std::string message){
 
 }
 
@@ -118,7 +179,7 @@ void Send(int id, std::string message){
  * Returns true if there was a new client to process, returns
  * false otherwise.
  */
-bool CheckForNewClient(){
+bool Lobby::CheckForNewClient(){
 
 }
 
@@ -126,8 +187,24 @@ bool CheckForNewClient(){
  * Handles a new client by adding them to the subscribed client
  * list and sending them a full-state message.
  */
-void InitNewClient(int id){
+void Lobby::InitNewClient(int id){
   
 }
    
+void Lobby::Start(){
+  
+  pthread_t listen_thread;
+  struct member_data* data = new member_data;
+  (*data).port = &(this->port);
+  (*data).running = &(this->running);
+  if (pthread_create(&listen_thread, NULL, ListenForClients, data))
+  {
+    std::cerr << "error creating thread for client listener" << std::endl;
+    this->running = false;
+  }
 
+}
+
+void Lobby::Shutdown(){
+  this->running = false;
+}

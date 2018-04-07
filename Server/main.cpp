@@ -1,3 +1,4 @@
+#include "lobby.h"
 #include <iostream>
 #include "interface.h"
 #include <stdio.h>
