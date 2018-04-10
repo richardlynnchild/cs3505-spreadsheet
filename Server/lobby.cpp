@@ -1,9 +1,12 @@
 #include "lobby.h"
+#include "spreadsheet.h"
 #include <pthread.h>
 #include <sys/socket.h>
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <utility>
+
 
 /***********************
     Global Variables
@@ -12,16 +15,14 @@
 pthread_mutex_t list_mutex;
 char buffer[1024];
 
-void* ListenForClients(void* ptr);
-void* Handshake(void* ptr);
+static void* ListenForClients(void* ptr);
+static void* Handshake(void* ptr);
 bool  CheckForNewClient();
 void  InitNewClient(int id);
-std::string BuildConnectAccept();
-void Send(int id, std::string message);
+void Send(std::string message, int id);
 void Receive(int id);
 void AddToSheetList(std::string filename);
 void DeleteFromSheetList(std::string filename);
-
 
 Lobby::Lobby(int port)
 {
@@ -49,10 +50,40 @@ Lobby::Lobby(int port)
 
 }
 
+void Start(){
+
+}
+
+void Shutdown(){
+
+}
+
 
 /**************************
      Helper Methods
 **************************/
+
+/*
+ * Build the string needed to send the 
+ * connect_accepted message. This is a list
+ * of available spreadsheets.
+ */
+std::string Lobby::BuildConnectAccepted(){
+  std::string message = "connect_accepted ";
+
+  pthread_mutex_lock (&list_mutex);
+  std::vector<std::string>::iterator it = this->sheet_list.begin();
+  for(;it != this->sheet_list.end(); it++){
+    message += *it;
+    message += "\n";
+  }
+  message += "\3";
+  pthread_mutex_unlock(&list_mutex);
+
+  return message;
+
+}
+
 
 /*
  * Set up a socket and continuously listen for new
@@ -73,9 +104,9 @@ void* Lobby::ListenForClients(void* ptr){
  */
 void* Lobby::Handshake(void* ptr){
   int id = *(int *) ptr;
-  std::string message = BuildConnectAccept();
-  Send(id, message);
-  recv(id,buffer,1024,NULL);
+  std::string message = BuildConnectAccepted();
+  Send(message, id);
+  recv(id,buffer,1024,MSG_WAITALL);
   std::string name = buffer;
   
    
@@ -83,31 +114,10 @@ void* Lobby::Handshake(void* ptr){
 }
 
 /*
- * Build the string needed to send the 
- * connect_accepted message. This is a list
- * of available spreadsheets.
- */
-std::string Lobby::BuildConnectAccept(){
-  std::string message = "connect_accepted ";
-
-  pthread_mutex_lock (&list_mutex);
-  std::map<std::string, Spreadsheet>::iterator it = this->spreadsheets.begin();
-  for(;it != this->spreadsheets.end(); it++){
-    message += it->first;
-    message += "\n";
-  }
-  message += "\3";
-  pthread_mutex_unlock(&list_mutex);
-
-  return message;
-
-}
-
-/*
  * Send the specified message to the specified client.
  */
 
-void Send(int id, std::string message){
+void Lobby::Send(std::string message, int id){
 
 }
 

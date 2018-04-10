@@ -16,7 +16,9 @@ class Lobby {
     void Send(std::string message, int socket_id);
     void UpdateSheetList(std::string name);
     void OpenSpreadsheet(std::string filename);
-    std::string BuildConnectAccept();
+    std::string BuildConnectAccepted();
+    void* Handshake(void* ptr);
+    void* ListenForClients(void* ptr);
   public:
     Lobby(int port);
     void Start();
