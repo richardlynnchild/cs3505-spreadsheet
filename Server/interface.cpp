@@ -10,7 +10,16 @@
 #include <iostream>
 #include <pthread.h>
 
-//Default constructor
+//Default constructor//Sends a specified message to the client.
+void Interface::Send(std::string message)
+{
+    //convert string message to char[].
+    int message_length = message.length() + 1;
+    char msg_char[message_length];
+    strcpy(msg_char, message.c_str());
+
+    send(clientSocket_fd, msg_char, message_length, 0);
+}
 Interface::Interface()
 {
     //set socket info/optons variables
@@ -77,9 +86,10 @@ void * Interface::ConSub_helper(void * ptr)
 //Reads from the incoming buffer and returns any messages sent from the client.
 std::string Interface::Receive()
 {
-    int bytes_recieved = recv(clientSocket_fd, incoming_buffer, buf_size, 0);
-    std::string msg(incoming_buffer);
-    ClearBuffer(incoming_buffer);
+    int bytes_recieved = recv(clientSocket_fd, message_buffer, buf_size, 0);
+    std::string msg(message_buffer);
+    ClearBuffer(message_buffer);
+    messages << msg;
     return msg;
 }
 

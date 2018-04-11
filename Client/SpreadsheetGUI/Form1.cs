@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using SS;
 using SpreadsheetUtilities;
-using Networking;
 
 namespace SpreadsheetGUI
 {
@@ -17,7 +16,6 @@ namespace SpreadsheetGUI
     {
         public Spreadsheet ss1;
         public string filename;
-        private string hostname;
         public Form1()
         {
             //
@@ -139,20 +137,6 @@ namespace SpreadsheetGUI
         }
 
         /// <summary>
-        /// Connects this Spreadsheet client to a Server
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ConnectBtn_Click(object sender, EventArgs e)
-        {
-
-            hostname = HostnameBox.Text;
-            HostnameBox.ReadOnly = true;
-            Networking.Networking.ConnectToServer(RegisterMessage, hostname);
-
-        }
-
-        /// <summary>
         /// Checks if the enter key has been pressed
         /// if so it sets the currently selected cell to the contents of the formula box.
         /// </summary>
@@ -259,7 +243,7 @@ namespace SpreadsheetGUI
         #endregion
 
         #region Help Menu
-
+ 
         /// <summary>
         /// If the user selects the Cell Selection help option, the help text box and exit button are made visible.
         /// </summary>
@@ -352,17 +336,6 @@ namespace SpreadsheetGUI
         #region Helper Methods
 
         /// <summary>
-        /// After connection with server established, send the register message
-        /// </summary>
-        /// <param name="state"></param>
-        private void RegisterMessage(SocketState state)
-        {
-            string message = "register \\3";
-            Networking.Networking.Send(state.sock, message);
-
-        }
-
-        /// <summary>
         /// Returns a string Cell name based on a numeric row, column position.
         /// </summary>
         /// <param name="col"></param>
@@ -434,7 +407,7 @@ namespace SpreadsheetGUI
             {
                 MessageBox.Show("File could not be read! Invalid Data.");
             }
-
+            
         }
 
         private void OnQuickSave()
@@ -468,7 +441,7 @@ namespace SpreadsheetGUI
                     case DialogResult.Yes:
                         OnQuickSave();
                         break;
-
+                    
                     //if the user exite or hit cancel, do nothing.
                     case DialogResult.No:
                         break;
@@ -510,19 +483,11 @@ namespace SpreadsheetGUI
                 spreadsheetPanel1.GetSelection(out int col, out int row);
                 string cellName = GetCellName(col, row);
 
-                //Update cells that previously (before update) depended on this cell.
-                //This is done to fix an issue of updating to a formula error.
-                if (ss1.GetCellValue(cellName).GetType() != typeof(FormulaError))
-                {
-                    HashSet<string> dependents = new HashSet<string> (ss1.getDependentCells(cellName));
-                    ss1.SetContentsOfCell(cellName, FormulaBox.Text);
-                    UpdateCells(dependents);
-                }
-
                 //set the contents of the cell and update all the cells that need to be updated
+                //UpdateCells(ss1.SetContentsOfCell(cellName, FormulaBox.Text));
                 ss1.SetContentsOfCell(cellName, FormulaBox.Text);
 
-                //if the result is a formula error display a formula error message, otherwise set the cell with the result, and update cells.
+                //if the result is a formula error display a formula error message, otherwise set the cell with the result.
                 if (ss1.GetCellValue(cellName).GetType() == typeof(FormulaError))
                 {
                     //FormulaError f = new FormulaError(ss1.GetCellValue(cellName));
@@ -601,17 +566,17 @@ namespace SpreadsheetGUI
             OutputColumnInfo.Text = " \r\nSum of column " + letter + "  =  " + sum + " \r\n \r\nCount of column " + letter + "  =  " + count + " \r\n \r\nAverage of column  " + letter + "  =  " + average + "";
         }
 
-
-        /// <summary>
-        /// Makes the information box for the column and the column button invisible.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ColumnExit_Click(object sender, EventArgs e)
-        {
-            ColumnExit.Visible = false;
-            OutputColumnInfo.Visible = false;
-        }
+ 
+         /// <summary>
+         /// Makes the information box for the column and the column button invisible.
+         /// </summary>
+         /// <param name="sender"></param>
+         /// <param name="e"></param>
+         private void ColumnExit_Click(object sender, EventArgs e)
+         {
+             ColumnExit.Visible = false;
+             OutputColumnInfo.Visible = false;
+         }
 
         /// <summary>
         /// Helper method for returnRow_Click
@@ -641,17 +606,17 @@ namespace SpreadsheetGUI
             int rowNum = row + 1;
             OutputRowInfo.Text = " \r\nSum of row " + rowNum + "  =  " + sum + "\r\n \r\nCount of row " + rowNum + "  =  " + count + " \r\n \r\nAverage of row " + rowNum + "  =  " + average + "";
         }
-
-        /// <summary>
-        /// Makes the information box for the row and the row button invisible.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void RowExit_Click(object sender, EventArgs e)
-        {
-            OutputRowInfo.Visible = false;
-            RowExit.Visible = false;
-        }
-        #endregion
+ 
+         /// <summary>
+         /// Makes the information box for the row and the row button invisible.
+         /// </summary>
+         /// <param name="sender"></param>
+         /// <param name="e"></param>
+         private void RowExit_Click(object sender, EventArgs e)
+         {
+             OutputRowInfo.Visible = false;
+             RowExit.Visible = false;
+         }
+       #endregion
     }
 }
