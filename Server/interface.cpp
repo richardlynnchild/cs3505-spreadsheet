@@ -1,3 +1,10 @@
+#include <stdio.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <stdlib.h>
+#include <netinet/in.h>
+#include <sstream>
+#include <queue>
 #include "interface.h"
 
 
@@ -14,7 +21,7 @@ void Interface::Send(std::string message)
     char msg_char[message_length];
     strcpy(msg_char, message.c_str());
 
-    send(clientSocket_fd, msg_char, message_length, 0);
+    send(clientSocket_id, msg_char, message_length, 0);
 }
 
 //Clears the memory associated with the given char[].
@@ -28,7 +35,7 @@ void Interface::ClearBuffer(char buffer[])
 //Reads from the incoming buffer and returns any messages sent from the client.
 void Interface::Receive()
 {
-    int bytes_recieved = recv(clientSocket_fd, message_buffer, buf_size, 0);
+    int bytes_recieved = recv(clientSocket_id, message_buffer, buf_size, 0);
     std::string msg(message_buffer);
     ClearBuffer(message_buffer);
     messages += msg;
@@ -43,22 +50,26 @@ std::string Interface::GetMessage()
     //loop through the recieved data and add completed messages to the outboudn queue.
     while (true)
     {
-        string msg = GetLine(messages);
+        std::string msg = GetLine(messages);
         if (msg == "***NO_COMPLETED_MESSAGES_FOUND***")
             break;
-        outbound_messages.Push(messages.getline());
+        outbound_messages.push(msg);
     }
-    return queue.pop();
+
+    std::string return_msg = outbound_messages.front();
+    outbound_messages.pop();
+
+    return return_msg;
 }
 
 //helper method that returns a message and removes it from the messages string buffer, only if the message is complete ('\n' found).
-std::string GetLine(std::string &buffer)
+std::string Interface::GetLine(std::string &buffer)
 {
     std::string::size_type position = buffer.find('\n');
     if (position != std::string::npos)
     {
         std::string return_msg = buffer.substr(0, position);
-        buf.erase(0, position+1);
+        buffer.erase(0, position+1);
         return return_msg;
     }
     return "***NO_COMPLETED_MESSAGES_FOUND***";

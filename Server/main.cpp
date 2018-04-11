@@ -78,40 +78,8 @@ public:
 
 };
 
-vector<string> GetCompleteMsgs(std::string &buf)
-{
-    vector<string> finished_messages;
-
-    string::size_type position;
-    while ((position = buf.find('\n')) != string::npos)
-    {
-        finished_messages.push_back(buf.substr(0, position));
-        buf.erase(0, position+1);
-    }
-}
-
-string GetLine(std::string &buf)
-{
-    string::size_type position = buf.find('\n');
-    if (position != string::npos)
-    {
-        string return_msg = buf.substr(0, position);
-        buf.erase(0, position+1);
-        return return_msg;
-    }
-    return "NO_COMPLETED_MESSAGES_FOUND";
-}
-
 int main()
 {
     cout << "Main.cpp" << endl;
     string msg = "hello\nhey\nhey\nshould see this";
-    while (true)
-    {
-        string s = GetLine(msg);
-        cout << s << endl;
-        if (s == "NO_COMPLETED_MESSAGES_FOUND")
-            break;
-    }
-    cout << msg << endl;
 }

@@ -1,3 +1,8 @@
+#include <stdio.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <stdlib.h>
+#include <netinet/in.h>
 #include <sstream>
 #include <queue>
 
@@ -13,7 +18,7 @@ private:
 
     std::string spreadsheet_name;
 
-    std::queue outbound_messages;
+    std::queue<std::string> outbound_messages;
 
     //interface and client networking sockets
     int interfaceSocket_id, clientSocket_id;
@@ -32,4 +37,4 @@ public:
     std::string GetSprdName();
 
     Interface(int socket_id);
-}
+};
