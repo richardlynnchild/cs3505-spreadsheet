@@ -5,11 +5,15 @@
 #include <netinet/in.h>
 #include <sstream>
 #include <queue>
+#include <pthread.h>
 
 
 class Interface
 {
 private:
+
+    pthread_mutex_t in_msg_mutex;
+    pthread_mutex_t out_msg_mutex;
     //incoming and outgoing message buffers.
     static const int buf_size = 1024;
     char message_buffer[buf_size];
@@ -36,5 +40,10 @@ public:
 
     std::string GetSprdName();
 
-    Interface(int socket_id);
+    int GetClientID();
+
+    Interface(int socket_id, std::string sprd_name);
+
+    void StartClientThread();
+    void StopClientThread();
 };

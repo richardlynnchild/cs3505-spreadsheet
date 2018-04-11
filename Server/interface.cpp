@@ -6,11 +6,14 @@
 #include <sstream>
 #include <queue>
 #include "interface.h"
+#include <pthread.h>
 
-
-Interface::Interface(int socket_id)
+Interface::Interface(int socket_id, std::string sprd_name)
 {
     interfaceSocket_id = socket_id;
+    spreadsheet_name = sprd_name;
+    in_msg_mutex = PTHREAD_MUTEX_INITIALIZER; 
+    out_msg_mutex = PTHREAD_MUTEX_INITIALIZER; 
 }
 
 //Sends a specified message to the client.
@@ -79,4 +82,14 @@ std::string Interface::GetLine(std::string &buffer)
 std::string Interface::GetSprdName()
 {
     return spreadsheet_name;
+}
+
+void Interface::StartClientThread()
+{
+
+}
+
+void Interface::StopClientThread()
+{
+
 }
