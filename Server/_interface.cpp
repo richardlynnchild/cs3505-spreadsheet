@@ -1,4 +1,4 @@
-#include "interface_temp.h"
+#include "interface.h"
 
 
 Interface::Interface(int socket_id)
@@ -31,17 +31,41 @@ void Interface::Receive()
     int bytes_recieved = recv(clientSocket_fd, message_buffer, buf_size, 0);
     std::string msg(message_buffer);
     ClearBuffer(message_buffer);
-    messages << msg;
+    messages += msg;
 }
 
 //
 std::string Interface::GetMessage()
 {
+    //get any new data
     Receive();
-    outbound_messages.Push(messages.getline());
+
+    //loop through the recieved data and add completed messages to the outboudn queue.
+    while (true)
+    {
+        string msg = GetLine(messages);
+        if (msg == "***NO_COMPLETED_MESSAGES_FOUND***")
+            break;
+        outbound_messages.Push(messages.getline());
+    }
+    return queue.pop();
 }
 
+//helper method that returns a message and removes it from the messages string buffer, only if the message is complete ('\n' found).
+std::string GetLine(std::string &buffer)
+{
+    std::string::size_type position = buffer.find('\n');
+    if (position != std::string::npos)
+    {
+        std::string return_msg = buffer.substr(0, position);
+        buf.erase(0, position+1);
+        return return_msg;
+    }
+    return "***NO_COMPLETED_MESSAGES_FOUND***";
+}
+
+//returns the filename of the associated spreadsheet.
 std::string Interface::GetSprdName()
 {
-    return this->spreadsheet_name;
+    return spreadsheet_name;
 }

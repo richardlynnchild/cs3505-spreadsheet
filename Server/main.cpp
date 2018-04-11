@@ -8,6 +8,8 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <sstream>
+#include <algorithm>
+#include <vector>
 
 using namespace std;
 
@@ -76,17 +78,40 @@ public:
 
 };
 
+vector<string> GetCompleteMsgs(std::string &buf)
+{
+    vector<string> finished_messages;
+
+    string::size_type position;
+    while ((position = buf.find('\n')) != string::npos)
+    {
+        finished_messages.push_back(buf.substr(0, position));
+        buf.erase(0, position+1);
+    }
+}
+
+string GetLine(std::string &buf)
+{
+    string::size_type position = buf.find('\n');
+    if (position != string::npos)
+    {
+        string return_msg = buf.substr(0, position);
+        buf.erase(0, position+1);
+        return return_msg;
+    }
+    return "NO_COMPLETED_MESSAGES_FOUND";
+}
+
 int main()
 {
     cout << "Main.cpp" << endl;
-    stringstream msg;
-    msg << "hello";
-    //msg << '\n';
-    msg << "hey";
-    string s;
-    msg >> s;
-    cout << s << endl;
-    s = "";
-    msg >> s;
-    cout << s << endl;
+    string msg = "hello\nhey\nhey\nshould see this";
+    while (true)
+    {
+        string s = GetLine(msg);
+        cout << s << endl;
+        if (s == "NO_COMPLETED_MESSAGES_FOUND")
+            break;
+    }
+    cout << msg << endl;
 }

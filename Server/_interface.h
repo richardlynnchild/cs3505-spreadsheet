@@ -9,7 +9,7 @@ private:
     static const int buf_size = 1024;
     char message_buffer[buf_size];
 
-    std::stringstream messages;
+    std::string messages;
 
     std::string spreadsheet_name;
 
@@ -21,6 +21,7 @@ private:
     //helper methods
     void ClearBuffer(char buffer[]);
     void Receive();
+    std::string GetLine(std::string &buf);
 
 public:
     //public interface methods
