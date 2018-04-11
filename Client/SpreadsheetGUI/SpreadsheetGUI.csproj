@@ -111,11 +111,5 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Networking\Networking.csproj">
-      <Project>{76003832-fc23-45c0-a086-24a6b49c3eec}</Project>
-      <Name>Networking</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
