@@ -193,6 +193,7 @@ void Lobby::InitNewClient(int id){
    
 void Lobby::Start(){
   
+  // Start a new thread that continuosly listens and accepts new connections 
   pthread_t listen_thread;
   struct member_data* data = new member_data;
   (*data).port = &(this->port);
@@ -203,6 +204,33 @@ void Lobby::Start(){
     this->running = false;
   }
 
+  // Start timer thread for pinging clients
+
+  // Enter main loop:
+  //
+  //
+  // 1. Check for new clients in the new client queue
+  //      - If they exist push a full state message into their interface
+  //      - Add them to client list
+  //
+  // 2. For each client, process incoming messages in a Round Robin fashion
+  //      - Get message
+  //      - Update spreadsheet object
+  //      - Push change command to all client interfaces
+  // 
+  // 3. Check to see if program should be shutdown
+  //
+  //
+
+}
+
+void* Lobby::PingLoop(void* ptr)
+{
+  // loop:
+  // 
+  // 1. Iterate through clients and push ping message
+  // 2. Wait 10 seconds
+  // 3. pingMiss++ for each client 
 }
 
 void Lobby::Shutdown(){

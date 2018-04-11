@@ -15,6 +15,7 @@ class Lobby {
 
     static void* ListenForClients(void* ptr);
     static void* Handshake(void* ptr);
+    static void* PingLoop(void* ptr);
     std::string BuildConnectAccept();
     bool CheckForNewClient();
     void InitNewClient(int id);
