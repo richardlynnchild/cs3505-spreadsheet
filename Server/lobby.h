@@ -20,7 +20,7 @@ class Lobby {
     bool CheckForNewClient();
     void InitNewClient(int id);
     std::string ParseSheetList();
-    void Send(int socket_id, std::string message);
+    static void Send(int socket_id, std::string message);
     void UpdateSheetList(std::string name);
     void OpenSpreadsheet(std::string filename);
     std::vector<std::string> GetSheetList();

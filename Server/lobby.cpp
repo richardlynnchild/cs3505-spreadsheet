@@ -9,7 +9,7 @@
 #include <utility>
 #include <iostream>
 #include <string>
-
+#include <unistd.h>
 /***********************
     Global Variables
 ***********************/
@@ -54,7 +54,7 @@ Lobby::Lobby(int port)
   while(!in_file.eof())
   {
     getline(in_file, spreadsheet_name);
-
+    std::cout << "Lobby constructor: adding " << spreadsheet_name << " to sheet_list" << std::endl;
     sheet_list.push_back(spreadsheet_name);
   }
 
@@ -180,10 +180,16 @@ void* Lobby::Handshake(void* ptr){
   int* client_socket = (*data).client;
   std::cout << "Created handshake thread" << std::endl;
   int id = *client_socket;
-  recv(id,buffer,1024,MSG_WAITALL);
+  std::cout << "The client on this thread is on socket # " << id << std::endl;
+  read(id,buffer,1024);
+  std::cout << "Received: " <<  buffer << std::endl;
+  std::cout << "There are " << data->lobby->GetSheetList().size() << " spreadsheets available" << std::endl; 
   std::string message = BuildConnectAccepted(data->lobby);
-  this->Send(id, message);
-  recv(id,buffer,1024,MSG_WAITALL);
+  std::cout << message << std::endl;
+  const char* mbuffer = message.c_str();
+  send(id, mbuffer, 1024, MSG_EOR);
+  //Send(id, message);
+  read(id,buffer,1024);
   std::string name = buffer;
   delete client_socket;
    
