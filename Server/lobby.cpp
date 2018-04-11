@@ -21,14 +21,20 @@ static void* ListenForClients(void* ptr);
 static void* Handshake(void* ptr);
 bool  CheckForNewClient();
 void  InitNewClient(int id);
-void Send(std::string message, int id);
+void Send(int id, std::string message);
 void Receive(int id);
 void AddToSheetList(std::string filename);
 void DeleteFromSheetList(std::string filename);
 
+struct socket_data {
+  int* client;
+  Lobby* lobby;
+};
+
 struct member_data {
   int* port;
   bool* running;
+  Lobby* lobby;
 };
 
 Lobby::Lobby(int port)
@@ -70,22 +76,29 @@ void Shutdown(){
 /**************************
      Helper Methods
 **************************/
+/*
+ * Returns the sheet list of this Lobby
+ */
+std::vector<std::string> Lobby::GetSheetList(){
+  return this->sheet_list;
+}
 
 /*
  * Build the string needed to send the 
  * connect_accepted message. This is a list
  * of available spreadsheets.
  */
-std::string Lobby::BuildConnectAccepted(){
+std::string Lobby::BuildConnectAccepted(Lobby* lobby){
   std::string message = "connect_accepted ";
 
   pthread_mutex_lock (&list_mutex);
-  std::vector<std::string>::iterator it = this->sheet_list.begin();
-  for(;it != this->sheet_list.end(); it++){
+  std::vector<std::string> s_list = (*lobby).GetSheetList();
+  std::vector<std::string>::iterator it = s_list.begin();
+  for(;it != s_list.end(); it++){
     message += *it;
     message += "\n";
   }
-  message += "\3";
+  message += (char) 3;
   pthread_mutex_unlock(&list_mutex);
 
   return message;
@@ -143,7 +156,10 @@ void* Lobby::ListenForClients(void* ptr){
       pthread_t handshake_thread;
       int* socket_ptr = new int;
       *socket_ptr = new_client_socket;
-      if (pthread_create(&handshake_thread, NULL, Handshake, socket_ptr))
+      struct socket_data* sdata = new socket_data;
+      (*sdata).client = socket_ptr;
+      (*sdata).lobby = (*data).lobby;
+      if (pthread_create(&handshake_thread, NULL, Handshake, sdata))
       {
         std::cerr << "error creating thread for new client connection" << std::endl;
         *(*data).running = false;
@@ -160,15 +176,15 @@ void* Lobby::ListenForClients(void* ptr){
  * the new client list.
  */
 void* Lobby::Handshake(void* ptr){
-  recv(id,buffer,1024,MSG_WAITALL);
-
-  int* client_socket = (int*) ptr;
+  struct socket_data* data = (socket_data*) ptr;
+  int* client_socket = (*data).client;
   std::cout << "Created handshake thread" << std::endl;
   int id = *client_socket;
-  std::string message = BuildConnectAccept();
+  recv(id,buffer,1024,MSG_WAITALL);
+  std::string message = BuildConnectAccepted(data->lobby);
+  this->Send(id, message);
+  recv(id,buffer,1024,MSG_WAITALL);
   std::string name = buffer;
-  
-  Send(message, id);
   delete client_socket;
    
 }
@@ -177,28 +193,7 @@ void* Lobby::Handshake(void* ptr){
  * Send the specified message to the specified client.
  */
 
-void Lobby::Send(std::string message, int id){
-
-}
-
-/*
- * Build the string needed to send the 
- * connect_accepted message. This is a list
- * of available spreadsheets.
- */
-
-std::string Lobby::BuildConnectAccept(){
-  std::string message = "connect_accepted ";
-  pthread_mutex_lock (&list_mutex);
-  std::map<std::string, Spreadsheet>::iterator it = this->spreadsheets.begin();
-  for(;it != this->spreadsheets.end(); it++){
-    message += it->first;
-    message += "\n";
-  }
-  message += "\3";
-  pthread_mutex_unlock(&list_mutex);
-
-  return message;
+void Lobby::Send(int id, std::string message){
 
 }
 
@@ -228,6 +223,7 @@ void Lobby::Start(){
   struct member_data* data = new member_data;
   (*data).port = &(this->port);
   (*data).running = &(this->running);
+  (*data).lobby = this;
   if (pthread_create(&listen_thread, NULL, ListenForClients, data))
   {
     std::cerr << "error creating thread for client listener" << std::endl;

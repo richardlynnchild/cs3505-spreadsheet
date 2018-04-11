@@ -16,21 +16,14 @@ class Lobby {
     static void* ListenForClients(void* ptr);
     static void* Handshake(void* ptr);
     static void* PingLoop(void* ptr);
-    std::string BuildConnectAccept();
+    static std::string BuildConnectAccepted(Lobby* lobby);
     bool CheckForNewClient();
     void InitNewClient(int id);
-    void GetSheetList();
     std::string ParseSheetList();
     void Send(int socket_id, std::string message);
     void UpdateSheetList(std::string name);
     void OpenSpreadsheet(std::string filename);
-<<<<<<< HEAD
-    std::string BuildConnectAccepted();
-    void* Handshake(void* ptr);
-    void* ListenForClients(void* ptr);
-=======
- 
->>>>>>> 39f00cbca9b8d9e60e151a312ac423b57aea456d
+    std::vector<std::string> GetSheetList();
   public:
     Lobby(int port);
     void Start();
