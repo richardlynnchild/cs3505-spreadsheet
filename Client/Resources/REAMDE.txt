@@ -98,3 +98,9 @@ mulitple edits to this file and Spreadsheet.dll were required.
 - Fixed another issue with a formula error being displayed incorrectly on a spreadsheet load. Fixed the issue by updating
 all dependent cells after a reading the contents of a cell from a file and setting it in the spreadsheet class.
 - discovered a new bug. When updating a cell to something that cuases a formula error, dependent cells won't immeadiately be updated to formula error.
+
+3/31/2018 (approx)
+- fixed all known issues with the spreadsheet
+
+4/11/2018
+- Began development of networking methods and GUI
