@@ -1,11 +1,11 @@
-all:
-	g++ -c Server.cpp
+all: lobby.o
+	g++ -g main.cpp lobby.o
 
-main:
-	g++ -c Server.cpp
-	g++ -c Main.cpp
-	g++ Main.o Server.o -o ServerController
+lobby.o:
+	g++ -c lobby.cpp -pthread
 
+clean:
+	rm *.o ./a.out
 test:
 	g++ -c Server.cpp
 	g++ -c Tester.cpp
@@ -13,5 +13,5 @@ test:
 
 itest:
 	g++ -c interface.cpp
-	g++ main.cpp
-	g++ main.o interface.o
+	g++ -c main.cpp
+	g++ main.o interface.o -pthread -o inttest

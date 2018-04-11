@@ -6,9 +6,13 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+<<<<<<< HEAD
 #include <utility>
+
+=======
 #include <iostream>
 #include <string>
+>>>>>>> 39f00cbca9b8d9e60e151a312ac423b57aea456d
 
 /***********************
     Global Variables
@@ -26,11 +30,14 @@ void Receive(int id);
 void AddToSheetList(std::string filename);
 void DeleteFromSheetList(std::string filename);
 
+<<<<<<< HEAD
+=======
 struct member_data {
   int* port;
   bool* running;
 };
 
+>>>>>>> 39f00cbca9b8d9e60e151a312ac423b57aea456d
 Lobby::Lobby(int port)
 {
 
@@ -160,28 +167,33 @@ void* Lobby::ListenForClients(void* ptr){
  * the new client list.
  */
 void* Lobby::Handshake(void* ptr){
+<<<<<<< HEAD
+  int id = *(int *) ptr;
+  std::string message = BuildConnectAccepted();
+  Send(message, id);
   recv(id,buffer,1024,MSG_WAITALL);
+=======
 
   int* client_socket = (int*) ptr;
   std::cout << "Created handshake thread" << std::endl;
   int id = *client_socket;
   std::string message = BuildConnectAccept();
+  Send(id, message);
+  recv(id,buffer,1024,NULL);
+>>>>>>> 39f00cbca9b8d9e60e151a312ac423b57aea456d
   std::string name = buffer;
   
-  Send(message, id);
   delete client_socket;
    
 }
 
 /*
+<<<<<<< HEAD
  * Send the specified message to the specified client.
  */
 
 void Lobby::Send(std::string message, int id){
-
-}
-
-/*
+=======
  * Build the string needed to send the 
  * connect_accepted message. This is a list
  * of available spreadsheets.
@@ -189,6 +201,7 @@ void Lobby::Send(std::string message, int id){
 
 std::string Lobby::BuildConnectAccept(){
   std::string message = "connect_accepted ";
+
   pthread_mutex_lock (&list_mutex);
   std::map<std::string, Spreadsheet>::iterator it = this->spreadsheets.begin();
   for(;it != this->spreadsheets.end(); it++){
@@ -199,6 +212,15 @@ std::string Lobby::BuildConnectAccept(){
   pthread_mutex_unlock(&list_mutex);
 
   return message;
+
+}
+
+/*
+ * Send the specified message to the specified client.
+ */
+
+void Lobby::Send(int id, std::string message){
+>>>>>>> 39f00cbca9b8d9e60e151a312ac423b57aea456d
 
 }
 
