@@ -40,6 +40,7 @@ namespace SpreadsheetGUI
             this.FormClosing += OnExit;
 
             FormulaBox.Focus();
+
         }
 
         #region Spreadsheet Control
@@ -148,6 +149,41 @@ namespace SpreadsheetGUI
             {
                 SetCell();
                 setCellNameVal(spreadsheetPanel1);
+                return;
+            }
+
+            //special case for backspace
+            if (e.KeyData == Keys.Back)
+            {
+                spreadsheetPanel1.GetSelection(out int col, out int row);
+                spreadsheetPanel1.GetValue(col, row, out string value);
+                int split_index = (value.Length - 1);
+                string newVal = value.Substring(0, split_index);
+                spreadsheetPanel1.SetValue(col, row, newVal);
+            }
+
+            //TODO: deal with shift keys
+            /*
+            string keyString = e.ToString();
+            char[] myChar = keyString.ToCharArray();
+            foreach(char c in myChar)
+            {
+                if(Char.IsLetter(c))
+            }
+            if (Char.IsLetter(e.KeyChar))
+            if(e.Shift && )
+            */
+            //GetSelection, GetValue, SetValue (spreadsheet)
+            //if any key except enter is pressed, temporarily input the content into the right cell
+            else
+            {
+                spreadsheetPanel1.GetSelection(out int col, out int row);
+                KeysConverter kc = new KeysConverter();
+                string keyString = kc.ConvertToString(e.KeyData);
+                keyString = keyString.ToLower();
+                spreadsheetPanel1.GetValue(col, row, out string value);
+                string newVal = value + keyString;
+                spreadsheetPanel1.SetValue(col, row, newVal);
             }
         }
 
@@ -617,6 +653,7 @@ namespace SpreadsheetGUI
              OutputRowInfo.Visible = false;
              RowExit.Visible = false;
          }
-       #endregion
+
+        #endregion
     }
 }
