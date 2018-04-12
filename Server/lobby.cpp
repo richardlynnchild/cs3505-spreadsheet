@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <queue>
 #include <utility>
 #include <iostream>
 #include <string>
@@ -105,6 +106,16 @@ std::string Lobby::BuildConnectAccepted(Lobby* lobby){
 
 }
 
+/*
+ * Add the pair  client/spreadsheet name to the new_clients
+ * queue
+ */
+void Lobby::AddNewClient(int id, std::string name){
+  std::pair<int,std::string> client(id,name);
+  new_clients.push(client);
+  std::cout << "Added client " << id << " to new client list" << std::endl;
+}
+
 
 /*
  * Set up a socket and continuously listen for new
@@ -191,6 +202,8 @@ void* Lobby::Handshake(void* ptr){
   //Send(id, message);
   read(id,buffer,1024);
   std::string name = buffer;
+  std::cout << "The client would like " << name << " spreadsheet loaded" << std::endl;
+  data->lobby->AddNewClient(id,name);  
   delete client_socket;
    
 }

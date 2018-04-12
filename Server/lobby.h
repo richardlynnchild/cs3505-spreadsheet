@@ -4,6 +4,8 @@
 #include "spreadsheet.h"
 #include <string>
 #include <map>
+#include <queue>
+#include <utility>
 #include <sys/socket.h>
 #include <pthread.h>
 class Lobby {
@@ -12,6 +14,7 @@ class Lobby {
     int port;
     std::map<std::string, Spreadsheet> spreadsheets;
     std::vector<std::string> sheet_list;
+    std::queue< std::pair<int,std::string> > new_clients;
 
     static void* ListenForClients(void* ptr);
     static void* Handshake(void* ptr);
@@ -24,6 +27,7 @@ class Lobby {
     void UpdateSheetList(std::string name);
     void OpenSpreadsheet(std::string filename);
     std::vector<std::string> GetSheetList();
+    void AddNewClient(int id, std::string name);
   public:
     Lobby(int port);
     void Start();
