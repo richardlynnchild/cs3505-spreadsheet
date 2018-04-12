@@ -8,14 +8,15 @@
 #include <utility>
 #include <sys/socket.h>
 #include <pthread.h>
+#include "interface.h"
+
 class Lobby {
   private:
     bool running;
-    std::vector<int> clients;
-    std::vector<int> new_clients;
+    std::vector<Interface> clients;
     std::map<std::string, Spreadsheet> spreadsheets;
     std::vector<std::string> sheet_list;
-    std::queue< std::pair<int,std::string> > new_clients;
+    std::queue< Interface > new_clients;
 
     static void* PingLoop(void* ptr);
     bool CheckForNewClient();

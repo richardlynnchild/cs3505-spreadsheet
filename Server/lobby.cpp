@@ -145,7 +145,15 @@ void Lobby::Start(){
   // 1. Check for new clients in the new client queue
   //      - If they exist push a full state message into their interface
   //      - Add them to client list
-  //
+  while(true){
+    if(new_clients.size() > 0){
+      std::pair<int,std::string> new_client = new_clients.pop();
+      int id = new_client->first;
+      std::string sheet_name = new_client->second;
+      Interface client(id,sheet_name); 
+
+
+  } 
   // 2. For each client, process incoming messages in a Round Robin fashion
   //      - Get message
   //      - Update spreadsheet object
