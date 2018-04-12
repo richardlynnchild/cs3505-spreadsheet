@@ -2,35 +2,30 @@
 #include <sys/socket.h>
 #include <stdlib.h>
 #include <netinet/in.h>
-#include "interface_temp.h"
+#include "lobby.h"
+//#include "interface_temp.h"
 
 #ifndef NETWORK_CONTROLLER
 #define NETWORK_CONTROLLER
 
+struct socket_data {
+  int* ptr_client;
+  Lobby* ptr_lobby;
+};
+
 class NetworkController
 {
 private:
-    //socket info/options variables
-    int socket_domain, level, options_name, options_value, socket_type, address_size;
-    int listener_socket;
-    unsigned address;
-    int port;
-    sockaddr_in address_info;
-
-    NetworkController();
-
-    NetworkController(__socket_type sockType, int sockDomain, int lvl, int optName, int optVal, int _port, unsigned _address);
-
-    int CreateListenerSocket();
-    
-    void BeginListen();
-
-    friend class Interface;
+    static int CreateListenerSocket();
+    static int CreateListenerSocket(__socket_type sockType, int sockDomain, int lvl, int optName, int optVal, int _port, unsigned _address);
 
 public:
+    
+    static void* ListenForClients(void* ptr);
+    static void* Handshake(void* ptr);
 
-    std::vector<Interface>;
+   // std::vector<Interface>;
 
-}
+};
 
 #endif

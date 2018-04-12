@@ -8,6 +8,8 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <sstream>
+#include <algorithm>
+#include <vector>
 
 using namespace std;
 
@@ -79,14 +81,5 @@ public:
 int main()
 {
     cout << "Main.cpp" << endl;
-    stringstream msg;
-    msg << "hello";
-    //msg << '\n';
-    msg << "hey";
-    string s;
-    msg >> s;
-    cout << s << endl;
-    s = "";
-    msg >> s;
-    cout << s << endl;
+    string msg = "hello\nhey\nhey\nshould see this";
 }
