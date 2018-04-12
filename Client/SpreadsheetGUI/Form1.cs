@@ -156,6 +156,8 @@ namespace SpreadsheetGUI
             {
                 SetCell();
                 setCellNameVal(spreadsheetPanel1);
+
+                e.SuppressKeyPress = true;
             }
         }
 
@@ -656,8 +658,9 @@ namespace SpreadsheetGUI
         /// <param name="state"></param>
         private void RegisterMessage(SocketState state)
         {
-            string message = "register \\3";
+            string message = "register" + (char)3;
             Network.Send(state.Socket, message);
+
         }
 
         /// <summary>
