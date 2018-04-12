@@ -7,6 +7,9 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <arpa/inet.h>
+#include <sstream>
+#include <algorithm>
+#include <vector>
 
 using namespace std;
 
@@ -78,10 +81,5 @@ public:
 int main()
 {
     cout << "Main.cpp" << endl;
-    SampleClient client;
-    Interface server;
-    server.Connect();
-    client.Connect(2112, "127.0.0.1");
-    server.Send("hello");
-    cout << client.Receive() << endl;
+    string msg = "hello\nhey\nhey\nshould see this";
 }

@@ -9,25 +9,26 @@
 class Lobby {
   private:
     bool running;
-    int port;
+    std::vector<int> clients;
+    std::vector<int> new_clients;
     std::map<std::string, Spreadsheet> spreadsheets;
     std::vector<std::string> sheet_list;
 
-    static void* ListenForClients(void* ptr);
-    static void* Handshake(void* ptr);
     static void* PingLoop(void* ptr);
-    static std::string BuildConnectAccepted(Lobby* lobby);
     bool CheckForNewClient();
     void InitNewClient(int id);
     std::string ParseSheetList();
     static void Send(int socket_id, std::string message);
     void UpdateSheetList(std::string name);
     void OpenSpreadsheet(std::string filename);
-    std::vector<std::string> GetSheetList();
   public:
-    Lobby(int port);
+    Lobby();
     void Start();
     void Shutdown();
+
+    std::string BuildConnectAccepted();
+    std::vector<std::string> GetSheetList();
+    bool IsRunning();
 
 };
 
