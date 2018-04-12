@@ -111,5 +111,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\CS-3500\SpaceWars\Controller\NetworkController.csproj">
+      <Project>{c1ab7ec1-9fcb-4c87-926f-233e13897609}</Project>
+      <Name>NetworkController</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
