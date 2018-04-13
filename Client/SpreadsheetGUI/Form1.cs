@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using SS;
 using SpreadsheetUtilities;
+using System.Net.Sockets;
+using NetworkingController;
 
 namespace SpreadsheetGUI
 {
@@ -16,6 +18,8 @@ namespace SpreadsheetGUI
     {
         public Spreadsheet ss1;
         public string filename;
+        private Socket theServer;
+        private bool connected;
         public Form1()
         {
             //
@@ -26,6 +30,7 @@ namespace SpreadsheetGUI
 
             InitializeComponent();
             this.KeyPreview = true;
+
 
             //Set up valid open/save file types
             openFileDialog1.Filter = "Spreadsheet Files (*.sprd)|*.sprd|Text Files (*.txt)|*.txt";
@@ -38,6 +43,9 @@ namespace SpreadsheetGUI
             //set up listeners for keydown and formclosing events.
             this.KeyDown += HasEntered;
             this.FormClosing += OnExit;
+
+            ServerTextBox.Enter += ServerTextBoxEntered;
+            ServerTextBox.LostFocus += ServerTextBoxLeft; 
 
             FormulaBox.Focus();
 
@@ -149,7 +157,8 @@ namespace SpreadsheetGUI
             {
                 SetCell();
                 setCellNameVal(spreadsheetPanel1);
-                return;
+
+                e.SuppressKeyPress = true;
             }
 
             //special case for backspace
@@ -654,6 +663,65 @@ namespace SpreadsheetGUI
              RowExit.Visible = false;
          }
 
+        ///<summary>
+        /// checks that the the servename is valid and connects the client to the server.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ConnectButton_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(ServerTextBox.Text))
+                MessageBox.Show("Please enter a server address.");
+            else
+            {
+                try
+                {
+                    theServer = Network.ConnectToServer(RegisterMessage, ServerTextBox.Text);
+                    ServerTextBox.Enabled = false;
+                    ConnectButton.Enabled = false;
+                }
+                catch (ArgumentException)
+                {
+                    MessageBox.Show("invalid server name");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sends the register message to the server after a connection is established.
+        /// </summary>
+        /// <param name="state"></param>
+        private void RegisterMessage(SocketState state)
+        {
+            string message = "register" + (char)3;
+            Network.Send(state.Socket, message);
+
+        }
+
+        /// <summary>
+        /// Delegate to remove text and change color when ServerTextbox is entered.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ServerTextBoxEntered(object sender, EventArgs e)
+        {
+            ServerTextBox.Text = "";
+            ServerTextBox.ForeColor = Color.Black;
+        }
+
+        /// <summary>
+        /// Delegate to add text and change text color when ServerTextBox is left (if the client has not connected to a server yet).
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ServerTextBoxLeft(object sender, EventArgs e)
+        {
+            if ( ! connected)
+            {
+                ServerTextBox.Text = "Enter Hostname";
+                ServerTextBox.ForeColor = SystemColors.ScrollBar;
+            }
+        }
         #endregion
     }
 }

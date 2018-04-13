@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <queue>
 #include <utility>
 #include <iostream>
 #include <string>
@@ -84,6 +85,15 @@ std::string Lobby::BuildConnectAccepted(){
 
 }
 
+/*
+ * Add the pair  client/spreadsheet name to the new_clients
+ * queue
+ */
+void Lobby::AddNewClient(int id, std::string name){
+  std::pair<int,std::string> client(id,name);
+  new_clients.push(client);
+  std::cout << "Added client " << id << " to new client list" << std::endl;
+}
 
 /*
  * Send the specified message to the specified client.
@@ -135,7 +145,15 @@ void Lobby::Start(){
   // 1. Check for new clients in the new client queue
   //      - If they exist push a full state message into their interface
   //      - Add them to client list
-  //
+  while(true){
+    if(new_clients.size() > 0){
+      std::pair<int,std::string> new_client = new_clients.pop();
+      int id = new_client->first;
+      std::string sheet_name = new_client->second;
+      Interface client(id,sheet_name); 
+
+
+  } 
   // 2. For each client, process incoming messages in a Round Robin fashion
   //      - Get message
   //      - Update spreadsheet object

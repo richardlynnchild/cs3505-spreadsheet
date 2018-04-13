@@ -72,6 +72,8 @@
             this.ColumnExit = new System.Windows.Forms.Button();
             this.OutputRowInfo = new System.Windows.Forms.TextBox();
             this.RowExit = new System.Windows.Forms.Button();
+            this.ServerTextBox = new System.Windows.Forms.TextBox();
+            this.ConnectButton = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.menuStrip2.SuspendLayout();
             this.SuspendLayout();
@@ -83,7 +85,7 @@
             this.spreadsheetPanel1.Location = new System.Drawing.Point(0, 68);
             this.spreadsheetPanel1.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.spreadsheetPanel1.Name = "spreadsheetPanel1";
-            this.spreadsheetPanel1.Size = new System.Drawing.Size(652, 416);
+            this.spreadsheetPanel1.Size = new System.Drawing.Size(1078, 638);
             this.spreadsheetPanel1.TabIndex = 0;
             // 
             // openFileDialog1
@@ -204,8 +206,7 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.MinimumSize = new System.Drawing.Size(0, 32);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 1, 0, 1);
-            this.menuStrip1.Size = new System.Drawing.Size(652, 32);
+            this.menuStrip1.Size = new System.Drawing.Size(1078, 50);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -221,7 +222,7 @@
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(652, 36);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1078, 56);
             this.tableLayoutPanel1.TabIndex = 9;
             // 
             // contextMenuStrip1
@@ -257,21 +258,21 @@
             // HelpMoveMenu
             // 
             this.HelpMoveMenu.Name = "HelpMoveMenu";
-            this.HelpMoveMenu.Size = new System.Drawing.Size(145, 22);
+            this.HelpMoveMenu.Size = new System.Drawing.Size(200, 30);
             this.HelpMoveMenu.Text = "Cell Selection";
             this.HelpMoveMenu.Click += new System.EventHandler(this.HelpMoveMenu_Click);
             // 
             // HelpSetMenu
             // 
             this.HelpSetMenu.Name = "HelpSetMenu";
-            this.HelpSetMenu.Size = new System.Drawing.Size(145, 22);
+            this.HelpSetMenu.Size = new System.Drawing.Size(200, 30);
             this.HelpSetMenu.Text = "Cell Editing";
             this.HelpSetMenu.Click += new System.EventHandler(this.HelpSetMenu_Click);
             // 
             // HelpOtherMenu
             // 
             this.HelpOtherMenu.Name = "HelpOtherMenu";
-            this.HelpOtherMenu.Size = new System.Drawing.Size(145, 22);
+            this.HelpOtherMenu.Size = new System.Drawing.Size(200, 30);
             this.HelpOtherMenu.Text = "File Menu";
             this.HelpOtherMenu.Click += new System.EventHandler(this.HelpOtherMenu_Click);
             // 
@@ -404,7 +405,7 @@
             this.ReturnColumn.Location = new System.Drawing.Point(165, 3);
             this.ReturnColumn.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.ReturnColumn.Name = "ReturnColumn";
-            this.ReturnColumn.Size = new System.Drawing.Size(157, 30);
+            this.ReturnColumn.Size = new System.Drawing.Size(190, 46);
             this.ReturnColumn.TabIndex = 21;
             this.ReturnColumn.Text = "Column Information";
             this.ReturnColumn.UseVisualStyleBackColor = true;
@@ -413,10 +414,10 @@
             // ReturnRow
             // 
             this.ReturnRow.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ReturnRow.Location = new System.Drawing.Point(337, 3);
-            this.ReturnRow.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.ReturnRow.Location = new System.Drawing.Point(444, 4);
+            this.ReturnRow.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.ReturnRow.Name = "ReturnRow";
-            this.ReturnRow.Size = new System.Drawing.Size(157, 30);
+            this.ReturnRow.Size = new System.Drawing.Size(190, 46);
             this.ReturnRow.TabIndex = 22;
             this.ReturnRow.Text = "Row Information";
             this.ReturnRow.UseVisualStyleBackColor = true;
@@ -473,12 +474,33 @@
             this.RowExit.Visible = false;
             this.RowExit.Click += new System.EventHandler(this.RowExit_Click);
             // 
+            // ServerTextBox
+            // 
+            this.ServerTextBox.ForeColor = System.Drawing.SystemColors.ScrollBar;
+            this.ServerTextBox.Location = new System.Drawing.Point(700, 12);
+            this.ServerTextBox.Name = "ServerTextBox";
+            this.ServerTextBox.Size = new System.Drawing.Size(165, 26);
+            this.ServerTextBox.TabIndex = 27;
+            this.ServerTextBox.Text = "Enter Hostname";
+            // 
+            // ConnectButton
+            // 
+            this.ConnectButton.Location = new System.Drawing.Point(871, 5);
+            this.ConnectButton.Name = "ConnectButton";
+            this.ConnectButton.Size = new System.Drawing.Size(105, 45);
+            this.ConnectButton.TabIndex = 28;
+            this.ConnectButton.Text = "Connect";
+            this.ConnectButton.UseVisualStyleBackColor = true;
+            this.ConnectButton.Click += new System.EventHandler(this.ConnectButton_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.ClientSize = new System.Drawing.Size(652, 484);
+            this.ClientSize = new System.Drawing.Size(1078, 744);
+            this.Controls.Add(this.ConnectButton);
+            this.Controls.Add(this.ServerTextBox);
             this.Controls.Add(this.ColumnExit);
             this.Controls.Add(this.RowExit);
             this.Controls.Add(this.OutputColumnInfo);
@@ -559,6 +581,8 @@
         private System.Windows.Forms.Button ColumnExit;
         private System.Windows.Forms.TextBox OutputRowInfo;
         private System.Windows.Forms.Button RowExit;
+        private System.Windows.Forms.TextBox ServerTextBox;
+        private System.Windows.Forms.Button ConnectButton;
     }
 }
 
