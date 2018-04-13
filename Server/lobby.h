@@ -4,6 +4,8 @@
 #include "spreadsheet.h"
 #include <string>
 #include <map>
+#include <queue>
+#include <utility>
 #include <sys/socket.h>
 #include <pthread.h>
 class Lobby {
@@ -13,6 +15,7 @@ class Lobby {
     std::vector<int> new_clients;
     std::map<std::string, Spreadsheet> spreadsheets;
     std::vector<std::string> sheet_list;
+    std::queue< std::pair<int,std::string> > new_clients;
 
     static void* PingLoop(void* ptr);
     bool CheckForNewClient();
@@ -21,6 +24,7 @@ class Lobby {
     static void Send(int socket_id, std::string message);
     void UpdateSheetList(std::string name);
     void OpenSpreadsheet(std::string filename);
+    void AddNewClient(int id, std::string name);
   public:
     Lobby();
     void Start();

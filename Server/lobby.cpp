@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <queue>
 #include <utility>
 #include <iostream>
 #include <string>
@@ -84,6 +85,15 @@ std::string Lobby::BuildConnectAccepted(){
 
 }
 
+/*
+ * Add the pair  client/spreadsheet name to the new_clients
+ * queue
+ */
+void Lobby::AddNewClient(int id, std::string name){
+  std::pair<int,std::string> client(id,name);
+  new_clients.push(client);
+  std::cout << "Added client " << id << " to new client list" << std::endl;
+}
 
 /*
  * Send the specified message to the specified client.
