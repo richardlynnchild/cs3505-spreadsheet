@@ -111,7 +111,16 @@ void Lobby::Send(int id, std::string message){
  * false otherwise.
  */
 bool Lobby::CheckForNewClient(){
-
+  bool idle = true;
+  if(new_clients.size() > 0){
+    idle = false;
+    Interface new_client = new_clients.pop();
+    clients.push_back(new_client); 
+    if(spreadsheets.count(new_client.GetSprdName())<1){
+      Spreadsheet new_sheet(new_client.GetSprdName());
+    }  
+    new_client.Send(BuildFullState(new_client.GetSprdName())); 
+  return idle;
 }
 
 /*
@@ -145,14 +154,14 @@ void Lobby::Start(){
   // 1. Check for new clients in the new client queue
   //      - If they exist push a full state message into their interface
   //      - Add them to client list
-  while(true){
-    if(new_clients.size() > 0){
-      Interface new_client = new_clients.pop();
-      clients.push_back(new_client); 
-      if(spreadsheets.count(new_client.GetSprdName())<1){
-        Spreadsheet new_sheet(new_client.GetSprdName());
-      }  
-      new_client.Send(BuildFullState(new_client.GetSprdName())); 
+       
+  bool idle;
+  while(running){
+    idle = CheckForNewClient();
+    if(idle){
+      int ten_ms = 10000;
+      usleep(ten_ms); 
+    }
   } 
   // 2. For each client, process incoming messages in a Round Robin fashion
   //      - Get message
