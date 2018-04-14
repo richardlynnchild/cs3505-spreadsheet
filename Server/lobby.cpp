@@ -147,12 +147,12 @@ void Lobby::Start(){
   //      - Add them to client list
   while(true){
     if(new_clients.size() > 0){
-      std::pair<int,std::string> new_client = new_clients.pop();
-      int id = new_client->first;
-      std::string sheet_name = new_client->second;
-      Interface client(id,sheet_name); 
-
-
+      Interface new_client = new_clients.pop();
+      clients.push_back(new_client); 
+      if(spreadsheets.count(new_client.GetSprdName())<1){
+        Spreadsheet new_sheet(new_client.GetSprdName());
+      }  
+      new_client.Send(BuildFullState(new_client.GetSprdName())); 
   } 
   // 2. For each client, process incoming messages in a Round Robin fashion
   //      - Get message
