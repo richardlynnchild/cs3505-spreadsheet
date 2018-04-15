@@ -10,7 +10,7 @@ using System.Windows.Forms;
 using SS;
 using SpreadsheetUtilities;
 using System.Net.Sockets;
-using NetworkingController;
+//using NetworkingController;
 
 namespace SpreadsheetGUI
 {
@@ -161,6 +161,8 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void HasEntered(object sender, KeyEventArgs e)
         {
+
+            //bool isLetterNum = false;
             if (e.KeyData == Keys.Enter)
             {
                 SetCell();
@@ -170,7 +172,7 @@ namespace SpreadsheetGUI
             }
 
             //special case for backspace
-            if (e.KeyData == Keys.Back)
+            else if (e.KeyData == Keys.Back)
             {
                 spreadsheetPanel1.GetSelection(out int col, out int row);
                 spreadsheetPanel1.GetValue(col, row, out string value);
@@ -182,20 +184,8 @@ namespace SpreadsheetGUI
                 }
             }
 
-            //TODO: deal with shift keys
-            /*
-            string keyString = e.ToString();
-            char[] myChar = keyString.ToCharArray();
-            foreach(char c in myChar)
-            {
-                if(Char.IsLetter(c))
-            }
-            if (Char.IsLetter(e.KeyChar))
-            if(e.Shift && )
-            */
-            //GetSelection, GetValue, SetValue (spreadsheet)
-            //if any key except enter is pressed, temporarily input the content into the right cell
-            else
+
+            else if((e.KeyData >= Keys.A && e.KeyData <= Keys.Z) || (e.KeyData >= Keys.D0 && e.KeyData <= Keys.D9) || (e.KeyData >= Keys.NumPad0 && e.KeyData <= Keys.NumPad9))
             {
                 spreadsheetPanel1.GetSelection(out int col, out int row);
                 KeysConverter kc = new KeysConverter();
@@ -204,6 +194,12 @@ namespace SpreadsheetGUI
                 spreadsheetPanel1.GetValue(col, row, out string value);
                 string newVal = value + keyString;
                 spreadsheetPanel1.SetValue(col, row, newVal);
+            }
+
+            else
+            {
+                //not a valid key
+                return;
             }
         }
 
@@ -688,7 +684,7 @@ namespace SpreadsheetGUI
             {
                 try
                 {
-                    theServer = Network.ConnectToServer(SendRegisterMessage, ServerTextBox.Text);
+                    //theServer = Network.ConnectToServer(SendRegisterMessage, ServerTextBox.Text);
                     ServerTextBox.Enabled = false;
                     ConnectButton.Enabled = false;
                 }
@@ -698,7 +694,7 @@ namespace SpreadsheetGUI
                 }
             }
         }
-
+        /*
         /// <summary>
         /// Sends the register message to the server after a connection is established.
         /// </summary>
@@ -709,7 +705,7 @@ namespace SpreadsheetGUI
             Network.Send(state.Socket, message);
 
         }
-
+        */
         /// <summary>
         /// Delegate to remove text and change color when ServerTextbox is entered.
         /// </summary>
@@ -786,7 +782,7 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void SendSpreadsheetSelection(object sender, EventArgs e)
         {
-            Network.Send(theServer, FileTextSelect.Text);
+            //Network.Send(theServer, FileTextSelect.Text);
             //TODO: add full state message processing function.
             //HandleFullState();
         }
