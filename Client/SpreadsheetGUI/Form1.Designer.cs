@@ -41,9 +41,20 @@
             this.LabelContents = new System.Windows.Forms.Label();
             this.EnterButton = new System.Windows.Forms.Button();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.FileMenu_New = new System.Windows.Forms.ToolStripMenuItem();
+            this.FileMenu_Save = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.FileMenu_Open = new System.Windows.Forms.ToolStripMenuItem();
+            this.FileMenu_Close = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.menuStrip2 = new System.Windows.Forms.MenuStrip();
+            this.HelpMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.HelpMoveMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.HelpSetMenu = new System.Windows.Forms.ToolStripMenuItem();
+            this.HelpOtherMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.HelpMoveText = new System.Windows.Forms.TextBox();
             this.HelpSetText = new System.Windows.Forms.TextBox();
             this.HelpOtherText = new System.Windows.Forms.TextBox();
@@ -58,6 +69,7 @@
             this.ServerTextBox = new System.Windows.Forms.TextBox();
             this.ConnectButton = new System.Windows.Forms.Button();
             this.FilePanel = new System.Windows.Forms.Panel();
+            this.MovementBox = new System.Windows.Forms.PictureBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.FileMenuLabel = new System.Windows.Forms.Label();
             this.Open_FileMenu = new System.Windows.Forms.Button();
@@ -66,30 +78,18 @@
             this.NameColHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.DateColHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.undo_button = new System.Windows.Forms.Button();
-            this.MovementBox = new System.Windows.Forms.PictureBox();
             this.ColumnExit = new System.Windows.Forms.Button();
             this.RowExit = new System.Windows.Forms.Button();
             this.CloseSet = new System.Windows.Forms.Button();
             this.CloseOther = new System.Windows.Forms.Button();
             this.CloseMove = new System.Windows.Forms.Button();
-            this.HelpMenu = new System.Windows.Forms.ToolStripMenuItem();
-            this.HelpMoveMenu = new System.Windows.Forms.ToolStripMenuItem();
-            this.HelpSetMenu = new System.Windows.Forms.ToolStripMenuItem();
-            this.HelpOtherMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.QuickSave = new System.Windows.Forms.Button();
-            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.FileMenu_New = new System.Windows.Forms.ToolStripMenuItem();
-            this.FileMenu_Save = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.FileMenu_Open = new System.Windows.Forms.ToolStripMenuItem();
-            this.FileMenu_Close = new System.Windows.Forms.ToolStripMenuItem();
             this.revert_button = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.menuStrip2.SuspendLayout();
             this.FilePanel.SuspendLayout();
-            this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MovementBox)).BeginInit();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // spreadsheetPanel1
@@ -155,6 +155,62 @@
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.FileMenu_New,
+            this.FileMenu_Save,
+            this.FileMenu_Open,
+            this.FileMenu_Close});
+            this.fileToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("fileToolStripMenuItem.Image")));
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(36, 28);
+            // 
+            // FileMenu_New
+            // 
+            this.FileMenu_New.Name = "FileMenu_New";
+            this.FileMenu_New.Size = new System.Drawing.Size(103, 22);
+            this.FileMenu_New.Text = "New";
+            this.FileMenu_New.Click += new System.EventHandler(this.FileMenu_New_Click);
+            // 
+            // FileMenu_Save
+            // 
+            this.FileMenu_Save.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.saveToolStripMenuItem,
+            this.saveAsToolStripMenuItem});
+            this.FileMenu_Save.Name = "FileMenu_Save";
+            this.FileMenu_Save.Size = new System.Drawing.Size(103, 22);
+            this.FileMenu_Save.Text = "Save";
+            // 
+            // saveToolStripMenuItem
+            // 
+            this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
+            this.saveToolStripMenuItem.Text = "Save";
+            this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
+            // 
+            // saveAsToolStripMenuItem
+            // 
+            this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
+            this.saveAsToolStripMenuItem.Text = "Save As...";
+            this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
+            // 
+            // FileMenu_Open
+            // 
+            this.FileMenu_Open.Name = "FileMenu_Open";
+            this.FileMenu_Open.Size = new System.Drawing.Size(103, 22);
+            this.FileMenu_Open.Text = "Open";
+            this.FileMenu_Open.Click += new System.EventHandler(this.FileMenu_Open_Click);
+            // 
+            // FileMenu_Close
+            // 
+            this.FileMenu_Close.Name = "FileMenu_Close";
+            this.FileMenu_Close.Size = new System.Drawing.Size(103, 22);
+            this.FileMenu_Close.Text = "Close";
+            this.FileMenu_Close.Click += new System.EventHandler(this.FileMenu_Close_Click);
+            // 
             // tableLayoutPanel1
             // 
             this.tableLayoutPanel1.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.OutsetPartial;
@@ -188,6 +244,38 @@
             this.menuStrip2.Size = new System.Drawing.Size(71, 26);
             this.menuStrip2.TabIndex = 11;
             this.menuStrip2.Text = "menuStrip2";
+            // 
+            // HelpMenu
+            // 
+            this.HelpMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.HelpMoveMenu,
+            this.HelpSetMenu,
+            this.HelpOtherMenu});
+            this.HelpMenu.Image = ((System.Drawing.Image)(resources.GetObject("HelpMenu.Image")));
+            this.HelpMenu.Name = "HelpMenu";
+            this.HelpMenu.Size = new System.Drawing.Size(64, 24);
+            this.HelpMenu.Text = "Help";
+            // 
+            // HelpMoveMenu
+            // 
+            this.HelpMoveMenu.Name = "HelpMoveMenu";
+            this.HelpMoveMenu.Size = new System.Drawing.Size(145, 22);
+            this.HelpMoveMenu.Text = "Cell Selection";
+            this.HelpMoveMenu.Click += new System.EventHandler(this.HelpMoveMenu_Click);
+            // 
+            // HelpSetMenu
+            // 
+            this.HelpSetMenu.Name = "HelpSetMenu";
+            this.HelpSetMenu.Size = new System.Drawing.Size(145, 22);
+            this.HelpSetMenu.Text = "Cell Editing";
+            this.HelpSetMenu.Click += new System.EventHandler(this.HelpSetMenu_Click);
+            // 
+            // HelpOtherMenu
+            // 
+            this.HelpOtherMenu.Name = "HelpOtherMenu";
+            this.HelpOtherMenu.Size = new System.Drawing.Size(145, 22);
+            this.HelpOtherMenu.Text = "File Menu";
+            this.HelpOtherMenu.Click += new System.EventHandler(this.HelpOtherMenu_Click);
             // 
             // HelpMoveText
             // 
@@ -351,6 +439,17 @@
             this.FilePanel.Size = new System.Drawing.Size(563, 383);
             this.FilePanel.TabIndex = 29;
             // 
+            // MovementBox
+            // 
+            this.MovementBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.MovementBox.Cursor = System.Windows.Forms.Cursors.SizeAll;
+            this.MovementBox.Location = new System.Drawing.Point(493, 346);
+            this.MovementBox.Margin = new System.Windows.Forms.Padding(2);
+            this.MovementBox.Name = "MovementBox";
+            this.MovementBox.Size = new System.Drawing.Size(67, 32);
+            this.MovementBox.TabIndex = 5;
+            this.MovementBox.TabStop = false;
+            // 
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.SystemColors.Window;
@@ -425,17 +524,7 @@
             this.undo_button.Text = "Undo";
             this.undo_button.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.undo_button.UseVisualStyleBackColor = true;
-            // 
-            // MovementBox
-            // 
-            this.MovementBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.MovementBox.Cursor = System.Windows.Forms.Cursors.SizeAll;
-            this.MovementBox.Location = new System.Drawing.Point(493, 346);
-            this.MovementBox.Margin = new System.Windows.Forms.Padding(2);
-            this.MovementBox.Name = "MovementBox";
-            this.MovementBox.Size = new System.Drawing.Size(67, 32);
-            this.MovementBox.TabIndex = 5;
-            this.MovementBox.TabStop = false;
+            this.undo_button.Click += new System.EventHandler(this.undo_button_Click);
             // 
             // ColumnExit
             // 
@@ -507,38 +596,6 @@
             this.CloseMove.Visible = false;
             this.CloseMove.Click += new System.EventHandler(this.CloseMove_Click_1);
             // 
-            // HelpMenu
-            // 
-            this.HelpMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.HelpMoveMenu,
-            this.HelpSetMenu,
-            this.HelpOtherMenu});
-            this.HelpMenu.Image = ((System.Drawing.Image)(resources.GetObject("HelpMenu.Image")));
-            this.HelpMenu.Name = "HelpMenu";
-            this.HelpMenu.Size = new System.Drawing.Size(64, 24);
-            this.HelpMenu.Text = "Help";
-            // 
-            // HelpMoveMenu
-            // 
-            this.HelpMoveMenu.Name = "HelpMoveMenu";
-            this.HelpMoveMenu.Size = new System.Drawing.Size(145, 22);
-            this.HelpMoveMenu.Text = "Cell Selection";
-            this.HelpMoveMenu.Click += new System.EventHandler(this.HelpMoveMenu_Click);
-            // 
-            // HelpSetMenu
-            // 
-            this.HelpSetMenu.Name = "HelpSetMenu";
-            this.HelpSetMenu.Size = new System.Drawing.Size(145, 22);
-            this.HelpSetMenu.Text = "Cell Editing";
-            this.HelpSetMenu.Click += new System.EventHandler(this.HelpSetMenu_Click);
-            // 
-            // HelpOtherMenu
-            // 
-            this.HelpOtherMenu.Name = "HelpOtherMenu";
-            this.HelpOtherMenu.Size = new System.Drawing.Size(145, 22);
-            this.HelpOtherMenu.Text = "File Menu";
-            this.HelpOtherMenu.Click += new System.EventHandler(this.HelpOtherMenu_Click);
-            // 
             // QuickSave
             // 
             this.QuickSave.BackColor = System.Drawing.SystemColors.MenuHighlight;
@@ -552,62 +609,6 @@
             this.QuickSave.UseVisualStyleBackColor = false;
             this.QuickSave.Click += new System.EventHandler(this.QuickSave_Click);
             // 
-            // fileToolStripMenuItem
-            // 
-            this.fileToolStripMenuItem.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.FileMenu_New,
-            this.FileMenu_Save,
-            this.FileMenu_Open,
-            this.FileMenu_Close});
-            this.fileToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("fileToolStripMenuItem.Image")));
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(36, 28);
-            // 
-            // FileMenu_New
-            // 
-            this.FileMenu_New.Name = "FileMenu_New";
-            this.FileMenu_New.Size = new System.Drawing.Size(103, 22);
-            this.FileMenu_New.Text = "New";
-            this.FileMenu_New.Click += new System.EventHandler(this.FileMenu_New_Click);
-            // 
-            // FileMenu_Save
-            // 
-            this.FileMenu_Save.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.saveToolStripMenuItem,
-            this.saveAsToolStripMenuItem});
-            this.FileMenu_Save.Name = "FileMenu_Save";
-            this.FileMenu_Save.Size = new System.Drawing.Size(103, 22);
-            this.FileMenu_Save.Text = "Save";
-            // 
-            // saveToolStripMenuItem
-            // 
-            this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
-            this.saveToolStripMenuItem.Text = "Save";
-            this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
-            // 
-            // saveAsToolStripMenuItem
-            // 
-            this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
-            this.saveAsToolStripMenuItem.Text = "Save As...";
-            this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
-            // 
-            // FileMenu_Open
-            // 
-            this.FileMenu_Open.Name = "FileMenu_Open";
-            this.FileMenu_Open.Size = new System.Drawing.Size(103, 22);
-            this.FileMenu_Open.Text = "Open";
-            this.FileMenu_Open.Click += new System.EventHandler(this.FileMenu_Open_Click);
-            // 
-            // FileMenu_Close
-            // 
-            this.FileMenu_Close.Name = "FileMenu_Close";
-            this.FileMenu_Close.Size = new System.Drawing.Size(103, 22);
-            this.FileMenu_Close.Text = "Close";
-            this.FileMenu_Close.Click += new System.EventHandler(this.FileMenu_Close_Click);
-            // 
             // revert_button
             // 
             this.revert_button.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -617,6 +618,7 @@
             this.revert_button.TabIndex = 31;
             this.revert_button.Text = "Revert";
             this.revert_button.UseVisualStyleBackColor = true;
+            this.revert_button.Click += new System.EventHandler(this.revert_button_Click);
             // 
             // Form1
             // 
@@ -664,9 +666,9 @@
             this.menuStrip2.PerformLayout();
             this.FilePanel.ResumeLayout(false);
             this.FilePanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.MovementBox)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.MovementBox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

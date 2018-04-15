@@ -800,5 +800,16 @@ namespace SpreadsheetGUI
              * */
         }
         #endregion
+
+        private void undo_button_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void revert_button_Click(object sender, EventArgs e)
+        {
+
+
+        }
     }
 }

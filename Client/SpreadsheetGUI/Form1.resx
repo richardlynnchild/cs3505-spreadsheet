@@ -144,6 +144,23 @@
   <metadata name="menuStrip1.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="fileToolStripMenuItem.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAH
+        owAAB6MBMC+yxQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAI0SURBVFhHxZS/
+        axNhGMcjgugf0KRjBREXB8EuLpZOTYKog4iDu4vOuhYUB2enDu3gouhQdUhALi3tkfaaN4n0h+0dpE3j
+        ES5v7kdz0oKax3sj71nzPhYb7z2Hz/B93+/7vB8O7k0AwH8FXYwTdDFOEq380Gwrnzz4G2g+eRcb8i8E
+        Akk4Bl4zlzqLDRqU4wpA8BUW4WXiJDZsEDCBbis/bB0FVS4+9K3a8KAArJ36g0Cqa6iTpu8YIJOOo48h
+        Aqmurk42PxaeooeiBBH4eXlVeQKHBTxrFaz6QpidZgVooxjmtqn14JntsQ7P7CybwTNHELAKoxptLAUD
+        lqD9eTksWjsLsFF8HmZTz4FBZsK8vfqqB89sj3V4ZmfZDJ45ggCdv6z2l3xHb1v1+ZauTe379maDYRo5
+        u1Z94fNcX3/jMXhme6zDMzvLZvDM2TNf33TKEyO76q0zuAAlmlu5vu+QDMjEJZkNVMDbekSwAxLQRAF7
+        y3RI9jtSlsEDQaBjzhaQogy+dkh6SBDw1u7pSDl6Spl34l9gr39CyxJwS+nbgsDezvQcVpaAV1PGTvcL
+        fHOrdyykLIMp8SGiZAUpSiJ9VRDwjGcqXo6c7eDeE78LzF1adCs3viDlyHFL2cf88l8CyjkFK8uArly7
+        IAjYxSslrCwB7fDlXGA32Ijp6c3eFwRo4fwHvBw5vadXEHCWxzeRcvSUM2/7L+8JuCT7PigcSKbhlSdG
+        UQFsMU7QxThBF+MDEj8AOuk5LtrvongAAAAASUVORK5CYII=
+</value>
+  </data>
   <metadata name="tableLayoutPanel1.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
@@ -153,7 +170,6 @@
   <metadata name="menuStrip2.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>845, 17</value>
   </metadata>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="HelpMenu.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAABGdBTUEAALGPC/xhBQAAAIdQTFRF////
@@ -440,26 +456,10 @@ dependencies, they will be left off of the "Information" calculations.</value>
         hvrbiRlIMuD08pr6AfIT1o5BYgZSA9SAfxBgcrwCTZdRTbstI1AAAAAASUVORK5CYII=
 </value>
   </data>
-  <data name="fileToolStripMenuItem.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAH
-        owAAB6MBMC+yxQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAI0SURBVFhHxZS/
-        axNhGMcjgugf0KRjBREXB8EuLpZOTYKog4iDu4vOuhYUB2enDu3gouhQdUhALi3tkfaaN4n0h+0dpE3j
-        ES5v7kdz0oKax3sj71nzPhYb7z2Hz/B93+/7vB8O7k0AwH8FXYwTdDFOEq380Gwrnzz4G2g+eRcb8i8E
-        Akk4Bl4zlzqLDRqU4wpA8BUW4WXiJDZsEDCBbis/bB0FVS4+9K3a8KAArJ36g0Cqa6iTpu8YIJOOo48h
-        Aqmurk42PxaeooeiBBH4eXlVeQKHBTxrFaz6QpidZgVooxjmtqn14JntsQ7P7CybwTNHELAKoxptLAUD
-        lqD9eTksWjsLsFF8HmZTz4FBZsK8vfqqB89sj3V4ZmfZDJ45ggCdv6z2l3xHb1v1+ZauTe379maDYRo5
-        u1Z94fNcX3/jMXhme6zDMzvLZvDM2TNf33TKEyO76q0zuAAlmlu5vu+QDMjEJZkNVMDbekSwAxLQRAF7
-        y3RI9jtSlsEDQaBjzhaQogy+dkh6SBDw1u7pSDl6Spl34l9gr39CyxJwS+nbgsDezvQcVpaAV1PGTvcL
-        fHOrdyykLIMp8SGiZAUpSiJ9VRDwjGcqXo6c7eDeE78LzF1adCs3viDlyHFL2cf88l8CyjkFK8uArly7
-        IAjYxSslrCwB7fDlXGA32Ijp6c3eFwRo4fwHvBw5vadXEHCWxzeRcvSUM2/7L+8JuCT7PigcSKbhlSdG
-        UQFsMU7QxThBF+MDEj8AOuk5LtrvongAAAAASUVORK5CYII=
-</value>
-  </data>
   <metadata name="$this.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>25</value>
+    <value>46</value>
   </metadata>
 </root>
