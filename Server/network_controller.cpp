@@ -158,6 +158,7 @@ void* NetworkController::ListenForClients(void* ptr){
         std::cerr << "error creating thread for new client connection" << std::endl;
         ptr_lobby->Shutdown();
       }
+      pthread_detach(handshake_thread);
     }
   }
 }

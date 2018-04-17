@@ -20,6 +20,7 @@ namespace SpreadsheetGUI
         public string filename;
         private Socket theServer;
         private bool connected;
+        private Dictionary<string, KeyValuePair<bool, string>> cellStatus;
         public Form1()
         {
             //
@@ -216,6 +217,7 @@ namespace SpreadsheetGUI
             
         }
 
+        /*
         /// <summary>
         /// Overrides the ProcessCmdKey function in order to use the arrow keys and Tab to make
         /// Cell selections.
@@ -227,6 +229,7 @@ namespace SpreadsheetGUI
         {
             return spreadsheetPanel1.MovementKey(ref msg, keyData);
         }
+        */
 
         /// <summary>
         /// EnterButton clicked event. Sets selected cell to contents of the formula box.
@@ -813,14 +816,46 @@ namespace SpreadsheetGUI
              * */
         }
 
+        private void Receive()
+        {
+            /*
+            string message = Network.Recieve();
+            if (message is focus)
+                ReceiveFocus(message);
+            */
+        }
+
         /// <summary>
         /// Sends the focus message to the server when a cell is being edited.
         /// </summary>
         private void SendFocus(string message)
         {
+            //hacking, but allows you to test diff cases
+            //if in column c, receive will be column d
+            //so you can test a case where someone else would have been editing a diff cell
+            ReceiveFocus(message);
             //Network.Send(theServer, message);
         }
 
+        private void ReceiveFocus(string message)
+        {
+            //color the cell
+
+            //figure out what cell the focus is on
+            //string[] msg_parts = message.Split(null);
+            //string[] smaller_parts = msg_parts[1].Split(':');
+
+            char[] delimiters = new char[] { ' ', ':', ((char)3) };
+            string[] msg_parts = message.Split(delimiters);
+
+            string cell_name = msg_parts[1];
+
+
+            //KeyValuePair<bool, string> newStatus = new KeyValuePair<bool, string>(true, smaller_parts[1]);
+            //cellStatus[cell_name] = newStatus;
+            GetCellPosition(cell_name, out int row, out int col);
+            spreadsheetPanel1.SetFocus(row, col);
+        }
         /// <summary>
         /// Sends the unfocus message to the server when the user presses "Enter" and stops editing the cell.
         /// </summary>

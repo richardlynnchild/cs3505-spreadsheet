@@ -68,7 +68,7 @@ std::vector<std::string> Lobby::GetSheetList(){
 /*
  * Add an Interface to the new_client queue.
  */
-void AddNewClient(Interface interface){
+void Lobby::AddNewClient(Interface interface){
   pthread_mutex_lock(&new_client_mutex);
   this->new_clients.push(interface);
   pthread_mutex_unlock(&new_client_mutex);
