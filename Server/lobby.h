@@ -26,6 +26,8 @@ class Lobby {
     void UpdateSheetList(std::string name);
     void OpenSpreadsheet(std::string filename);
     void AddNewClient(int id, std::string name);
+    std::string BuildFocus();
+    std::string BuildUnfocus();
   public:
     Lobby();
     void Start();

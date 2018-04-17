@@ -85,6 +85,17 @@ std::string Lobby::BuildConnectAccepted(){
 
 }
 
+std::string Lobby::BuildFocus()
+{
+  std::string message = "focus ";
+
+}
+
+std::string Lobby::BuildUnfocus()
+{
+  std::string message = "unfocus ";
+}
+
 /*
  * Add the pair  client/spreadsheet name to the new_clients
  * queue
