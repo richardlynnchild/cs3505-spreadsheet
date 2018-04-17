@@ -58,9 +58,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Resources\Libraries\Formula.dll</HintPath>
     </Reference>
-    <Reference Include="Networking">
-      <HintPath>..\Networking\obj\Debug\Networking.dll</HintPath>
-    </Reference>
     <Reference Include="Spreadsheet, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Resources\Libraries\Spreadsheet.dll</HintPath>
@@ -100,6 +97,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -113,6 +111,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\CS-3500\SpaceWars\Controller\NetworkController.csproj">
+      <Project>{c1ab7ec1-9fcb-4c87-926f-233e13897609}</Project>
+      <Name>NetworkController</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\undo.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\undo1.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

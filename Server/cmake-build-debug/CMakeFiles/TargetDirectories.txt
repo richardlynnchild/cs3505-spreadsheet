@@ -1,3 +1,0 @@
-/home/nathan/SourceCode/Spreadsheet/cs3505-spreadsheet/Server/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/nathan/SourceCode/Spreadsheet/cs3505-spreadsheet/Server/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/nathan/SourceCode/Spreadsheet/cs3505-spreadsheet/Server/cmake-build-debug/CMakeFiles/Server.dir
