@@ -185,7 +185,7 @@ void* NetworkController::Handshake(void* ptr){
   ClearBuffer(buffer);
   do
   {
-    buf_start = Receive(id, buffer, buf_start);
+    buf_start = Receive(id);
     register_message = GetMessage(buffer);
   } while(register_message == "");
 
@@ -217,16 +217,18 @@ void* NetworkController::Handshake(void* ptr){
 //}
 
 //Reads from the incoming buffer and returns any messages sent from the client.
-int NetworkController::Receive(int client_socket_id, char* message_buffer, int start)
+char* NetworkController::Receive(int client_socket_id)
 {
-    int bytes_received = recv(client_socket_id, message_buffer+start, 1024-start, 0);
+    char* message_buffer;
+    int bytes_received = recv(client_socket_id, message_buffer, 1024, 0);
     if (bytes_received == -1)
     {
-      return start;
+      return '\0';
     }
+
     else
     {
-      return start + bytes_received;
+      return message_buffer;
     }
 }
 
