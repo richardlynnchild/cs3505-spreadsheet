@@ -98,114 +98,46 @@ namespace SpreadsheetGUI
         }
 
         /// <summary>
-        /// Calculates the sum, count, and average of the values in the current column. Displays results in a textbox
-        /// If a cell contains a variable or formula that cannot be solved due to the dependency being unfinished it is left out of the calculations.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ReturnCollumn_Click(object sender, EventArgs e)
-        {
-            //handle logic of column info
-            OnRerutrnColumnClick();
-
-            //set this menu visible
-            ColumnExit.Visible = true;
-            OutputColumnInfo.Visible = true;
-
-            //set other menus invisible
-            HelpSetText.Visible = false;
-            CloseSet.Visible = false;
-            HelpMoveText.Visible = false;
-            CloseMove.Visible = false;
-            HelpOtherText.Visible = false;
-            CloseOther.Visible = false;
-            OutputRowInfo.Visible = false;
-            RowExit.Visible = false;
-        }
-
-        /// <summary>
-        /// Calculates the sum, count and average of the current row. Displays the results in a textbox.
-        /// If a cell contains a variable or formula that cannot be solved due to the dependency being unfinished it is left out of the calculations.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ReturnRow_Click(object sender, EventArgs e)
-        {
-            //handle logic of row info
-            OnReturnRowClick();
-
-            //set this menu visible
-            RowExit.Visible = true;
-            OutputRowInfo.Visible = true;
-
-            //set other menus invisivle
-            HelpSetText.Visible = false;
-            CloseSet.Visible = false;
-            HelpMoveText.Visible = false;
-            CloseMove.Visible = false;
-            HelpOtherText.Visible = false;
-            CloseOther.Visible = false;
-            ColumnExit.Visible = false;
-            OutputColumnInfo.Visible = false;
-        }
-
-        /// <summary>
         /// Processes keystrokes from the user and updates the spreadsheet accordingly.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void ProcessKeyStroke(object sender, KeyEventArgs e)
         {
-            //they are no longer editing
-            if (e.KeyData == Keys.Enter)
+            if ( ! ServerTextBox.Focused)
             {
-                SetCell();
-                setCellNameVal(spreadsheetPanel1);
-                e.SuppressKeyPress = true;
-
-                //once networking is back up...
-                string unfocusMessage = "unfocus " + ((char)3);
-                SendMessage(unfocusMessage);
-            }
-
-            //if they are currently editing
-            else
-            {
-                //once networking works...
-                spreadsheetPanel1.GetSelection(out int c, out int r);
-                string cellName = GetCellName(c, r);
-                string focusMessage = "focus " + cellName + ((char)3);
-                SendFocus(focusMessage);
-
-                //special case for backspace
-                if (e.KeyData == Keys.Back)
+                //they are no longer editing
+                if (e.KeyData == Keys.Enter)
                 {
-                    spreadsheetPanel1.GetSelection(out int col, out int row);
-                    spreadsheetPanel1.GetValue(col, row, out string value);
-                    if (value.Length > 0)
-                    {
-                        int split_index = (value.Length - 1);
-                        string newVal = value.Substring(0, split_index);
-                        spreadsheetPanel1.SetValue(col, row, newVal);
-                    }
+                    EnterKey(e);
                 }
 
-
-                else if ((e.KeyData >= Keys.A && e.KeyData <= Keys.Z) || (e.KeyData >= Keys.D0 && e.KeyData <= Keys.D9) || (e.KeyData >= Keys.NumPad0 && e.KeyData <= Keys.NumPad9))
-                {
-                    spreadsheetPanel1.GetSelection(out int col, out int row);
-                    KeysConverter kc = new KeysConverter();
-                    string keyString = kc.ConvertToString(e.KeyData);
-                    keyString = keyString.ToLower();
-                    spreadsheetPanel1.GetValue(col, row, out string value);
-                    string newVal = value + keyString;
-                    spreadsheetPanel1.SetValue(col, row, newVal);
-                }
-
+                //if they are currently editing
                 else
                 {
-                    //not a valid key
-                    return;
+                    //once networking works...
+                    spreadsheetPanel1.GetSelection(out int c, out int r);
+                    string cellName = GetCellName(c, r);
+                    string focusMessage = "focus " + cellName + ((char)3);
+                    SendFocus(focusMessage);
+
+                    //special case for backspace
+                    if (e.KeyData == Keys.Back)
+                    {
+                        BackspaceKey(e);
+                    }
+
+
+                    else if ((e.KeyData >= Keys.A && e.KeyData <= Keys.Z) || (e.KeyData >= Keys.D0 && e.KeyData <= Keys.D9) || (e.KeyData >= Keys.NumPad0 && e.KeyData <= Keys.NumPad9))
+                    {
+                        StandardKey(e);
+                    }
+
+                    else
+                    {
+                        //not a valid key
+                        return;
+                    }
                 }
             }
             
@@ -236,14 +168,200 @@ namespace SpreadsheetGUI
             FormulaBox.Focus();
         }
 
+        /// <summary>
+        /// Delegate to remove text and change color when ServerTextbox is entered.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ServerTextBoxEntered(object sender, EventArgs e)
+        {
+            ServerTextBox.Text = "";
+            ServerTextBox.ForeColor = Color.Black;
+        }
+
+        /// <summary>
+        /// Delegate to add text and change text color when ServerTextBox is left (if the client has not connected to a server yet).
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ServerTextBoxLeft(object sender, EventArgs e)
+        {
+            if (!connected)
+            {
+                ServerTextBox.Text = "Enter Hostname";
+                ServerTextBox.ForeColor = SystemColors.ScrollBar;
+            }
+        }
+
+        ///<summary>
+        /// checks that the the servename is valid and connects the client to the server.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ConnectButton_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(ServerTextBox.Text))
+                MessageBox.Show("Please enter a server address.");
+            else
+            {
+                try
+                {
+                    //theServer = Network.ConnectToServer(SendRegisterMessage, ServerTextBox.Text);
+                    ServerTextBox.Enabled = false;
+                    ConnectButton.Enabled = false;
+                }
+                catch (ArgumentException)
+                {
+                    MessageBox.Show("invalid server name");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sets the FileTextBox contents to the name of the selected spreadsheet.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FileSelected(object sender, EventArgs e)
+        {
+            ListViewItem fileSelected = FileList.SelectedItems[0];
+            FileTextSelect.Text = fileSelected.Text;
+        }
+
         private void OnExit(object sender, EventArgs e)
         {
 
         }
 
+
+        private void undo_button_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void revert_button_Click(object sender, EventArgs e)
+        {
+
+
+        }
+
+
+        #endregion
+
+        #region Networking Control
+
+        /// <summary>
+        /// Sends the server the name of the spreadsheet the 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SendSpreadsheetSelection(object sender, EventArgs e)
+        {
+            Network.Send(theServer, FileTextSelect.Text);
+            //TODO: add full state message processing function.
+            //HandleFullState();
+        }
+        private void Receive()
+        {
+            /*
+            string message = Network.Recieve();
+            if (message is focus)
+                ReceiveFocus(message);
+            */
+        }
+
+        /// <summary>
+        /// Sends the focus message to the server when a cell is being edited.
+        /// </summary>
+        private void SendFocus(string message)
+        {
+            //hacking, but allows you to test diff cases
+            //if in column c, receive will be column d
+            //so you can test a case where someone else would have been editing a diff cell
+            ReceiveFocus(message);
+            //Network.Send(theServer, message);
+        }
+
+        private void ReceiveFocus(string message)
+        {
+            //color the cell
+
+            //figure out what cell the focus is on
+            //string[] msg_parts = message.Split(null);
+            //string[] smaller_parts = msg_parts[1].Split(':');
+
+            char[] delimiters = new char[] { ' ', ':', ((char)3) };
+            string[] msg_parts = message.Split(delimiters);
+
+            string cell_name = msg_parts[1];
+
+
+            //KeyValuePair<bool, string> newStatus = new KeyValuePair<bool, string>(true, smaller_parts[1]);
+            //cellStatus[cell_name] = newStatus;
+            GetCellPosition(cell_name, out int row, out int col);
+            spreadsheetPanel1.SetFocus(row, col);
+        }
+
+        private void SendMessage(string msg)
+        {
+            Network.Send(theServer, msg);
+        }
+
         #endregion
 
         #region Row/Col Info
+
+        /// <summary>
+        /// Calculates the sum, count and average of the current row. Displays the results in a textbox.
+        /// If a cell contains a variable or formula that cannot be solved due to the dependency being unfinished it is left out of the calculations.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ReturnRow_Click(object sender, EventArgs e)
+        {
+            //handle logic of row info
+            OnReturnRowClick();
+
+            //set this menu visible
+            RowExit.Visible = true;
+            OutputRowInfo.Visible = true;
+
+            //set other menus invisivle
+            HelpSetText.Visible = false;
+            CloseSet.Visible = false;
+            HelpMoveText.Visible = false;
+            CloseMove.Visible = false;
+            HelpOtherText.Visible = false;
+            CloseOther.Visible = false;
+            ColumnExit.Visible = false;
+            OutputColumnInfo.Visible = false;
+        }
+
+        /// <summary>
+        /// Calculates the sum, count, and average of the values in the current column. Displays results in a textbox
+        /// If a cell contains a variable or formula that cannot be solved due to the dependency being unfinished it is left out of the calculations.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ReturnCollumn_Click(object sender, EventArgs e)
+        {
+            //handle logic of column info
+            OnRerutrnColumnClick();
+
+            //set this menu visible
+            ColumnExit.Visible = true;
+            OutputColumnInfo.Visible = true;
+
+            //set other menus invisible
+            HelpSetText.Visible = false;
+            CloseSet.Visible = false;
+            HelpMoveText.Visible = false;
+            CloseMove.Visible = false;
+            HelpOtherText.Visible = false;
+            CloseOther.Visible = false;
+            OutputRowInfo.Visible = false;
+            RowExit.Visible = false;
+        }
 
         /// <summary>
         /// Helper Method for ReturnCollumClick
@@ -419,7 +537,78 @@ namespace SpreadsheetGUI
 
         #endregion
 
+        #region File Menu
+
+        /// <summary>
+        /// Displays a custom file menu containing all the sent spreadsheet name from the server.
+        /// </summary>
+        /// <param name="fileString"></param>
+        private void ShowFileMenu(string fileString)
+        {
+            FilePanel.Show();
+            string[] files = fileString.Split('\n');
+            //for some reason Split() does not remove the delimter from the last part of the string
+            string lastString = files[files.Length - 1];
+            lastString = lastString.Substring(0, lastString.Length - 2);
+            files[files.Length - 1] = lastString;
+            foreach (string file in files)
+            {
+                ListViewItem item = new ListViewItem(file);
+                item.Text = file;
+                FileList.Items.Add(item);
+            }
+        }
+
+        /// <summary>
+        /// Work in progress, low priority
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FilePanelMove(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                this.FilePanel.Location = new Point(Cursor.Position.X + e.X, Cursor.Position.Y + e.Y);
+            }
+        }
+
+        #endregion
+
         #region Helper Methods
+
+        private void BackspaceKey(KeyEventArgs e)
+        {
+            spreadsheetPanel1.GetSelection(out int col, out int row);
+            spreadsheetPanel1.GetValue(col, row, out string value);
+            if (value.Length > 0)
+            {
+                int split_index = (value.Length - 1);
+                string newVal = value.Substring(0, split_index);
+                spreadsheetPanel1.SetValue(col, row, newVal);
+            }
+        }
+
+        private void StandardKey(KeyEventArgs e)
+        {
+            spreadsheetPanel1.GetSelection(out int col, out int row);
+            KeysConverter kc = new KeysConverter();
+            string keyString = kc.ConvertToString(e.KeyData);
+            keyString = keyString.ToLower();
+            spreadsheetPanel1.GetValue(col, row, out string value);
+            string newVal = value + keyString;
+            spreadsheetPanel1.SetValue(col, row, newVal);
+        }
+
+        private void EnterKey(KeyEventArgs e)
+        {
+            SetCell();
+            setCellNameVal(spreadsheetPanel1);
+            e.SuppressKeyPress = true;
+
+            //once networking is back up...
+            string unfocusMessage = "unfocus " + ((char)3);
+            SendMessage(unfocusMessage);
+        }
 
         /// <summary>
         /// Returns a string Cell name based on a numeric row, column position.
@@ -529,30 +718,6 @@ namespace SpreadsheetGUI
                 UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
             }
         }
-
-        ///<summary>
-        /// checks that the the servename is valid and connects the client to the server.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ConnectButton_Click(object sender, EventArgs e)
-        {
-            if (string.IsNullOrEmpty(ServerTextBox.Text))
-                MessageBox.Show("Please enter a server address.");
-            else
-            {
-                try
-                {
-                    //theServer = Network.ConnectToServer(SendRegisterMessage, ServerTextBox.Text);
-                    ServerTextBox.Enabled = false;
-                    ConnectButton.Enabled = false;
-                }
-                catch (ArgumentException)
-                {
-                    MessageBox.Show("invalid server name");
-                }
-            }
-        }
         /*
         /// <summary>
         /// Sends the register message to the server after a connection is established.
@@ -565,86 +730,6 @@ namespace SpreadsheetGUI
 
         }
         */
-        /// <summary>
-        /// Delegate to remove text and change color when ServerTextbox is entered.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ServerTextBoxEntered(object sender, EventArgs e)
-        {
-            ServerTextBox.Text = "";
-            ServerTextBox.ForeColor = Color.Black;
-        }
-
-        /// <summary>
-        /// Delegate to add text and change text color when ServerTextBox is left (if the client has not connected to a server yet).
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ServerTextBoxLeft(object sender, EventArgs e)
-        {
-            if ( ! connected)
-            {
-                ServerTextBox.Text = "Enter Hostname";
-                ServerTextBox.ForeColor = SystemColors.ScrollBar;
-            }
-        }
-
-        /// <summary>
-        /// Displays a custom file menu containing all the sent spreadsheet name from the server.
-        /// </summary>
-        /// <param name="fileString"></param>
-        private void ShowFileMenu(string fileString)
-        {
-            FilePanel.Show();
-            string[] files = fileString.Split('\n');
-            //for some reason Split() does not remove the delimter from the last part of the string
-            string lastString = files[files.Length - 1];
-            lastString = lastString.Substring(0, lastString.Length - 2);
-            files[files.Length - 1] = lastString;
-            foreach (string file in files)
-            {
-                ListViewItem item = new ListViewItem(file);
-                item.Text = file;
-                FileList.Items.Add(item);
-            }
-        }
-
-        /// <summary>
-        /// Work in progress, low priority
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void FilePanelMove(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                this.FilePanel.Location = new Point(Cursor.Position.X + e.X, Cursor.Position.Y + e.Y);
-            }
-        }
-
-        /// <summary>
-        /// Sets the FileTextBox contents to the name of the selected spreadsheet.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void FileSelected(object sender, EventArgs e)
-        {
-            ListViewItem fileSelected = FileList.SelectedItems[0];
-            FileTextSelect.Text = fileSelected.Text;
-        }
-
-        /// <summary>
-        /// Sends the server the name of the spreadsheet the 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void SendSpreadsheetSelection(object sender, EventArgs e)
-        {
-            Network.Send(theServer, FileTextSelect.Text);
-            //TODO: add full state message processing function.
-            //HandleFullState();
-        }
 
         private void HandleFullState()
         {
@@ -658,63 +743,6 @@ namespace SpreadsheetGUI
              * POSSIBLE TODO: add recieve function to networking file if needed.
              * */
         }
-
-        private void Receive()
-        {
-            /*
-            string message = Network.Recieve();
-            if (message is focus)
-                ReceiveFocus(message);
-            */
-        }
-
-        /// <summary>
-        /// Sends the focus message to the server when a cell is being edited.
-        /// </summary>
-        private void SendFocus(string message)
-        {
-            //hacking, but allows you to test diff cases
-            //if in column c, receive will be column d
-            //so you can test a case where someone else would have been editing a diff cell
-            ReceiveFocus(message);
-            //Network.Send(theServer, message);
-        }
-
-        private void ReceiveFocus(string message)
-        {
-            //color the cell
-
-            //figure out what cell the focus is on
-            //string[] msg_parts = message.Split(null);
-            //string[] smaller_parts = msg_parts[1].Split(':');
-
-            char[] delimiters = new char[] { ' ', ':', ((char)3) };
-            string[] msg_parts = message.Split(delimiters);
-
-            string cell_name = msg_parts[1];
-
-
-            //KeyValuePair<bool, string> newStatus = new KeyValuePair<bool, string>(true, smaller_parts[1]);
-            //cellStatus[cell_name] = newStatus;
-            GetCellPosition(cell_name, out int row, out int col);
-            spreadsheetPanel1.SetFocus(row, col);
-        }
-
-        private void SendMessage(string msg)
-        {
-            Network.Send(theServer, msg);
-        }
         #endregion
-
-        private void undo_button_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void revert_button_Click(object sender, EventArgs e)
-        {
-
-
-        }
     }
 }
