@@ -2,6 +2,7 @@
 #include <sys/socket.h>
 #include <stdlib.h>
 #include <netinet/in.h>
+#include <errno.h>
 #include <pthread.h>
 #include <iostream>
 #include <unistd.h>
@@ -127,8 +128,10 @@ void* NetworkController::ListenForClients(void* ptr){
     std::cerr << "failed to bind to localhost:" << PORT << std::endl;
     ptr_lobby->Shutdown();
   }
-
-  std::cout << "Listener bound to port: " << PORT << std::endl;
+  else
+  {
+    std::cout << "Listener bound to port: " << PORT << std::endl;
+  }
   
   while(ptr_lobby->IsRunning())
   {  
@@ -147,10 +150,8 @@ void* NetworkController::ListenForClients(void* ptr){
     else
     {
       pthread_t handshake_thread;
-      int* socket_ptr = new int;
-      *socket_ptr = new_client_socket;
       struct socket_data* sdata = new socket_data;
-      (*sdata).ptr_client = socket_ptr;
+      (*sdata).client_socket = new_client_socket;
       (*sdata).ptr_lobby = ptr_lobby;
       if (pthread_create(&handshake_thread, NULL, Handshake, sdata))
       {
@@ -171,24 +172,93 @@ void* NetworkController::ListenForClients(void* ptr){
 void* NetworkController::Handshake(void* ptr){
   struct socket_data* ptr_data = (socket_data*) ptr;
   Lobby* ptr_obj = (*ptr_data).ptr_lobby;
-  int* ptr_id = (*ptr_data).ptr_client;
   std::cout << "Created handshake thread" << std::endl;
-  int id = *ptr_id;
-  char buffer[1024];
+  int id = (*ptr_data).client_socket;
   std::cout << "The client on this thread is on socket # " << id << std::endl;
-  read(id,buffer,1024);
-  std::cout << "Received: " <<  buffer << std::endl;
+  //read(id,buffer,1024);
+
+  
+  char buffer[1024];
+  int buf_start = 0;
+  std::cout << "CH: " << buffer[0] << std::endl;
+  std::string register_message;
+  
+  ClearBuffer(buffer);
+  do
+  {
+    buf_start = Receive(id, buffer, buf_start);
+    register_message = GetMessage(buffer);
+  } while(register_message == "");
+
+  std::cout << "Received: " <<  register_message << std::endl;
   std::cout << "There are " << ptr_obj->GetSheetList().size() << " spreadsheets available" << std::endl; 
   std::string message = ptr_obj->BuildConnectAccepted();
   std::cout << message << std::endl;
   const char* mbuffer = message.c_str();
   send(id, mbuffer, 1024, MSG_EOR);
   //Send(id, message);
-  read(id,buffer,1024);
+  //read(id,buffer,1024);
   std::string name = buffer;
 
-  delete ptr_id;
   delete ptr_data;
    
+}
+
+//Sends a specified message to the client.
+//void NetworkController::Send(std::string message)
+//{
+//    //convert string message to char[].
+//    int message_length = message.length() + 1;
+//    char msg_char[message_length];
+//    strcpy(msg_char, message.c_str());
+//
+//    send(clientSocket_id, msg_char, message_length, 0);
+//}
+
+//Reads from the incoming buffer and returns any messages sent from the client.
+int NetworkController::Receive(int client_socket_id, char* message_buffer, int start)
+{
+    int bytes_received = recv(client_socket_id, message_buffer+start, 1024-start, 0);
+    if (bytes_received == -1)
+    {
+      return start;
+    }
+    else
+    {
+      return start + bytes_received;
+    }
+}
+
+//helper method that returns a message and removes it from the messages string buffer, only if the message is complete ('\n' found).
+std::string NetworkController::GetMessage(char* message_buffer)
+{
+    char* i = message_buffer;
+    std::string message = "";
+    while (i < message_buffer+1024)
+    {
+      std::cout << i << ":" << std::cout << *i << std::endl;
+      if (*i == (char) 3)
+      {
+         return message;
+      }
+      message += *i;
+      i++;
+    }
+  //  std::string buffer(message_buffer);
+  //  std::string::size_type position = buffer.find(x);
+  //  if (position != std::string::npos)
+  //  {
+  //      std::string return_msg = buffer.substr(0, position);
+  //      return return_msg;
+  //  }
+    return "";
+}
+
+//Clears the memory associated with the given char[].
+void NetworkController::ClearBuffer(char* buffer)
+{
+    char * array_start = buffer;
+    char * array_end = array_start + 1024;
+    std::fill(array_start, array_end, 0);
 }
 

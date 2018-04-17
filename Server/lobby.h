@@ -2,6 +2,8 @@
 #define LOBBY_H
 
 #include "spreadsheet.h"
+#include "interface.h"
+#include <queue>
 #include <string>
 #include <map>
 #include <sys/socket.h>
@@ -9,8 +11,8 @@
 class Lobby {
   private:
     bool running;
-    std::vector<int> clients;
-    std::vector<int> new_clients;
+    std::vector<Interface> clients;
+    std::queue<Interface> new_clients;
     std::map<std::string, Spreadsheet> spreadsheets;
     std::vector<std::string> sheet_list;
 

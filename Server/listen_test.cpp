@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
   while (true)
   {
     std::cin >> input;
-    if (input == "exit")
+    if (input == "exit" || !lobby.IsRunning())
     {
       lobby.Shutdown();
       break;
