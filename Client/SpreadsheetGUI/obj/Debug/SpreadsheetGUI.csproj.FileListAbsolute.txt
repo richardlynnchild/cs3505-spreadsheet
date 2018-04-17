@@ -94,3 +94,5 @@ C:\Users\Richard\Source\Repos\cs3505-spreadsheet\Client\SpreadsheetGUI\bin\Debug
 C:\Users\Richard\Source\Repos\cs3505-spreadsheet\Client\SpreadsheetGUI\bin\Debug\Networking.pdb
 C:\Users\natha\source\repos\cs3505-spreadsheet\Client\SpreadsheetGUI\bin\Debug\Networking.dll
 C:\Users\natha\source\repos\cs3505-spreadsheet\Client\SpreadsheetGUI\bin\Debug\Networking.pdb
+C:\Users\natha\source\repos\cs3505-spreadsheet\Client\SpreadsheetGUI\bin\Debug\Controller.dll
+C:\Users\natha\source\repos\cs3505-spreadsheet\Client\SpreadsheetGUI\bin\Debug\Controller.pdb

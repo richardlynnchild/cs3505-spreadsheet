@@ -173,7 +173,6 @@
             this.FileMenu_New.Name = "FileMenu_New";
             this.FileMenu_New.Size = new System.Drawing.Size(210, 30);
             this.FileMenu_New.Text = "New";
-            this.FileMenu_New.Click += new System.EventHandler(this.FileMenu_New_Click);
             // 
             // FileMenu_Save
             // 
@@ -189,28 +188,24 @@
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
             this.saveToolStripMenuItem.Size = new System.Drawing.Size(170, 30);
             this.saveToolStripMenuItem.Text = "Save";
-            this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // saveAsToolStripMenuItem
             // 
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
             this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(170, 30);
             this.saveAsToolStripMenuItem.Text = "Save As...";
-            this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
             // 
             // FileMenu_Open
             // 
             this.FileMenu_Open.Name = "FileMenu_Open";
             this.FileMenu_Open.Size = new System.Drawing.Size(210, 30);
             this.FileMenu_Open.Text = "Open";
-            this.FileMenu_Open.Click += new System.EventHandler(this.FileMenu_Open_Click);
             // 
             // FileMenu_Close
             // 
             this.FileMenu_Close.Name = "FileMenu_Close";
             this.FileMenu_Close.Size = new System.Drawing.Size(210, 30);
             this.FileMenu_Close.Text = "Close";
-            this.FileMenu_Close.Click += new System.EventHandler(this.FileMenu_Close_Click);
             // 
             // tableLayoutPanel1
             // 
