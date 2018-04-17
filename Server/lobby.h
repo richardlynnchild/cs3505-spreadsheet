@@ -26,7 +26,6 @@ class Lobby {
     static void Send(int socket_id, std::string message);
     void UpdateSheetList(std::string name);
     void OpenSpreadsheet(std::string filename);
-    void AddNewClient(Interface interface);
     std::string BuildFocus();
     std::string BuildUnfocus();
 
@@ -37,6 +36,7 @@ class Lobby {
     std::string BuildConnectAccepted();
     std::vector<std::string> GetSheetList();
     bool IsRunning();
+    void AddNewClient(Interface interface);
 
 };
 
