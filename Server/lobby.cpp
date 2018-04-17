@@ -96,6 +96,17 @@ std::string Lobby::BuildConnectAccepted(){
 
 }
 
+std::string Lobby::BuildFocus()
+{
+  std::string message = "focus ";
+
+}
+
+std::string Lobby::BuildUnfocus()
+{
+  std::string message = "unfocus ";
+}
+
 /*
  * Checks for and handles a new client if the new client
  * list is non-empty.

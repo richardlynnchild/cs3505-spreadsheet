@@ -10,7 +10,7 @@ using System.Windows.Forms;
 using SS;
 using SpreadsheetUtilities;
 using System.Net.Sockets;
-using NetworkingController;
+//using NetworkingController;
 
 namespace SpreadsheetGUI
 {
@@ -161,50 +161,59 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void HasEntered(object sender, KeyEventArgs e)
         {
+            //they are no longer editing
             if (e.KeyData == Keys.Enter)
             {
                 SetCell();
                 setCellNameVal(spreadsheetPanel1);
-
                 e.SuppressKeyPress = true;
+
+                //once networking is back up...
+                string unfocusMessage = "unfocus " + ((char)3);
+                SendUnfocus(unfocusMessage);
             }
 
-            //special case for backspace
-            if (e.KeyData == Keys.Back)
-            {
-                spreadsheetPanel1.GetSelection(out int col, out int row);
-                spreadsheetPanel1.GetValue(col, row, out string value);
-                if (value.Length > 0)
-                {
-                    int split_index = (value.Length - 1);
-                    string newVal = value.Substring(0, split_index);
-                    spreadsheetPanel1.SetValue(col, row, newVal);
-                }
-            }
-
-            //TODO: deal with shift keys
-            /*
-            string keyString = e.ToString();
-            char[] myChar = keyString.ToCharArray();
-            foreach(char c in myChar)
-            {
-                if(Char.IsLetter(c))
-            }
-            if (Char.IsLetter(e.KeyChar))
-            if(e.Shift && )
-            */
-            //GetSelection, GetValue, SetValue (spreadsheet)
-            //if any key except enter is pressed, temporarily input the content into the right cell
+            //if they are currently editing
             else
             {
-                spreadsheetPanel1.GetSelection(out int col, out int row);
-                KeysConverter kc = new KeysConverter();
-                string keyString = kc.ConvertToString(e.KeyData);
-                keyString = keyString.ToLower();
-                spreadsheetPanel1.GetValue(col, row, out string value);
-                string newVal = value + keyString;
-                spreadsheetPanel1.SetValue(col, row, newVal);
+                //once networking works...
+                spreadsheetPanel1.GetSelection(out int c, out int r);
+                string cellName = GetCellName(c, r);
+                string focusMessage = "focus " + cellName + ((char)3);
+                SendFocus(focusMessage);
+
+                //special case for backspace
+                if (e.KeyData == Keys.Back)
+                {
+                    spreadsheetPanel1.GetSelection(out int col, out int row);
+                    spreadsheetPanel1.GetValue(col, row, out string value);
+                    if (value.Length > 0)
+                    {
+                        int split_index = (value.Length - 1);
+                        string newVal = value.Substring(0, split_index);
+                        spreadsheetPanel1.SetValue(col, row, newVal);
+                    }
+                }
+
+
+                else if ((e.KeyData >= Keys.A && e.KeyData <= Keys.Z) || (e.KeyData >= Keys.D0 && e.KeyData <= Keys.D9) || (e.KeyData >= Keys.NumPad0 && e.KeyData <= Keys.NumPad9))
+                {
+                    spreadsheetPanel1.GetSelection(out int col, out int row);
+                    KeysConverter kc = new KeysConverter();
+                    string keyString = kc.ConvertToString(e.KeyData);
+                    keyString = keyString.ToLower();
+                    spreadsheetPanel1.GetValue(col, row, out string value);
+                    string newVal = value + keyString;
+                    spreadsheetPanel1.SetValue(col, row, newVal);
+                }
+
+                else
+                {
+                    //not a valid key
+                    return;
+                }
             }
+            
         }
 
         /// <summary>
@@ -688,7 +697,7 @@ namespace SpreadsheetGUI
             {
                 try
                 {
-                    theServer = Network.ConnectToServer(SendRegisterMessage, ServerTextBox.Text);
+                    //theServer = Network.ConnectToServer(SendRegisterMessage, ServerTextBox.Text);
                     ServerTextBox.Enabled = false;
                     ConnectButton.Enabled = false;
                 }
@@ -698,7 +707,7 @@ namespace SpreadsheetGUI
                 }
             }
         }
-
+        /*
         /// <summary>
         /// Sends the register message to the server after a connection is established.
         /// </summary>
@@ -709,7 +718,7 @@ namespace SpreadsheetGUI
             Network.Send(state.Socket, message);
 
         }
-
+        */
         /// <summary>
         /// Delegate to remove text and change color when ServerTextbox is entered.
         /// </summary>
@@ -786,7 +795,7 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void SendSpreadsheetSelection(object sender, EventArgs e)
         {
-            Network.Send(theServer, FileTextSelect.Text);
+            //Network.Send(theServer, FileTextSelect.Text);
             //TODO: add full state message processing function.
             //HandleFullState();
         }
@@ -803,6 +812,33 @@ namespace SpreadsheetGUI
              * POSSIBLE TODO: add recieve function to networking file if needed.
              * */
         }
+
+        /// <summary>
+        /// Sends the focus message to the server when a cell is being edited.
+        /// </summary>
+        private void SendFocus(string message)
+        {
+            //Network.Send(theServer, message);
+        }
+
+        /// <summary>
+        /// Sends the unfocus message to the server when the user presses "Enter" and stops editing the cell.
+        /// </summary>
+        private void SendUnfocus(string message)
+        {
+            //Network.Send(theServer, message);
+        }
         #endregion
+
+        private void undo_button_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void revert_button_Click(object sender, EventArgs e)
+        {
+
+
+        }
     }
 }

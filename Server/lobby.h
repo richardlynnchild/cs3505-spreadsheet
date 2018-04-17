@@ -12,6 +12,7 @@
 
 class Lobby {
   private:
+
     bool running;
     std::vector<Interface> clients;
     std::map<std::string, Spreadsheet> spreadsheets;
@@ -26,11 +27,13 @@ class Lobby {
     void UpdateSheetList(std::string name);
     void OpenSpreadsheet(std::string filename);
     void AddNewClient(Interface interface);
+    std::string BuildFocus();
+    std::string BuildUnfocus();
+
   public:
     Lobby();
     void Start();
     void Shutdown();
-
     std::string BuildConnectAccepted();
     std::vector<std::string> GetSheetList();
     bool IsRunning();
