@@ -19,6 +19,7 @@ class Spreadsheet
   
  public:
   Spreadsheet(std::string name);
+  Spreadsheet();
   void EditSheet(std::string cell_name, std::string contents);
   std::pair<std::string, std::string> Undo();
   std::string Revert(std::string cell_name);

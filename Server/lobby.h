@@ -25,7 +25,7 @@ class Lobby {
     static void Send(int socket_id, std::string message);
     void UpdateSheetList(std::string name);
     void OpenSpreadsheet(std::string filename);
-    void AddNewClient(int id, std::string name);
+    void AddNewClient(Interface interface);
   public:
     Lobby();
     void Start();
