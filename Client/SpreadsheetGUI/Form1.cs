@@ -169,8 +169,8 @@ namespace SpreadsheetGUI
                 e.SuppressKeyPress = true;
 
                 //once networking is back up...
-                //string unfocusMessage = "unfocus " + userID (what is this?) + char(3);
-                //SendUnfocus(unfocusMessage);
+                string unfocusMessage = "unfocus " + ((char)3);
+                SendUnfocus(unfocusMessage);
             }
 
             //if they are currently editing
@@ -179,8 +179,8 @@ namespace SpreadsheetGUI
                 //once networking works...
                 spreadsheetPanel1.GetSelection(out int c, out int r);
                 string cellName = GetCellName(c, r);
-                //string focusMessage = "focus " + cellName + ":" + userID (what is this?) + char(3);
-                //SendFocus(focusMessage);
+                string focusMessage = "focus " + cellName + ((char)3);
+                SendFocus(focusMessage);
 
                 //special case for backspace
                 if (e.KeyData == Keys.Back)
