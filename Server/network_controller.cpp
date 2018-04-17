@@ -165,8 +165,7 @@ void* NetworkController::ListenForClients(void* ptr){
 
 /*
  * Send the client a list of available spreadsheets and
- * wait for a load command from client. Update list of
- * available spreadsheets if needed. Add this client to
+ * wait for a load command from client. Add this client to
  * the new client list.
  */
 void* NetworkController::Handshake(void* ptr){
@@ -202,6 +201,8 @@ void* NetworkController::Handshake(void* ptr){
 
   delete ptr_data;
    
+  Interface interface(id,name);
+  ptr_obj->AddNewClient(interface);
 }
 
 //Sends a specified message to the client.

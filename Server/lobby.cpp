@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <queue>
 #include <utility>
 #include <iostream>
 #include <string>
@@ -16,6 +17,7 @@
 ***********************/
 
 pthread_mutex_t list_mutex;
+pthread_mutex_t new_client_mutex;
 
 static void* ListenForClients(void* ptr);
 static void* Handshake(void* ptr);
@@ -64,6 +66,16 @@ std::vector<std::string> Lobby::GetSheetList(){
 }
 
 /*
+ * Add an Interface to the new_client queue.
+ */
+void AddNewClient(Interface interface){
+  pthread_mutex_lock(&new_client_mutex);
+  this->new_clients.push(interface);
+  pthread_mutex_unlock(&new_client_mutex);
+}
+
+
+/*
  * Build the string needed to send the 
  * connect_accepted message. This is a list
  * of available spreadsheets.
@@ -84,13 +96,15 @@ std::string Lobby::BuildConnectAccepted(){
 
 }
 
+std::string Lobby::BuildFocus()
+{
+  std::string message = "focus ";
 
-/*
- * Send the specified message to the specified client.
- */
+}
 
-void Lobby::Send(int id, std::string message){
-
+std::string Lobby::BuildUnfocus()
+{
+  std::string message = "unfocus ";
 }
 
 /*
@@ -101,15 +115,21 @@ void Lobby::Send(int id, std::string message){
  * false otherwise.
  */
 bool Lobby::CheckForNewClient(){
-
-}
-
-/*
- * Handles a new client by adding them to the subscribed client
- * list and sending them a full-state message.
- */
-void Lobby::InitNewClient(int id){
-  
+  bool idle = true;
+  if(new_clients.size() > 0){
+    idle = false;
+    Interface new_client = new_clients.front();
+    new_clients.pop();
+    std::string name = new_client.GetSprdName();
+    clients.push_back(new_client); 
+    if(spreadsheets.count(name)<1){
+      Spreadsheet new_sheet(name);
+      spreadsheets.insert(std::pair<std::string,Spreadsheet>(name,new_sheet));
+    }
+    std::string full_state = spreadsheets[name].GetFullState(); 
+    new_client.Send(full_state);
+  } 
+  return idle;
 }
 
 bool Lobby::IsRunning()
@@ -135,7 +155,15 @@ void Lobby::Start(){
   // 1. Check for new clients in the new client queue
   //      - If they exist push a full state message into their interface
   //      - Add them to client list
-  //
+       
+  bool idle;
+  while(running){
+    idle = CheckForNewClient();
+    if(idle){
+      int ten_ms = 10000;
+      usleep(ten_ms); 
+    }
+  } 
   // 2. For each client, process incoming messages in a Round Robin fashion
   //      - Get message
   //      - Update spreadsheet object

@@ -10,7 +10,7 @@ using System.Windows.Forms;
 using SS;
 using SpreadsheetUtilities;
 using System.Net.Sockets;
-using NetworkingController;
+//using NetworkingController;
 
 namespace SpreadsheetGUI
 {
@@ -43,11 +43,20 @@ namespace SpreadsheetGUI
             //set up listeners for keydown and formclosing events.
             this.KeyDown += HasEntered;
             this.FormClosing += OnExit;
+            this.MouseMove += FilePanelMove;
+            this.FileList.Click += FileSelected;
+            this.Open_FileMenu.Click += SendSpreadsheetSelection;
+
+            this.Width = 1000;
+            this.Height = 600;
+
+            FilePanel.Visible = false;
 
             ServerTextBox.Enter += ServerTextBoxEntered;
             ServerTextBox.LostFocus += ServerTextBoxLeft; 
 
             FormulaBox.Focus();
+
         }
 
         #region Spreadsheet Control
@@ -152,11 +161,59 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void HasEntered(object sender, KeyEventArgs e)
         {
+            //they are no longer editing
             if (e.KeyData == Keys.Enter)
             {
                 SetCell();
                 setCellNameVal(spreadsheetPanel1);
+                e.SuppressKeyPress = true;
+
+                //once networking is back up...
+                string unfocusMessage = "unfocus " + ((char)3);
+                SendUnfocus(unfocusMessage);
             }
+
+            //if they are currently editing
+            else
+            {
+                //once networking works...
+                spreadsheetPanel1.GetSelection(out int c, out int r);
+                string cellName = GetCellName(c, r);
+                string focusMessage = "focus " + cellName + ((char)3);
+                SendFocus(focusMessage);
+
+                //special case for backspace
+                if (e.KeyData == Keys.Back)
+                {
+                    spreadsheetPanel1.GetSelection(out int col, out int row);
+                    spreadsheetPanel1.GetValue(col, row, out string value);
+                    if (value.Length > 0)
+                    {
+                        int split_index = (value.Length - 1);
+                        string newVal = value.Substring(0, split_index);
+                        spreadsheetPanel1.SetValue(col, row, newVal);
+                    }
+                }
+
+
+                else if ((e.KeyData >= Keys.A && e.KeyData <= Keys.Z) || (e.KeyData >= Keys.D0 && e.KeyData <= Keys.D9) || (e.KeyData >= Keys.NumPad0 && e.KeyData <= Keys.NumPad9))
+                {
+                    spreadsheetPanel1.GetSelection(out int col, out int row);
+                    KeysConverter kc = new KeysConverter();
+                    string keyString = kc.ConvertToString(e.KeyData);
+                    keyString = keyString.ToLower();
+                    spreadsheetPanel1.GetValue(col, row, out string value);
+                    string newVal = value + keyString;
+                    spreadsheetPanel1.SetValue(col, row, newVal);
+                }
+
+                else
+                {
+                    //not a valid key
+                    return;
+                }
+            }
+            
         }
 
         /// <summary>
@@ -225,7 +282,8 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void FileMenu_Open_Click(object sender, EventArgs e)
         {
-            OnOpen();
+            ShowFileMenu("file1\nfile2/n");
+            //OnOpen();
         }
 
         /// <summary>
@@ -639,7 +697,7 @@ namespace SpreadsheetGUI
             {
                 try
                 {
-                    theServer = Network.ConnectToServer(RegisterMessage, ServerTextBox.Text);
+                    //theServer = Network.ConnectToServer(SendRegisterMessage, ServerTextBox.Text);
                     ServerTextBox.Enabled = false;
                     ConnectButton.Enabled = false;
                 }
@@ -649,17 +707,18 @@ namespace SpreadsheetGUI
                 }
             }
         }
-
+        /*
         /// <summary>
         /// Sends the register message to the server after a connection is established.
         /// </summary>
         /// <param name="state"></param>
-        private void RegisterMessage(SocketState state)
+        private void SendRegisterMessage(SocketState state)
         {
-            string message = "register \\3";
+            string message = "register" + (char)3;
             Network.Send(state.Socket, message);
-        }
 
+        }
+        */
         /// <summary>
         /// Delegate to remove text and change color when ServerTextbox is entered.
         /// </summary>
@@ -684,6 +743,102 @@ namespace SpreadsheetGUI
                 ServerTextBox.ForeColor = SystemColors.ScrollBar;
             }
         }
+
+        /// <summary>
+        /// Displays a custom file menu containing all the sent spreadsheet name from the server.
+        /// </summary>
+        /// <param name="fileString"></param>
+        private void ShowFileMenu(string fileString)
+        {
+            FilePanel.Show();
+            string[] files = fileString.Split('\n');
+            //for some reason Split() does not remove the delimter from the last part of the string
+            string lastString = files[files.Length - 1];
+            lastString = lastString.Substring(0, lastString.Length - 2);
+            files[files.Length - 1] = lastString;
+            foreach (string file in files)
+            {
+                ListViewItem item = new ListViewItem(file);
+                item.Text = file;
+                FileList.Items.Add(item);
+            }
+        }
+
+        /// <summary>
+        /// Work in progress, low priority
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FilePanelMove(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                this.FilePanel.Location = new Point(Cursor.Position.X + e.X, Cursor.Position.Y + e.Y);
+            }
+        }
+
+        /// <summary>
+        /// Sets the FileTextBox contents to the name of the selected spreadsheet.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FileSelected(object sender, EventArgs e)
+        {
+            ListViewItem fileSelected = FileList.SelectedItems[0];
+            FileTextSelect.Text = fileSelected.Text;
+        }
+
+        /// <summary>
+        /// Sends the server the name of the spreadsheet the 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SendSpreadsheetSelection(object sender, EventArgs e)
+        {
+            //Network.Send(theServer, FileTextSelect.Text);
+            //TODO: add full state message processing function.
+            //HandleFullState();
+        }
+
+        private void HandleFullState()
+        {
+            /*
+             * string message = Network.Recieve();
+             * if (message == ...)
+             * MessageBox.Show(Spreadsheet not valid!);
+             * 
+             * else
+             * 
+             * POSSIBLE TODO: add recieve function to networking file if needed.
+             * */
+        }
+
+        /// <summary>
+        /// Sends the focus message to the server when a cell is being edited.
+        /// </summary>
+        private void SendFocus(string message)
+        {
+            //Network.Send(theServer, message);
+        }
+
+        /// <summary>
+        /// Sends the unfocus message to the server when the user presses "Enter" and stops editing the cell.
+        /// </summary>
+        private void SendUnfocus(string message)
+        {
+            //Network.Send(theServer, message);
+        }
         #endregion
+
+        private void undo_button_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void revert_button_Click(object sender, EventArgs e)
+        {
+
+
+        }
     }
 }

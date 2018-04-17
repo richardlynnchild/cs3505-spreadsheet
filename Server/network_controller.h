@@ -27,7 +27,6 @@ public:
     
     static void* ListenForClients(void* ptr);
     static void* Handshake(void* ptr);
-
    // std::vector<Interface>;
 
 };
