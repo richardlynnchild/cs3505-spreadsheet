@@ -17,6 +17,7 @@
 ***********************/
 
 pthread_mutex_t list_mutex;
+pthread_mutex_t new_client_mutex;
 
 static void* ListenForClients(void* ptr);
 static void* Handshake(void* ptr);
@@ -65,6 +66,16 @@ std::vector<std::string> Lobby::GetSheetList(){
 }
 
 /*
+ * Add an Interface to the new_client queue.
+ */
+void AddNewClient(Interface interface){
+  pthread_mutex_lock(&new_client_mutex);
+  this->new_clients.push(interface);
+  pthread_mutex_unlock(&new_client_mutex);
+}
+
+
+/*
  * Build the string needed to send the 
  * connect_accepted message. This is a list
  * of available spreadsheets.
@@ -85,22 +96,15 @@ std::string Lobby::BuildConnectAccepted(){
 
 }
 
-/*
- * Add the pair  client/spreadsheet name to the new_clients
- * queue
- */
-void Lobby::AddNewClient(int id, std::string name){
-  std::pair<int,std::string> client(id,name);
-  new_clients.push(client);
-  std::cout << "Added client " << id << " to new client list" << std::endl;
+std::string Lobby::BuildFocus()
+{
+  std::string message = "focus ";
+
 }
 
-/*
- * Send the specified message to the specified client.
- */
-
-void Lobby::Send(int id, std::string message){
-
+std::string Lobby::BuildUnfocus()
+{
+  std::string message = "unfocus ";
 }
 
 /*
@@ -114,21 +118,18 @@ bool Lobby::CheckForNewClient(){
   bool idle = true;
   if(new_clients.size() > 0){
     idle = false;
-    Interface new_client = new_clients.pop();
+    Interface new_client = new_clients.front();
+    new_clients.pop();
+    std::string name = new_client.GetSprdName();
     clients.push_back(new_client); 
-    if(spreadsheets.count(new_client.GetSprdName())<1){
-      Spreadsheet new_sheet(new_client.GetSprdName());
-    }  
-    new_client.Send(BuildFullState(new_client.GetSprdName())); 
+    if(spreadsheets.count(name)<1){
+      Spreadsheet new_sheet(name);
+      spreadsheets.insert(std::pair<std::string,Spreadsheet>(name,new_sheet));
+    }
+    std::string full_state = spreadsheets[name].GetFullState(); 
+    new_client.Send(full_state);
+  } 
   return idle;
-}
-
-/*
- * Handles a new client by adding them to the subscribed client
- * list and sending them a full-state message.
- */
-void Lobby::InitNewClient(int id){
-  
 }
 
 bool Lobby::IsRunning()

@@ -1,8 +1,19 @@
 #include "spreadsheet.h"
 
+/*
+ * Constructor with spreadsheet name
+ */
 Spreadsheet::Spreadsheet(std::string sheet_name)
 {
   name = sheet_name;
+}
+
+/*
+ * Default constructor
+ */
+Spreadsheet::Spreadsheet()
+{
+  name = "";
 }
   
 /*

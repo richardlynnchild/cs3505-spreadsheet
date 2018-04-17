@@ -185,6 +185,8 @@ void* NetworkController::Handshake(void* ptr){
   //Send(id, message);
   read(id,buffer,1024);
   std::string name = buffer;
+  Interface interface(id,name);
+  ptr_obj->AddNewClient(interface);
   delete ptr_id;
   delete ptr_data;
    
