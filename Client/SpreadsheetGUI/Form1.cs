@@ -15,7 +15,7 @@ namespace SpreadsheetGUI
         public string filename;
         private Socket theServer;
         private bool connected;
-        private Dictionary<string, KeyValuePair<bool, string>> cellStatus;
+        private Dictionary<string, string> clientFocus;
         public Form1()
         {
             //
@@ -27,7 +27,7 @@ namespace SpreadsheetGUI
             InitializeComponent();
             this.KeyPreview = true;
 
-
+            clientFocus = new Dictionary<string, string>();
             //Set up valid open/save file types
             openFileDialog1.Filter = "Spreadsheet Files (*.sprd)|*.sprd|Text Files (*.txt)|*.txt";
             saveFileDialog1.Filter = "Spreadsheet Files (*.sprd)|*.sprd|Text Files (*.txt)|*.txt";
@@ -52,8 +52,6 @@ namespace SpreadsheetGUI
             ServerTextBox.Enter += ServerTextBoxEntered;
             ServerTextBox.LostFocus += ServerTextBoxLeft; 
 
-            FormulaBox.Focus();
-
         }
 
         #region Spreadsheet Control
@@ -70,7 +68,6 @@ namespace SpreadsheetGUI
 
             //set the contents of the formula box and set focus to it.
             FormulaBox.Text = ss1.GetCellContents(cellName).ToString();
-            FormulaBox.Focus();
 
             //put the cursor to the end of the text
             //if (FormulaBox.Text.Length > 0)
@@ -134,21 +131,16 @@ namespace SpreadsheetGUI
                         StandardKey(e);
                     }
 
-                    else if (e.KeyData == Keys.Up || e.KeyData == Keys.Down || e.KeyData == Keys.Left || e.KeyData == Keys.Right)
-                    {
-                        MovementKey(e);
-                    }
-
                     else
                     {
                         switch (e.KeyData)
                         {
-                            case Keys.Add:
-                                OperatorKey("=");
-                                break;
 
                             case Keys.Oemplus:
-                                OperatorKey("+");
+                                if (ModifierKeys == Keys.Shift)
+                                    OperatorKey("=");
+                                else
+                                    OperatorKey("+");
                                 break;
 
                             case Keys.OemMinus:
@@ -159,6 +151,9 @@ namespace SpreadsheetGUI
                                 OperatorKey("/");
                                 break;
 
+                            case Keys.Shift:
+
+
                             default:
                                 break;
                         }
@@ -168,7 +163,7 @@ namespace SpreadsheetGUI
             
         }
 
-        /*
+        
         /// <summary>
         /// Overrides the ProcessCmdKey function in order to use the arrow keys and Tab to make
         /// Cell selections.
@@ -180,7 +175,7 @@ namespace SpreadsheetGUI
         {
             return spreadsheetPanel1.MovementKey(ref msg, keyData);
         }
-        */
+        
 
             /*
         /// <summary>
@@ -318,22 +313,33 @@ namespace SpreadsheetGUI
 
         private void ReceiveFocus(string message)
         {
-            //color the cell
-
-            //figure out what cell the focus is on
-            //string[] msg_parts = message.Split(null);
-            //string[] smaller_parts = msg_parts[1].Split(':');
-
             char[] delimiters = new char[] { ' ', ':', ((char)3) };
             string[] msg_parts = message.Split(delimiters);
-
             string cell_name = msg_parts[1];
+            string user_id = msg_parts[2];
 
+            clientFocus[user_id] = cell_name;
 
-            //KeyValuePair<bool, string> newStatus = new KeyValuePair<bool, string>(true, smaller_parts[1]);
-            //cellStatus[cell_name] = newStatus;
             GetCellPosition(cell_name, out int row, out int col);
             spreadsheetPanel1.SetFocus(row, col);
+        }
+
+        private void SendUnfocus(string message)
+        {
+            ReceiveUnfocus(message);
+        }
+        private void ReceiveUnfocus(string message)
+        {
+            char[] delimiters = new char[] { ' ', ((char)3) };
+            string[] msg_parts = message.Split(delimiters);
+            string user_id = msg_parts[1];
+
+            //if (clientFocus[user_id] == null)
+                //return;
+            string cell_name = clientFocus[user_id];
+
+            GetCellPosition(cell_name, out int row, out int col);
+            spreadsheetPanel1.SetUnfocus(row, col);
         }
 
         private void SendMessage(string msg)
@@ -681,6 +687,7 @@ namespace SpreadsheetGUI
             //once networking is back up...
             string unfocusMessage = "unfocus " + ((char)3);
             //SendMessage(unfocusMessage);
+            SendUnfocus(unfocusMessage);
         }
 
         private void OperatorKey(string key)
@@ -689,34 +696,6 @@ namespace SpreadsheetGUI
             spreadsheetPanel1.GetValue(col, row, out string value);
             string newVal = value + key.ToLower();
             spreadsheetPanel1.SetValue(col, row, newVal);
-        }
-
-        private void MovementKey(KeyEventArgs e)
-        {
-            switch (e.KeyData)
-            {
-                case Keys.Up:
-                    spreadsheetPanel1.GetSelection(out int col, out int row);
-                    spreadsheetPanel1.SetSelection(col, row - 1);
-                    HandleSelectionChange(spreadsheetPanel1);
-                    break;
-                case Keys.Down:
-                    spreadsheetPanel1.GetSelection(out int col1, out int row1);
-                    spreadsheetPanel1.SetSelection(col1, row1 + 1);
-                    HandleSelectionChange(spreadsheetPanel1);
-                    break;
-                case Keys.Left:
-                    spreadsheetPanel1.GetSelection(out int col2, out int row2);
-                    spreadsheetPanel1.SetSelection(col2 - 1, row2);
-                    HandleSelectionChange(spreadsheetPanel1);
-                    break;
-                case Keys.Right:
-                    spreadsheetPanel1.GetSelection(out int col3, out int row4);
-                    spreadsheetPanel1.SetSelection(col3 + 1, row4);
-                    HandleSelectionChange(spreadsheetPanel1);
-                    break;
-            }
-
         }
 
         private void HandleSelectionChange(SpreadsheetPanel sender)
@@ -847,12 +826,12 @@ namespace SpreadsheetGUI
 
             catch (CircularException)
             {
-                FormulaBox.Text = "Ciruclar Dependency!";
+                spreadsheetPanel1.SetValue(col, row, "Ciruclar Dependency!");
             }
 
             catch (FormulaFormatException)
             {
-                FormulaBox.Text = "Invalid Formula!";
+                spreadsheetPanel1.SetValue(col, row, "Invalid Formula!");
             }
         }
 
