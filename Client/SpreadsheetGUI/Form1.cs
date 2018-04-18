@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using SS;
 using SpreadsheetUtilities;
 using System.Net.Sockets;
-using NetworkingController;
+using Networking;
 
 namespace SpreadsheetGUI
 {
@@ -257,7 +257,7 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void SendSpreadsheetSelection(object sender, EventArgs e)
         {
-            Network.Send(theServer, FileTextSelect.Text);
+            Networking.Networking.Send(theServer, FileTextSelect.Text);
             //TODO: add full state message processing function.
             //HandleFullState();
         }
@@ -304,7 +304,7 @@ namespace SpreadsheetGUI
 
         private void SendMessage(string msg)
         {
-            Network.Send(theServer, msg);
+            Networking.Networking.Send(theServer, msg);
         }
 
         #endregion
