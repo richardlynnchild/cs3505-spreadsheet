@@ -104,6 +104,20 @@ namespace SpreadsheetGUI
         {
             if ( ! ServerTextBox.Focused && ! FilePanel.Visible)
             {
+                if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.Oemplus)
+                    OperatorKey("+");
+                else if (e.KeyCode == Keys.Oemplus)
+                    OperatorKey("=");
+                else if (e.KeyCode == Keys.OemMinus)
+                    OperatorKey("-");
+                else if (e.KeyData == Keys.Oem2)
+                    OperatorKey("/");
+                else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.D8)
+                    OperatorKey("*");
+                else
+                    return;
+
+
                 //they are no longer editing
                 if (e.KeyData == Keys.Enter)
                 {
@@ -133,30 +147,8 @@ namespace SpreadsheetGUI
 
                     else
                     {
-                        switch (e.KeyData)
-                        {
-
-                            case Keys.Oemplus:
-                                if (ModifierKeys == Keys.Shift)
-                                    OperatorKey("=");
-                                else
-                                    OperatorKey("+");
-                                break;
-
-                            case Keys.OemMinus:
-                                OperatorKey("-");
-                                break;
-
-                            case Keys.OemBackslash:
-                                OperatorKey("/");
-                                break;
-
-                            case Keys.Shift:
-
-
-                            default:
-                                break;
-                        }
+                        //not a valid key
+                        return;
                     }
                 }
             }
