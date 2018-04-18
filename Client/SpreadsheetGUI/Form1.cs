@@ -131,11 +131,6 @@ namespace SpreadsheetGUI
                         StandardKey(e);
                     }
 
-                    else if (e.KeyData == Keys.Up || e.KeyData == Keys.Down || e.KeyData == Keys.Left || e.KeyData == Keys.Right)
-                    {
-                        MovementKey(e);
-                    }
-
                     else
                     {
                         switch (e.KeyData)
@@ -693,34 +688,6 @@ namespace SpreadsheetGUI
             spreadsheetPanel1.GetValue(col, row, out string value);
             string newVal = value + key.ToLower();
             spreadsheetPanel1.SetValue(col, row, newVal);
-        }
-
-        private void MovementKey(KeyEventArgs e)
-        {
-            switch (e.KeyData)
-            {
-                case Keys.Up:
-                    spreadsheetPanel1.GetSelection(out int col, out int row);
-                    spreadsheetPanel1.SetSelection(col, row - 1);
-                    HandleSelectionChange(spreadsheetPanel1);
-                    break;
-                case Keys.Down:
-                    spreadsheetPanel1.GetSelection(out int col1, out int row1);
-                    spreadsheetPanel1.SetSelection(col1, row1 + 1);
-                    HandleSelectionChange(spreadsheetPanel1);
-                    break;
-                case Keys.Left:
-                    spreadsheetPanel1.GetSelection(out int col2, out int row2);
-                    spreadsheetPanel1.SetSelection(col2 - 1, row2);
-                    HandleSelectionChange(spreadsheetPanel1);
-                    break;
-                case Keys.Right:
-                    spreadsheetPanel1.GetSelection(out int col3, out int row4);
-                    spreadsheetPanel1.SetSelection(col3 + 1, row4);
-                    HandleSelectionChange(spreadsheetPanel1);
-                    break;
-            }
-
         }
 
         private void HandleSelectionChange(SpreadsheetPanel sender)
