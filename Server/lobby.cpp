@@ -147,6 +147,23 @@ std::vector<std::string> Lobby::SplitString(std::string str, char delim){
 }
 
 /*
+ * Send a change command with the specified string to the
+ * clients of the specified spreadsheet.
+ */
+void Lobby::SendChangeMessage(std::string message, std::string sheet){
+  std::string change = "change ";
+  change += message;
+  char end = (char) 3;
+  change += end;
+  std::vector<Interface>::iterator it = clients.begin();
+    for(; it != clients.end(); ++it){
+      if(it->GetSprdName() == sheet){
+        it->Send(change);
+      }
+    } 
+}
+
+/*
  * Processes a single message from a client.
  */
 
@@ -159,25 +176,19 @@ void Lobby::HandleMessage(std::string message, std::string sheet){
 
   if(command == "edit"){
     char delim = ':';
-    std::vector<std::string> tokens = SplitString(tokens[1], delim);
-    spreadsheets[sheet]->EditSheet(tokens[0],tokens[1]);
-    std::string change = "change ";
-    change += tokens[0];
-    change += tokens[1];
-    char end = (char) 3;
-    change += end;
-    std::vector<Interface>::iterator it = clients.begin();
-    for(; it != clients.end(); ++it){
-      if(it->GetSprdName() == sheet){
-        it->Send(change);
-      }
-    }      
+    std::vector<std::string> cell = SplitString(tokens[1], delim);
+    spreadsheets[sheet]->EditSheet(cell[0],cell[1]);
+    SendChangeMessage(tokens[1], sheet); 
   }
   else if(command == "undo"){
-
+    std::pair<std::string,std::string> cell = spreadsheets[sheet]->Undo();
+    std::string message = cell->first;
+    message += cell->second;
+    SendChangeMessage(message,sheet); 
   }
   else if(command == "revert"){
-
+   std::string message = spreadsheets[sheet]->Revert(tokens[1]);
+   SendChangeMessage(message,sheet); 
   }
   else if(command == "disconnect"){
 
