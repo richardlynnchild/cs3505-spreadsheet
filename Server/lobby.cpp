@@ -132,6 +132,33 @@ bool Lobby::CheckForNewClient(){
   return idle;
 }
 
+void Lobby::HandleMessage(std::string message){
+
+}
+
+/*
+ * Returns true if a client sent a message, returns false
+ * if all the client message queues were empty
+ */
+bool Lobby::CheckForMessages(){
+  int messagesHandled = 0;
+  std::vector<Interface>::iterator it = clients.begin();
+  for(; it != clients.end(); ++it){
+    //Pop next message off Interface incoming message queue
+    std::string message = it->GetMessage();
+    if(message == ""){
+      continue;
+    }
+    else {
+      HandleMessage(message);
+      messagesHandled++;
+    }
+
+  }
+  return messagesHandled > 0;
+}
+
+
 bool Lobby::IsRunning()
 {
   return this->running;
@@ -156,10 +183,10 @@ void Lobby::Start(){
   //      - If they exist push a full state message into their interface
   //      - Add them to client list
        
-  bool idle;
   while(running){
-    idle = CheckForNewClient();
-    if(idle){
+    bool clientsWaiting = CheckForNewClient();
+    //bool messagesWaiting = CheckForMessages();
+    if(!clientsWaiting && !messagesWaiting){
       int ten_ms = 10000;
       usleep(ten_ms); 
     }
