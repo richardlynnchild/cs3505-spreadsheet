@@ -52,12 +52,9 @@ namespace SpreadsheetGUI
 
             ServerTextBox.Enter += ServerTextBoxEntered;
             ServerTextBox.LostFocus += ServerTextBoxLeft;
-<<<<<<< HEAD
 
             this.spreadsheetPanel1.SetSelection(0, 0);
             this.previousSelection = GetCellName(0, 0);
-=======
->>>>>>> 52d7c73463f2175ae9eb399a6526afa35fbfb2a2
 
         }
 
@@ -121,8 +118,6 @@ namespace SpreadsheetGUI
         {
             if (!ServerTextBox.Focused && !FilePanel.Visible)
             {
-<<<<<<< HEAD
-=======
                 if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.Oemplus)
                     OperatorKey("+");
                 else if (e.KeyCode == Keys.Oemplus)
@@ -133,7 +128,6 @@ namespace SpreadsheetGUI
                     OperatorKey("/");
                 else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.D8)
                     OperatorKey("*");
->>>>>>> 52d7c73463f2175ae9eb399a6526afa35fbfb2a2
 
                 //they are no longer editing
                 if (e.KeyData == Keys.Enter)
@@ -164,18 +158,8 @@ namespace SpreadsheetGUI
 
                     else
                     {
-<<<<<<< HEAD
-                        switch (e.KeyData)
-                        {
-                            case Keys.Oemplus:
-                                OperatorKey("=");
-                                break;
-                        }
-
-=======
                         //not a valid key
                         return;
->>>>>>> 52d7c73463f2175ae9eb399a6526afa35fbfb2a2
                     }
                 }
             }
@@ -719,9 +703,7 @@ namespace SpreadsheetGUI
 
         private void HandleSelectionChange(SpreadsheetPanel sender)
         {
-            SetCell(previousSelection);
-
-            //SetCellNameVal(previousSelection);
+            ResetCell(previousSelection);
 
             spreadsheetPanel1.GetSelection(out int col, out int row);
             spreadsheetPanel1.GetValue(col, row, out string value);
@@ -737,7 +719,7 @@ namespace SpreadsheetGUI
             //if (FormulaBox.Text.Length > 0)
             //FormulaBox.SelectionStart = FormulaBox.Text.Length;
 
-            spreadsheetPanel1.SetValue(col, row, value);
+            spreadsheetPanel1.SetValue(col, row, contents);
         }
 
         /// <summary>
@@ -755,7 +737,7 @@ namespace SpreadsheetGUI
         {
             int[] colRow = new int[2];
             colRow[0] = (int)cellName[0] - 65;
-            colRow[1] = (int)cellName[1] - 1;
+            colRow[1] = int.Parse(cellName[1].ToString()) - 1;
 
             return colRow;
         }
@@ -835,12 +817,11 @@ namespace SpreadsheetGUI
         }
         */
 
-            /*
         /// <summary>
         /// Sets the specified cell to 
         /// </summary>
         /// <param name="cellName"></param>
-        private void SetCell(string cellName)
+        private void ResetCell(string cellName)
         {
             int[] rowCol = GetCellPosition(cellName);
             int col = rowCol[0];
@@ -848,10 +829,12 @@ namespace SpreadsheetGUI
 
             string value = ss1.GetCellValue(cellName).ToString();
 
-            SetCell(row, col, value);
-            
+            if (ss1.GetCellValue(cellName).GetType() == typeof(FormulaError))
+                spreadsheetPanel1.SetValue(col, row, "Formula Error!");
+            else
+                spreadsheetPanel1.SetValue(col, row, ss1.GetCellValue(cellName).ToString());
+
         }
-        */
 
         /// <summary>
         /// Writes the contents of the Formula Text box to a specified cell.
