@@ -10,7 +10,6 @@
 #include <utility>
 #include <sys/socket.h>
 #include <pthread.h>
-#include "interface.h"
 
 class Lobby {
   private:
@@ -30,6 +29,9 @@ class Lobby {
     void OpenSpreadsheet(std::string filename);
     std::string BuildFocus();
     std::string BuildUnfocus();
+    bool CheckForMessages();
+    void HandleMessage(std::string message,std::string sheet);
+    std::vector<std:string> SplitString(std::string str, char delim);
 
   public:
     Lobby();
