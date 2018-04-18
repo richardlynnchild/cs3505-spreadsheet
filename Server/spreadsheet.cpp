@@ -1,5 +1,5 @@
 #include "spreadsheet.h"
-
+#include <iostream>
 /*
  * Constructor with spreadsheet name
  */
@@ -55,9 +55,16 @@ std::string Spreadsheet::GetFullState(){
  */
 void Spreadsheet::EditSheet(std::string cell_name, std::string contents)
 {
+  if(spreadsheet_state.count(cell_name)<1){
+    spreadsheet_state.insert(std::pair<std::string,std::string>(cell_name,""));
+  }
+  if(revert_stacks.count(cell_name)<1){
+    std::stack<std::string> stack;
+    revert_stacks.insert(std::pair< std::string,std::stack<std::string> >(cell_name,stack));
+  } 
+  undo_stack.push(std::pair<std::string,std::string>(cell_name,spreadsheet_state[cell_name]));
+  revert_stacks[cell_name].push(spreadsheet_state[cell_name]);
   spreadsheet_state[cell_name] = contents;
-  revert_stacks[cell_name].push(contents);
-  undo_stack.push(std::make_pair(cell_name, contents));
 }
   
 std::pair<std::string, std::string> Spreadsheet::Undo()
@@ -69,7 +76,9 @@ std::pair<std::string, std::string> Spreadsheet::Undo()
   
 std::string Spreadsheet::Revert(std::string cell_name)
 {
+  undo_stack.push(std::pair<std::string,std::string>(cell_name,spreadsheet_state[cell_name]));
   std::string ret = revert_stacks[cell_name].top();
   revert_stacks[cell_name].pop();
-  return (ret);
+  spreadsheet_state[cell_name] = ret;
+  return ret;
 }

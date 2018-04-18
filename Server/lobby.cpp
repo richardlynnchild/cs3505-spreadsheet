@@ -188,11 +188,11 @@ void Lobby::HandleMessage(std::string message, std::string sheet){
     SendChangeMessage(message,sheet); 
   }
   else if(command == "revert"){
-   std::string message = spreadsheets[sheet].Revert(tokens[1]);
-   SendChangeMessage(message,sheet); 
+    std::string message = spreadsheets[sheet].Revert(tokens[1]);
+    SendChangeMessage(message,sheet); 
   }
   else if(command == "disconnect"){
-
+     
   }
 
 }
