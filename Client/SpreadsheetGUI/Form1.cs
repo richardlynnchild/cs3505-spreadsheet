@@ -50,7 +50,7 @@ namespace SpreadsheetGUI
             FilePanel.Visible = false;
 
             ServerTextBox.Enter += ServerTextBoxEntered;
-            ServerTextBox.LostFocus += ServerTextBoxLeft; 
+            ServerTextBox.LostFocus += ServerTextBoxLeft;
 
         }
 
@@ -71,7 +71,7 @@ namespace SpreadsheetGUI
 
             //put the cursor to the end of the text
             //if (FormulaBox.Text.Length > 0)
-                //FormulaBox.SelectionStart = FormulaBox.Text.Length;
+            //FormulaBox.SelectionStart = FormulaBox.Text.Length;
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void ProcessKeyStroke(object sender, KeyEventArgs e)
         {
-            if ( ! ServerTextBox.Focused && ! FilePanel.Visible)
+            if (!ServerTextBox.Focused && !FilePanel.Visible)
             {
                 if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.Oemplus)
                     OperatorKey("+");
@@ -152,10 +152,10 @@ namespace SpreadsheetGUI
                     }
                 }
             }
-            
+
         }
 
-        
+
         /// <summary>
         /// Overrides the ProcessCmdKey function in order to use the arrow keys and Tab to make
         /// Cell selections.
@@ -167,22 +167,22 @@ namespace SpreadsheetGUI
         {
             return spreadsheetPanel1.MovementKey(ref msg, keyData);
         }
-        
 
-            /*
-        /// <summary>
-        /// EnterButton clicked event. Sets selected cell to contents of the formula box.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void EnterButton_Click(object sender, EventArgs e)
-        {
-            spreadsheetPanel1.GetSelection(out int col, out int row);
-            spreadsheetPanel1.GetValue(col, row, out string value);
-            SetCell(row, col, value);
-            FormulaBox.Focus();
-        }
-        */
+
+    /*
+    /// <summary>
+    /// EnterButton clicked event. Sets selected cell to contents of the formula box.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void EnterButton_Click(object sender, EventArgs e)
+    {
+        spreadsheetPanel1.GetSelection(out int col, out int row);
+        spreadsheetPanel1.GetValue(col, row, out string value);
+        SetCell(row, col, value);
+        FormulaBox.Focus();
+    }
+    */
 
         /// <summary>
         /// Delegate to remove text and change color when ServerTextbox is entered.
@@ -202,7 +202,7 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void ServerTextBoxLeft(object sender, EventArgs e)
         {
-            if ( ! connected && ServerTextBox.Text.Length < 1)
+            if (!connected && ServerTextBox.Text.Length < 1)
             {
                 ServerTextBox.Text = "Enter Hostname";
                 ServerTextBox.ForeColor = SystemColors.ScrollBar;
@@ -327,7 +327,7 @@ namespace SpreadsheetGUI
             string user_id = msg_parts[1];
 
             //if (clientFocus[user_id] == null)
-                //return;
+            //return;
             string cell_name = clientFocus[user_id];
 
             GetCellPosition(cell_name, out int row, out int col);
@@ -351,36 +351,36 @@ namespace SpreadsheetGUI
             Network.GetData(state);
         }
 
-    private void ActivateFileMenu(SocketState state)
-    {
-        string message;
-        lock (state)
+        private void ActivateFileMenu(SocketState state)
         {
-            message = state.builder.ToString();
+            string message;
+            lock (state)
+            {
+                message = state.builder.ToString();
+            }
+
+            MethodInvoker FMInvoker = new MethodInvoker(() =>
+            {
+                ShowFileMenu(message);
+            });
+
+            this.Invoke(FMInvoker);
+
+            state.builder.Clear();
+            Network.GetData(state);
         }
 
-        MethodInvoker FMInvoker = new MethodInvoker(() =>
-        {
-            ShowFileMenu(message);
-        });
-
-        this.Invoke(FMInvoker);
-
-        state.builder.Clear();
-        Network.GetData(state);
-    }
-
-    #endregion
+        #endregion
 
         #region Row/Col Info
 
-    /// <summary>
-    /// Calculates the sum, count and average of the current row. Displays the results in a textbox.
-    /// If a cell contains a variable or formula that cannot be solved due to the dependency being unfinished it is left out of the calculations.
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void ReturnRow_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Calculates the sum, count and average of the current row. Displays the results in a textbox.
+        /// If a cell contains a variable or formula that cannot be solved due to the dependency being unfinished it is left out of the calculations.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ReturnRow_Click(object sender, EventArgs e)
         {
             //handle logic of row info
             OnReturnRowClick();
@@ -671,7 +671,7 @@ namespace SpreadsheetGUI
             e.SuppressKeyPress = true;
 
             //set the formula box to the contents of the cell
-            string contents = ss1.GetCellContents(GetCellName(col,row)).ToString();
+            string contents = ss1.GetCellContents(GetCellName(col, row)).ToString();
             FormulaBox.Text = contents;
             if (FormulaBox.Text.Length > 0)
                 FormulaBox.SelectionStart = FormulaBox.Text.Length;
@@ -702,9 +702,9 @@ namespace SpreadsheetGUI
 
             FormulaBox.Text = contents;
             //if (FormulaBox.Text.Length > 0)
-                //FormulaBox.SelectionStart = FormulaBox.Text.Length;
+            //FormulaBox.SelectionStart = FormulaBox.Text.Length;
 
-            spreadsheetPanel1.SetValue(col, row, contents);
+            spreadsheetPanel1.SetValue(col, row, value);
         }
 
         /// <summary>
