@@ -178,19 +178,24 @@ void* NetworkController::Handshake(void* ptr){
   //read(id,buffer,1024);
 
   
-  char buffer[1024];
-  int buf_start = 0;
+  int buf_size = 2048;
+  char buffer[buf_size];
+  int msg_size = 2048;
+  int buf_next = 0;
   std::cout << "CH: " << buffer[0] << std::endl;
-  std::string register_message;
+  std::string msg_str;
   
-  ClearBuffer(buffer);
+  ClearBuffer(&buffer[0], buf_size);
   do
   {
-    buf_start = Receive(id);
-    register_message = GetMessage(buffer);
-  } while(register_message == "");
+    msg_size = Receive(id, &(buffer[buf_next]), buf_size - buf_next);
+    buf_next += msg_size;
+    msg_str = GetMessage(&buffer[0], buf_next);
+    buf_next -= msg_str.length();
 
-  std::cout << "Received: " <<  register_message << std::endl;
+  } while(msg_str == "");
+
+  std::cout << "Received: " <<  msg_str << std::endl;
   std::cout << "There are " << ptr_obj->GetSheetList().size() << " spreadsheets available" << std::endl; 
   std::string message = ptr_obj->BuildConnectAccepted();
   std::cout << message << std::endl;
@@ -218,35 +223,33 @@ void* NetworkController::Handshake(void* ptr){
 //}
 
 //Reads from the incoming buffer and returns any messages sent from the client.
-char* NetworkController::Receive(int client_socket_id)
+int NetworkController::Receive(int client_socket_id, char* msg_buf, int buf_size)
 {
-    char* message_buffer;
-    int bytes_received = recv(client_socket_id, message_buffer, 1024, 0);
+    int bytes_received = recv(client_socket_id, msg_buf, buf_size, 0);
     if (bytes_received == -1)
     {
-      return '\0';
+      return 0;
     }
 
     else
     {
-      return message_buffer;
+      return bytes_received;
     }
 }
 
 //helper method that returns a message and removes it from the messages string buffer, only if the message is complete ('\n' found).
-std::string NetworkController::GetMessage(char* message_buffer)
+std::string NetworkController::GetMessage(char* msg_buf, int buf_end)
 {
-    char* i = message_buffer;
     std::string message = "";
-    while (i < message_buffer+1024)
+    for (int i = 0; i < buf_end; i++)
     {
-      std::cout << i << ":" << std::cout << *i << std::endl;
-      if (*i == (char) 3)
+      std::cout << "message[" << i << "]: " << msg_buf[i] << std::endl;
+      if (msg_buf[i] == (char) 3)
       {
+         CleanBuffer(msg_buf, i+1, buf_end);
          return message;
       }
-      message += *i;
-      i++;
+      message += msg_buf[i];
     }
   //  std::string buffer(message_buffer);
   //  std::string::size_type position = buffer.find(x);
@@ -259,10 +262,20 @@ std::string NetworkController::GetMessage(char* message_buffer)
 }
 
 //Clears the memory associated with the given char[].
-void NetworkController::ClearBuffer(char* buffer)
+void NetworkController::CleanBuffer(char* buffer, int msg_start, int msg_end)
 {
-    char * array_start = buffer;
-    char * array_end = array_start + 1024;
-    std::fill(array_start, array_end, 0);
+    int i = 0;
+    int j = msg_start;
+    while (j < msg_end)
+    {
+       buffer[i] = buffer[j];
+       buffer[j] = (char) 0; 
+    }
 }
 
+void NetworkController::ClearBuffer(char* buffer, int buf_size)
+{
+    char * array_start = buffer;
+    char * array_end = array_start + buf_size;
+    std::fill(array_start, array_end, 0);
+}
