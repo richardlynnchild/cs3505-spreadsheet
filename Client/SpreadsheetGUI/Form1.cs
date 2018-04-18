@@ -52,8 +52,6 @@ namespace SpreadsheetGUI
             ServerTextBox.Enter += ServerTextBoxEntered;
             ServerTextBox.LostFocus += ServerTextBoxLeft; 
 
-            FormulaBox.Focus();
-
         }
 
         #region Spreadsheet Control
@@ -70,7 +68,6 @@ namespace SpreadsheetGUI
 
             //set the contents of the formula box and set focus to it.
             FormulaBox.Text = ss1.GetCellContents(cellName).ToString();
-            FormulaBox.Focus();
 
             //put the cursor to the end of the text
             //if (FormulaBox.Text.Length > 0)
@@ -847,12 +844,12 @@ namespace SpreadsheetGUI
 
             catch (CircularException)
             {
-                FormulaBox.Text = "Ciruclar Dependency!";
+                spreadsheetPanel1.SetValue(col, row, "Ciruclar Dependency!");
             }
 
             catch (FormulaFormatException)
             {
-                FormulaBox.Text = "Invalid Formula!";
+                spreadsheetPanel1.SetValue(col, row, "Invalid Formula!");
             }
         }
 
