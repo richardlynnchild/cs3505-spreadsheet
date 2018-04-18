@@ -15,7 +15,7 @@ namespace SpreadsheetGUI
         public string filename;
         private Socket theServer;
         private bool connected;
-        private Dictionary<string, KeyValuePair<bool, string>> cellStatus;
+        private Dictionary<string, string> clientFocus;
         public Form1()
         {
             //
@@ -318,22 +318,29 @@ namespace SpreadsheetGUI
 
         private void ReceiveFocus(string message)
         {
-            //color the cell
-
-            //figure out what cell the focus is on
-            //string[] msg_parts = message.Split(null);
-            //string[] smaller_parts = msg_parts[1].Split(':');
-
             char[] delimiters = new char[] { ' ', ':', ((char)3) };
             string[] msg_parts = message.Split(delimiters);
-
             string cell_name = msg_parts[1];
+            string user_id = msg_parts[2];
 
+            clientFocus[user_id] = cell_name;
 
-            //KeyValuePair<bool, string> newStatus = new KeyValuePair<bool, string>(true, smaller_parts[1]);
-            //cellStatus[cell_name] = newStatus;
             GetCellPosition(cell_name, out int row, out int col);
             spreadsheetPanel1.SetFocus(row, col);
+        }
+
+        private void ReceiveUnfocus(string message)
+        {
+            char[] delimiters = new char[] { ' ', ((char)3) };
+            string[] msg_parts = message.Split(delimiters);
+            string user_id = msg_parts[1];
+
+            if (clientFocus[user_id] == null)
+                return;
+            string cell_name = clientFocus[user_id];
+
+            GetCellPosition(cell_name, out int row, out int col);
+            spreadsheetPanel1.SetUnfocus(row, col);
         }
 
         private void SendMessage(string msg)
