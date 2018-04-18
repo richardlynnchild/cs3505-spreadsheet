@@ -151,15 +151,27 @@ std::vector<std::string> Lobby::SplitString(std::string str, char delim){
  */
 
 void Lobby::HandleMessage(std::string message, std::string sheet){
+  
+  //Split the message and get the command
   char delim = ' ';
   std::vector<std::string> tokens = SplitString(message, delim);
   std::string command = tokens[0];
+
   if(command == "edit"){
     char delim = ':';
     std::vector<std::string> tokens = SplitString(tokens[1], delim);
-    clients[sheet]->EditSheet(tokens[0],tokens[1]);
-    
-
+    spreadsheets[sheet]->EditSheet(tokens[0],tokens[1]);
+    std::string change = "change ";
+    change += tokens[0];
+    change += tokens[1];
+    char end = (char) 3;
+    change += end;
+    std::vector<Interface>::iterator it = clients.begin();
+    for(; it != clients.end(); ++it){
+      if(it->GetSprdName() == sheet){
+        it->Send(change);
+      }
+    }      
   }
   else if(command == "undo"){
 
@@ -170,9 +182,6 @@ void Lobby::HandleMessage(std::string message, std::string sheet){
   else if(command == "disconnect"){
 
   }
-
-
-
 
 }
 
