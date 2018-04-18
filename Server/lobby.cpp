@@ -132,6 +132,97 @@ bool Lobby::CheckForNewClient(){
   return idle;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Split the given string by the given delimiter.
+ * Returns a vector of sub-strings.
+ */
+std::vector<std::string> Lobby::SplitString(std::string str, char delim){
+  std::stringstream ss(str);
+  std::string token;
+  std::vector<std::string> tokens;
+  while(std::getline(ss,token,delim)){
+    tokens.push_back(token);
+  }
+  return tokens;
+}
+
+/*
+ * Send a change command with the specified string to the
+ * clients of the specified spreadsheet.
+ */
+void Lobby::SendChangeMessage(std::string message, std::string sheet){
+  std::string change = "change ";
+  change += message;
+  char end = (char) 3;
+  change += end;
+  std::vector<Interface>::iterator it = clients.begin();
+    for(; it != clients.end(); ++it){
+      if(it->GetSprdName() == sheet){
+        it->Send(change);
+      }
+    } 
+}
+
+/*
+ * Processes a single message from a client.
+ */
+
+void Lobby::HandleMessage(std::string message, std::string sheet){
+  
+  //Split the message and get the command
+  char delim = ' ';
+  std::vector<std::string> tokens = SplitString(message, delim);
+  std::string command = tokens[0];
+
+  if(command == "edit"){
+    char delim = ':';
+    std::vector<std::string> cell = SplitString(tokens[1], delim);
+    spreadsheets[sheet]->EditSheet(cell[0],cell[1]);
+    SendChangeMessage(tokens[1], sheet); 
+  }
+  else if(command == "undo"){
+    std::pair<std::string,std::string> cell = spreadsheets[sheet]->Undo();
+    std::string message = cell->first;
+    message += cell->second;
+    SendChangeMessage(message,sheet); 
+  }
+  else if(command == "revert"){
+   std::string message = spreadsheets[sheet]->Revert(tokens[1]);
+   SendChangeMessage(message,sheet); 
+  }
+  else if(command == "disconnect"){
+
+  }
+
+}
+
+/*
+ * Returns true if a client sent a message, returns false
+ * if all the client message queues were empty
+ */
+bool Lobby::CheckForMessages(){
+  int messagesHandled = 0;
+  std::vector<Interface>::iterator it = clients.begin();
+  for(; it != clients.end(); ++it){
+    //Pop next message off Interface incoming message queue
+    std::string message = it->GetMessage();
+    std::string sheet = it->GetSprdName();
+    if(message == ""){
+      continue;
+    }
+    else {
+      HandleMessage(message, sheet);
+      messagesHandled++;
+    }
+
+  }
+  return messagesHandled > 0;
+}
+
+
+>>>>>>> dead2cefbe5922146683f76b6b0a34a536c08c8a
 bool Lobby::IsRunning()
 {
   return this->running;
