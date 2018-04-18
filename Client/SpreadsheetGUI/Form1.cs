@@ -135,12 +135,12 @@ namespace SpreadsheetGUI
                     {
                         switch (e.KeyData)
                         {
-                            case Keys.Add:
-                                OperatorKey("=");
-                                break;
 
                             case Keys.Oemplus:
-                                OperatorKey("+");
+                                if (ModifierKeys == Keys.Shift)
+                                    OperatorKey("=");
+                                else
+                                    OperatorKey("+");
                                 break;
 
                             case Keys.OemMinus:
@@ -150,6 +150,9 @@ namespace SpreadsheetGUI
                             case Keys.OemBackslash:
                                 OperatorKey("/");
                                 break;
+
+                            case Keys.Shift:
+
 
                             default:
                                 break;
