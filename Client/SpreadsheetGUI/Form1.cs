@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using SS;
 using SpreadsheetUtilities;
 using System.Net.Sockets;
-using Networking;
+using NetworkingController;
 
 namespace SpreadsheetGUI
 {
@@ -104,7 +104,7 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void ProcessKeyStroke(object sender, KeyEventArgs e)
         {
-            if ( ! ServerTextBox.Focused)// && connected) ... to be added for final product.
+            if ( ! ServerTextBox.Focused)
             {
                 //they are no longer editing
                 if (e.KeyData == Keys.Enter)
@@ -200,20 +200,13 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void ConnectButton_Click(object sender, EventArgs e)
         {
-            try
+            if (string.IsNullOrEmpty(ServerTextBox.Text))
+                MessageBox.Show("Please enter a server address.");
+            else
             {
-<<<<<<< HEAD
-                theServer = Network.ConnectToServer(SendRegisterMessage, ServerTextBox.Text);
-                ServerTextBox.Enabled = false;
-                ConnectButton.Enabled = false;
-            }
-            catch (ArgumentException)
-            {
-                MessageBox.Show("invalid server name");
-=======
                 try
                 {
-                    theServer = Networking.Networking.ConnectToServer(SendRegisterMessage, ServerTextBox.Text);
+                    //theServer = Network.ConnectToServer(SendRegisterMessage, ServerTextBox.Text);
                     ServerTextBox.Enabled = false;
                     ConnectButton.Enabled = false;
                 }
@@ -221,7 +214,6 @@ namespace SpreadsheetGUI
                 {
                     MessageBox.Show("invalid server name");
                 }
->>>>>>> 3b621c7a9260775beda53286b6ad430535ae1379
             }
         }
 
@@ -265,7 +257,7 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void SendSpreadsheetSelection(object sender, EventArgs e)
         {
-            Networking.Networking.Send(theServer, FileTextSelect.Text);
+            Network.Send(theServer, FileTextSelect.Text);
             //TODO: add full state message processing function.
             //HandleFullState();
         }
@@ -283,7 +275,9 @@ namespace SpreadsheetGUI
         /// </summary>
         private void SendFocus(string message)
         {
-            //hacking, but allows you to test
+            //hacking, but allows you to test diff cases
+            //if in column c, receive will be column d
+            //so you can test a case where someone else would have been editing a diff cell
             ReceiveFocus(message);
             //Network.Send(theServer, message);
         }
@@ -308,15 +302,9 @@ namespace SpreadsheetGUI
             spreadsheetPanel1.SetFocus(row, col);
         }
 
-        private void SendRegisterMessage(SocketState state)
+        private void SendMessage(string msg)
         {
-            SendMessage("Register" + "\\3");
-            //todo: start msg processing loop.
-        }
-
-        //convience method that sends a string message to the server.
-        private void SendMessage(string message)
-        {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
             Network.Send(theServer, message);
@@ -326,6 +314,9 @@ namespace SpreadsheetGUI
 =======
             Networking.Networking.Send(theServer, msg);
 >>>>>>> 4e169b4b671bd73e24e54373fd7e05c2b48f8caa
+=======
+            Network.Send(theServer, msg);
+>>>>>>> parent of 22d1183... merge
         }
 
         #endregion
@@ -739,7 +730,7 @@ namespace SpreadsheetGUI
                 UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
             }
         }
-        
+        /*
         /// <summary>
         /// Sends the register message to the server after a connection is established.
         /// </summary>
@@ -747,10 +738,10 @@ namespace SpreadsheetGUI
         private void SendRegisterMessage(SocketState state)
         {
             string message = "register" + (char)3;
-            Networking.Networking.Send(state.sock, message);
+            Network.Send(state.Socket, message);
 
         }
-        
+        */
 
         private void HandleFullState()
         {
