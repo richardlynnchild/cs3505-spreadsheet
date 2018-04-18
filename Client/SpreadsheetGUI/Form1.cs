@@ -34,15 +34,15 @@ namespace SpreadsheetGUI
 
             //set up delegate listeners for the selection changed event.
             spreadsheetPanel1.SelectionChanged += MakeWriteable;
-            spreadsheetPanel1.SelectionChanged += setCellNameVal;
+            //spreadsheetPanel1.SelectionChanged += setCellNameVal;
 
             //set up listeners for keydown and formclosing events.
             this.KeyDown += ProcessKeyStroke;
             this.FormClosing += OnExit;
             this.MouseMove += FilePanelMove;
-            //this.FileList.Click += FileSelected;
             this.FileList.SelectedIndexChanged += FileSelected;
             this.Open_FileMenu.Click += SendSpreadsheetSelection;
+            this.spreadsheetPanel1.SelectionChanged += HandleSelectionChange;
 
             this.Width = 1000;
             this.Height = 600;
@@ -73,8 +73,8 @@ namespace SpreadsheetGUI
             FormulaBox.Focus();
 
             //put the cursor to the end of the text
-            if (FormulaBox.Text.Length > 0)
-                FormulaBox.SelectionStart = FormulaBox.Text.Length;
+            //if (FormulaBox.Text.Length > 0)
+                //FormulaBox.SelectionStart = FormulaBox.Text.Length;
         }
 
         /// <summary>
@@ -134,10 +134,34 @@ namespace SpreadsheetGUI
                         StandardKey(e);
                     }
 
+                    else if (e.KeyData == Keys.Up || e.KeyData == Keys.Down || e.KeyData == Keys.Left || e.KeyData == Keys.Right)
+                    {
+                        MovementKey(e);
+                    }
+
                     else
                     {
-                        //not a valid key
-                        return;
+                        switch (e.KeyData)
+                        {
+                            case Keys.Add:
+                                OperatorKey("=");
+                                break;
+
+                            case Keys.Oemplus:
+                                OperatorKey("+");
+                                break;
+
+                            case Keys.OemMinus:
+                                OperatorKey("-");
+                                break;
+
+                            case Keys.OemBackslash:
+                                OperatorKey("/");
+                                break;
+
+                            default:
+                                break;
+                        }
                     }
                 }
             }
@@ -158,6 +182,7 @@ namespace SpreadsheetGUI
         }
         */
 
+            /*
         /// <summary>
         /// EnterButton clicked event. Sets selected cell to contents of the formula box.
         /// </summary>
@@ -165,9 +190,12 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void EnterButton_Click(object sender, EventArgs e)
         {
-            SetCell();
+            spreadsheetPanel1.GetSelection(out int col, out int row);
+            spreadsheetPanel1.GetValue(col, row, out string value);
+            SetCell(row, col, value);
             FormulaBox.Focus();
         }
+        */
 
         /// <summary>
         /// Delegate to remove text and change color when ServerTextbox is entered.
@@ -210,6 +238,7 @@ namespace SpreadsheetGUI
                     theServer = Network.ConnectToServer(SendRegisterMessage, ServerTextBox.Text);
                     ServerTextBox.Enabled = false;
                     ConnectButton.Enabled = false;
+                    connected = true;
                 }
                 catch (ArgumentException)
                 {
@@ -637,13 +666,74 @@ namespace SpreadsheetGUI
 
         private void EnterKey(KeyEventArgs e)
         {
-            SetCell();
+            spreadsheetPanel1.GetSelection(out int col, out int row);
+            spreadsheetPanel1.GetValue(col, row, out string value);
+            SetCell(row, col, value);
             setCellNameVal(spreadsheetPanel1);
             e.SuppressKeyPress = true;
+
+            //set the formula box to the contents of the cell
+            string contents = ss1.GetCellContents(GetCellName(col,row)).ToString();
+            FormulaBox.Text = contents;
+            if (FormulaBox.Text.Length > 0)
+                FormulaBox.SelectionStart = FormulaBox.Text.Length;
 
             //once networking is back up...
             string unfocusMessage = "unfocus " + ((char)3);
             //SendMessage(unfocusMessage);
+        }
+
+        private void OperatorKey(string key)
+        {
+            spreadsheetPanel1.GetSelection(out int col, out int row);
+            spreadsheetPanel1.GetValue(col, row, out string value);
+            string newVal = value + key.ToLower();
+            spreadsheetPanel1.SetValue(col, row, newVal);
+        }
+
+        private void MovementKey(KeyEventArgs e)
+        {
+            switch (e.KeyData)
+            {
+                case Keys.Up:
+                    spreadsheetPanel1.GetSelection(out int col, out int row);
+                    spreadsheetPanel1.SetSelection(col, row - 1);
+                    HandleSelectionChange(spreadsheetPanel1);
+                    break;
+                case Keys.Down:
+                    spreadsheetPanel1.GetSelection(out int col1, out int row1);
+                    spreadsheetPanel1.SetSelection(col1, row1 + 1);
+                    HandleSelectionChange(spreadsheetPanel1);
+                    break;
+                case Keys.Left:
+                    spreadsheetPanel1.GetSelection(out int col2, out int row2);
+                    spreadsheetPanel1.SetSelection(col2 - 1, row2);
+                    HandleSelectionChange(spreadsheetPanel1);
+                    break;
+                case Keys.Right:
+                    spreadsheetPanel1.GetSelection(out int col3, out int row4);
+                    spreadsheetPanel1.SetSelection(col3 + 1, row4);
+                    HandleSelectionChange(spreadsheetPanel1);
+                    break;
+            }
+
+        }
+
+        private void HandleSelectionChange(SpreadsheetPanel sender)
+        {
+            spreadsheetPanel1.GetSelection(out int col, out int row);
+            spreadsheetPanel1.GetValue(col, row, out string value);
+
+            string name = GetCellName(col, row);
+
+            CellValueOutput.Text = value;
+            string contents = ss1.GetCellContents(name).ToString();
+
+            FormulaBox.Text = contents;
+            //if (FormulaBox.Text.Length > 0)
+                //FormulaBox.SelectionStart = FormulaBox.Text.Length;
+
+            spreadsheetPanel1.SetValue(col, row, contents);
         }
 
         /// <summary>
@@ -690,6 +780,7 @@ namespace SpreadsheetGUI
             return true;
         }
 
+        /*
         /// <summary>
         /// Writes the contents of the Formula Text box to the currently selected cell.
         /// </summary>
@@ -704,6 +795,42 @@ namespace SpreadsheetGUI
                 //set the contents of the cell and update all the cells that need to be updated
                 //UpdateCells(ss1.SetContentsOfCell(cellName, FormulaBox.Text));
                 ss1.SetContentsOfCell(cellName, FormulaBox.Text);
+
+                //if the result is a formula error display a formula error message, otherwise set the cell with the result.
+                if (ss1.GetCellValue(cellName).GetType() == typeof(FormulaError))
+                {
+                    //FormulaError f = new FormulaError(ss1.GetCellValue(cellName));
+                    spreadsheetPanel1.SetValue(col, row, "Formula Error!");
+                }
+                else
+                {
+                    spreadsheetPanel1.SetValue(col, row, ss1.GetCellValue(cellName).ToString());
+                    UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
+                }
+            }
+            
+
+            catch (CircularException)
+            {
+                FormulaBox.Text = "Ciruclar Dependency!";
+            }
+
+            catch (FormulaFormatException)
+            {
+                FormulaBox.Text = "Invalid Formula!";
+            }
+        }
+        */
+
+        /// <summary>
+        /// Writes the contents of the Formula Text box to a specified cell.
+        /// </summary>
+        private void SetCell(int row, int col, string cellVal)
+        {
+            try
+            {
+                string cellName = GetCellName(col, row);
+                ss1.SetContentsOfCell(cellName, cellVal);
 
                 //if the result is a formula error display a formula error message, otherwise set the cell with the result.
                 if (ss1.GetCellValue(cellName).GetType() == typeof(FormulaError))
