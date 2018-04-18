@@ -318,10 +318,14 @@ namespace SpreadsheetGUI
         private void SendMessage(string message)
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
             Network.Send(theServer, message);
 =======
             Networking.Networking.Send(theServer, msg);
 >>>>>>> 3b621c7a9260775beda53286b6ad430535ae1379
+=======
+            Networking.Networking.Send(theServer, msg);
+>>>>>>> 4e169b4b671bd73e24e54373fd7e05c2b48f8caa
         }
 
         #endregion
