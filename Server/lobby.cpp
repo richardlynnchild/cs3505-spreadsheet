@@ -132,6 +132,83 @@ bool Lobby::CheckForNewClient(){
   return idle;
 }
 
+/*
+ * Split the given string by the given delimiter.
+ * Returns a vector of sub-strings.
+ */
+std::vector<std::string> Lobby::SplitString(std::string str, char delim){
+  std::stringstream ss(str);
+  std::string token;
+  std::vector<std::string> tokens;
+  while(std::getline(ss,token,delim)){
+    tokens.push_back(token);
+  }
+  return tokens;
+}
+
+/*
+ * Processes a single message from a client.
+ */
+
+void Lobby::HandleMessage(std::string message, std::string sheet){
+  
+  //Split the message and get the command
+  char delim = ' ';
+  std::vector<std::string> tokens = SplitString(message, delim);
+  std::string command = tokens[0];
+
+  if(command == "edit"){
+    char delim = ':';
+    std::vector<std::string> tokens = SplitString(tokens[1], delim);
+    spreadsheets[sheet]->EditSheet(tokens[0],tokens[1]);
+    std::string change = "change ";
+    change += tokens[0];
+    change += tokens[1];
+    char end = (char) 3;
+    change += end;
+    std::vector<Interface>::iterator it = clients.begin();
+    for(; it != clients.end(); ++it){
+      if(it->GetSprdName() == sheet){
+        it->Send(change);
+      }
+    }      
+  }
+  else if(command == "undo"){
+
+  }
+  else if(command == "revert"){
+
+  }
+  else if(command == "disconnect"){
+
+  }
+
+}
+
+/*
+ * Returns true if a client sent a message, returns false
+ * if all the client message queues were empty
+ */
+bool Lobby::CheckForMessages(){
+  int messagesHandled = 0;
+  std::vector<Interface>::iterator it = clients.begin();
+  for(; it != clients.end(); ++it){
+    //Pop next message off Interface incoming message queue
+    std::string message = it->GetMessage();
+    std::string sheet = it->GetSprdName();
+    if(message == ""){
+      continue;
+    }
+    else {
+      HandleMessage(message, sheet);
+      messagesHandled++;
+    }
+
+  }
+  return messagesHandled > 0;
+}
+
+
 bool Lobby::IsRunning()
 {
   return this->running;
@@ -156,10 +233,10 @@ void Lobby::Start(){
   //      - If they exist push a full state message into their interface
   //      - Add them to client list
        
-  bool idle;
   while(running){
-    idle = CheckForNewClient();
-    if(idle){
+    bool clientsWaiting = CheckForNewClient();
+    bool messagesWaiting = CheckForMessages();
+    if(!clientsWaiting && !messagesWaiting){
       int ten_ms = 10000;
       usleep(ten_ms); 
     }

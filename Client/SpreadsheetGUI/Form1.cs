@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using SS;
 using SpreadsheetUtilities;
 using System.Net.Sockets;
-using NetworkingController;
+using Networking;
 
 namespace SpreadsheetGUI
 {
@@ -104,7 +104,7 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void ProcessKeyStroke(object sender, KeyEventArgs e)
         {
-            if ( ! ServerTextBox.Focused)
+            if ( ! ServerTextBox.Focused)// && connected) ... to be added for final product.
             {
                 //they are no longer editing
                 if (e.KeyData == Keys.Enter)
@@ -200,13 +200,20 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void ConnectButton_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(ServerTextBox.Text))
-                MessageBox.Show("Please enter a server address.");
-            else
+            try
             {
+<<<<<<< HEAD
+                theServer = Network.ConnectToServer(SendRegisterMessage, ServerTextBox.Text);
+                ServerTextBox.Enabled = false;
+                ConnectButton.Enabled = false;
+            }
+            catch (ArgumentException)
+            {
+                MessageBox.Show("invalid server name");
+=======
                 try
                 {
-                    //theServer = Network.ConnectToServer(SendRegisterMessage, ServerTextBox.Text);
+                    theServer = Networking.Networking.ConnectToServer(SendRegisterMessage, ServerTextBox.Text);
                     ServerTextBox.Enabled = false;
                     ConnectButton.Enabled = false;
                 }
@@ -214,6 +221,7 @@ namespace SpreadsheetGUI
                 {
                     MessageBox.Show("invalid server name");
                 }
+>>>>>>> 3b621c7a9260775beda53286b6ad430535ae1379
             }
         }
 
@@ -257,7 +265,7 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void SendSpreadsheetSelection(object sender, EventArgs e)
         {
-            Network.Send(theServer, FileTextSelect.Text);
+            Networking.Networking.Send(theServer, FileTextSelect.Text);
             //TODO: add full state message processing function.
             //HandleFullState();
         }
@@ -275,9 +283,7 @@ namespace SpreadsheetGUI
         /// </summary>
         private void SendFocus(string message)
         {
-            //hacking, but allows you to test diff cases
-            //if in column c, receive will be column d
-            //so you can test a case where someone else would have been editing a diff cell
+            //hacking, but allows you to test
             ReceiveFocus(message);
             //Network.Send(theServer, message);
         }
@@ -302,9 +308,20 @@ namespace SpreadsheetGUI
             spreadsheetPanel1.SetFocus(row, col);
         }
 
-        private void SendMessage(string msg)
+        private void SendRegisterMessage(SocketState state)
         {
-            Network.Send(theServer, msg);
+            SendMessage("Register" + "\\3");
+            //todo: start msg processing loop.
+        }
+
+        //convience method that sends a string message to the server.
+        private void SendMessage(string message)
+        {
+<<<<<<< HEAD
+            Network.Send(theServer, message);
+=======
+            Networking.Networking.Send(theServer, msg);
+>>>>>>> 3b621c7a9260775beda53286b6ad430535ae1379
         }
 
         #endregion
@@ -718,7 +735,7 @@ namespace SpreadsheetGUI
                 UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
             }
         }
-        /*
+        
         /// <summary>
         /// Sends the register message to the server after a connection is established.
         /// </summary>
@@ -726,10 +743,10 @@ namespace SpreadsheetGUI
         private void SendRegisterMessage(SocketState state)
         {
             string message = "register" + (char)3;
-            Network.Send(state.Socket, message);
+            Networking.Networking.Send(state.sock, message);
 
         }
-        */
+        
 
         private void HandleFullState()
         {
