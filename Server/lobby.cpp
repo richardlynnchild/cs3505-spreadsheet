@@ -132,8 +132,7 @@ bool Lobby::CheckForNewClient(){
   return idle;
 }
 
-<<<<<<< HEAD
-=======
+
 /*
  * Split the given string by the given delimiter.
  * Returns a vector of sub-strings.
@@ -222,7 +221,6 @@ bool Lobby::CheckForMessages(){
 }
 
 
->>>>>>> dead2cefbe5922146683f76b6b0a34a536c08c8a
 bool Lobby::IsRunning()
 {
   return this->running;
