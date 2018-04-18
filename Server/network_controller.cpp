@@ -197,18 +197,37 @@ void* NetworkController::Handshake(void* ptr){
 
   std::cout << "Received: " <<  msg_str << std::endl;
   std::cout << "There are " << ptr_obj->GetSheetList().size() << " spreadsheets available" << std::endl; 
-  std::string message = ptr_obj->BuildConnectAccepted();
-  std::cout << message << std::endl;
-  const char* mbuffer = message.c_str();
-  send(id, mbuffer, 1024, MSG_EOR);
-  //Send(id, message);
-  //read(id,buffer,1024);
-  std::string name = buffer;
+  if (msg_str == "register")
+  {
+    std::string message = ptr_obj->BuildConnectAccepted();
+    std::cout << message << std::endl;
+    const char* mbuffer = message.c_str();
+    int msg_accept_size = strlen(mbuffer);
+    send(id, mbuffer, msg_accept_size, MSG_EOR);
 
-  delete ptr_data;
-   
-  Interface interface(id,name);
-  ptr_obj->AddNewClient(interface);
+    buf_next = 0;
+    msg_str = "";
+    ClearBuffer(&buffer[0], buf_size);
+    do
+    {
+      msg_size = Receive(id, &(buffer[buf_next]), buf_size - buf_next);
+      buf_next += msg_size;
+      msg_str = GetMessage(&buffer[0], buf_next);
+      buf_next -= msg_str.length();
+
+    } while(msg_str == "");
+
+    std::string cmd_str = msg_str.substr(0,5);
+    if (cmd_str == "load ")
+    {
+      std::string sprd_name = msg_str.substr(5, msg_str.length() - 5);
+      Interface interface(id,sprd_name);
+      ptr_obj->AddNewClient(interface);
+      std::cout << "Added client" << std::endl;
+    }
+  }
+
+  delete ptr_data;   
 }
 
 //Sends a specified message to the client.
