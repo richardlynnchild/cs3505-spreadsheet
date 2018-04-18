@@ -206,7 +206,7 @@ namespace SpreadsheetGUI
             {
                 try
                 {
-                    //theServer = Network.ConnectToServer(SendRegisterMessage, ServerTextBox.Text);
+                    theServer = Networking.Networking.ConnectToServer(SendRegisterMessage, ServerTextBox.Text);
                     ServerTextBox.Enabled = false;
                     ConnectButton.Enabled = false;
                 }
@@ -275,9 +275,7 @@ namespace SpreadsheetGUI
         /// </summary>
         private void SendFocus(string message)
         {
-            //hacking, but allows you to test diff cases
-            //if in column c, receive will be column d
-            //so you can test a case where someone else would have been editing a diff cell
+            //hacking, but allows you to test
             ReceiveFocus(message);
             //Network.Send(theServer, message);
         }
@@ -718,7 +716,7 @@ namespace SpreadsheetGUI
                 UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
             }
         }
-        /*
+        
         /// <summary>
         /// Sends the register message to the server after a connection is established.
         /// </summary>
@@ -726,10 +724,10 @@ namespace SpreadsheetGUI
         private void SendRegisterMessage(SocketState state)
         {
             string message = "register" + (char)3;
-            Network.Send(state.Socket, message);
+            Networking.Networking.Send(state.sock, message);
 
         }
-        */
+        
 
         private void HandleFullState()
         {
