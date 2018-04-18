@@ -27,7 +27,7 @@ namespace SpreadsheetGUI
             InitializeComponent();
             this.KeyPreview = true;
 
-
+            clientFocus = new Dictionary<string, string>();
             //Set up valid open/save file types
             openFileDialog1.Filter = "Spreadsheet Files (*.sprd)|*.sprd|Text Files (*.txt)|*.txt";
             saveFileDialog1.Filter = "Spreadsheet Files (*.sprd)|*.sprd|Text Files (*.txt)|*.txt";
@@ -165,7 +165,7 @@ namespace SpreadsheetGUI
             
         }
 
-        /*
+        
         /// <summary>
         /// Overrides the ProcessCmdKey function in order to use the arrow keys and Tab to make
         /// Cell selections.
@@ -177,7 +177,7 @@ namespace SpreadsheetGUI
         {
             return spreadsheetPanel1.MovementKey(ref msg, keyData);
         }
-        */
+        
 
             /*
         /// <summary>
