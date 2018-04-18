@@ -321,14 +321,18 @@ namespace SpreadsheetGUI
             spreadsheetPanel1.SetFocus(row, col);
         }
 
+        private void SendUnfocus(string message)
+        {
+            ReceiveUnfocus(message);
+        }
         private void ReceiveUnfocus(string message)
         {
             char[] delimiters = new char[] { ' ', ((char)3) };
             string[] msg_parts = message.Split(delimiters);
             string user_id = msg_parts[1];
 
-            if (clientFocus[user_id] == null)
-                return;
+            //if (clientFocus[user_id] == null)
+                //return;
             string cell_name = clientFocus[user_id];
 
             GetCellPosition(cell_name, out int row, out int col);
@@ -680,6 +684,7 @@ namespace SpreadsheetGUI
             //once networking is back up...
             string unfocusMessage = "unfocus " + ((char)3);
             //SendMessage(unfocusMessage);
+            SendUnfocus(unfocusMessage);
         }
 
         private void OperatorKey(string key)
