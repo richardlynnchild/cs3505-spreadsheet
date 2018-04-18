@@ -114,9 +114,6 @@ namespace SpreadsheetGUI
                     OperatorKey("/");
                 else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.D8)
                     OperatorKey("*");
-                else
-                    return;
-
 
                 //they are no longer editing
                 if (e.KeyData == Keys.Enter)
