@@ -132,7 +132,47 @@ bool Lobby::CheckForNewClient(){
   return idle;
 }
 
-void Lobby::HandleMessage(std::string message){
+/*
+ * Split the given string by the given delimiter.
+ * Returns a vector of sub-strings.
+ */
+std::vector<std::string> Lobby::SplitString(std::string str, char delim){
+  std::stringstream ss(str);
+  std::string token;
+  std::vector<std::string> tokens;
+  while(std::getline(ss,token,delim)){
+    tokens.push_back(token);
+  }
+  return tokens;
+}
+
+/*
+ * Processes a single message from a client.
+ */
+
+void Lobby::HandleMessage(std::string message, std::string sheet){
+  char delim = ' ';
+  std::vector<std::string> tokens = SplitString(message, delim);
+  std::string command = tokens[0];
+  if(command == "edit"){
+    char delim = ':';
+    std::vector<std::string> tokens = SplitString(tokens[1], delim);
+    clients[sheet]->EditSheet(tokens[0],tokens[1]);
+    
+
+  }
+  else if(command == "undo"){
+
+  }
+  else if(command == "revert"){
+
+  }
+  else if(command == "disconnect"){
+
+  }
+
+
+
 
 }
 
@@ -146,11 +186,12 @@ bool Lobby::CheckForMessages(){
   for(; it != clients.end(); ++it){
     //Pop next message off Interface incoming message queue
     std::string message = it->GetMessage();
+    std::string sheet = it->GetSprdName();
     if(message == ""){
       continue;
     }
     else {
-      HandleMessage(message);
+      HandleMessage(message, sheet);
       messagesHandled++;
     }
 
@@ -185,7 +226,7 @@ void Lobby::Start(){
        
   while(running){
     bool clientsWaiting = CheckForNewClient();
-    //bool messagesWaiting = CheckForMessages();
+    bool messagesWaiting = CheckForMessages();
     if(!clientsWaiting && !messagesWaiting){
       int ten_ms = 10000;
       usleep(ten_ms); 
