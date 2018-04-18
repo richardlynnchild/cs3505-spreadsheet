@@ -16,6 +16,7 @@ namespace SpreadsheetGUI
         private Socket theServer;
         private bool connected;
         private Dictionary<string, string> clientFocus;
+        private string previousSelection;
         public Form1()
         {
             //
@@ -50,7 +51,10 @@ namespace SpreadsheetGUI
             FilePanel.Visible = false;
 
             ServerTextBox.Enter += ServerTextBoxEntered;
-            ServerTextBox.LostFocus += ServerTextBoxLeft; 
+            ServerTextBox.LostFocus += ServerTextBoxLeft;
+
+            this.spreadsheetPanel1.SetSelection(0, 0);
+            this.previousSelection = GetCellName(0, 0);
 
         }
 
@@ -74,6 +78,7 @@ namespace SpreadsheetGUI
                 //FormulaBox.SelectionStart = FormulaBox.Text.Length;
         }
 
+        /*
         /// <summary>
         /// Delegate to handle the setting of cell name and cell value text boxes
         /// on cell selection change.
@@ -84,16 +89,25 @@ namespace SpreadsheetGUI
             sender.GetSelection(out int col, out int row);
 
             string cellName = GetCellName(col, row);
+
+            SetCellNameVal(cellName);
+        }
+
+        /// <summary>
+        /// Main method for setting a cell value on the spreadsheet panel
+        /// </summary>
+        /// <param name="cellName"></param>
+        private void SetCellNameVal(string cellName)
+        {
+
             object cellVal = ss1.GetCellValue(cellName);
 
-            CellNameOutput.Text = cellName;
-
-            //if the result is a formulaError display a Formula Error string, otherwise set the cell normally.
             if (cellVal.GetType() == typeof(FormulaError))
                 CellValueOutput.Text = "Formula Error";
             else
                 CellValueOutput.Text = cellVal.ToString();
         }
+        */
 
         /// <summary>
         /// Processes keystrokes from the user and updates the spreadsheet accordingly.
@@ -104,6 +118,7 @@ namespace SpreadsheetGUI
         {
             if ( ! ServerTextBox.Focused && ! FilePanel.Visible)
             {
+
                 //they are no longer editing
                 if (e.KeyData == Keys.Enter)
                 {
@@ -135,28 +150,11 @@ namespace SpreadsheetGUI
                     {
                         switch (e.KeyData)
                         {
-
                             case Keys.Oemplus:
-                                if (ModifierKeys == Keys.Shift)
-                                    OperatorKey("=");
-                                else
-                                    OperatorKey("+");
-                                break;
-
-                            case Keys.OemMinus:
-                                OperatorKey("-");
-                                break;
-
-                            case Keys.OemBackslash:
-                                OperatorKey("/");
-                                break;
-
-                            case Keys.Shift:
-
-
-                            default:
+                                OperatorKey("=");
                                 break;
                         }
+
                     }
                 }
             }
@@ -671,7 +669,7 @@ namespace SpreadsheetGUI
             spreadsheetPanel1.GetSelection(out int col, out int row);
             spreadsheetPanel1.GetValue(col, row, out string value);
             SetCell(row, col, value);
-            setCellNameVal(spreadsheetPanel1);
+            //setCellNameVal(spreadsheetPanel1);
             e.SuppressKeyPress = true;
 
             //set the formula box to the contents of the cell
@@ -695,8 +693,14 @@ namespace SpreadsheetGUI
 
         private void HandleSelectionChange(SpreadsheetPanel sender)
         {
+            SetCell(previousSelection);
+
+            //SetCellNameVal(previousSelection);
+
             spreadsheetPanel1.GetSelection(out int col, out int row);
             spreadsheetPanel1.GetValue(col, row, out string value);
+
+            previousSelection = GetCellName(col, row);
 
             string name = GetCellName(col, row);
 
@@ -719,6 +723,15 @@ namespace SpreadsheetGUI
         private string GetCellName(int col, int row)
         {
             return Convert.ToChar(col + 65).ToString() + (row + 1).ToString();
+        }
+
+        private int[] GetCellPosition(string cellName)
+        {
+            int[] colRow = new int[2];
+            colRow[0] = (int)cellName[0] - 65;
+            colRow[1] = (int)cellName[1] - 1;
+
+            return colRow;
         }
 
         /// <summary>
@@ -793,6 +806,24 @@ namespace SpreadsheetGUI
             {
                 FormulaBox.Text = "Invalid Formula!";
             }
+        }
+        */
+
+            /*
+        /// <summary>
+        /// Sets the specified cell to 
+        /// </summary>
+        /// <param name="cellName"></param>
+        private void SetCell(string cellName)
+        {
+            int[] rowCol = GetCellPosition(cellName);
+            int col = rowCol[0];
+            int row = rowCol[1];
+
+            string value = ss1.GetCellValue(cellName).ToString();
+
+            SetCell(row, col, value);
+            
         }
         */
 
