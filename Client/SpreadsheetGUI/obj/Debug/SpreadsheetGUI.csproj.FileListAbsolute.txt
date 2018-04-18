@@ -115,3 +115,5 @@ D:\SourceCode\cs3505-spreadsheet\Client\SpreadsheetGUI\obj\Debug\SpreadsheetGUI.
 D:\SourceCode\cs3505-spreadsheet\Client\SpreadsheetGUI\obj\Debug\SpreadsheetGUI.csproj.CopyComplete
 D:\SourceCode\cs3505-spreadsheet\Client\SpreadsheetGUI\obj\Debug\SpreadsheetGUI.exe
 D:\SourceCode\cs3505-spreadsheet\Client\SpreadsheetGUI\obj\Debug\SpreadsheetGUI.pdb
+C:\Users\megan\source\repos\cs3505-spreadsheet\Client\SpreadsheetGUI\bin\Debug\Networking.dll
+C:\Users\megan\source\repos\cs3505-spreadsheet\Client\SpreadsheetGUI\bin\Debug\Networking.pdb
