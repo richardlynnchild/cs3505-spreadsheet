@@ -10,7 +10,6 @@
 #include <utility>
 #include <sys/socket.h>
 #include <pthread.h>
-#include "interface.h"
 
 class Lobby {
   private:
