@@ -1,9 +1,8 @@
 all: lobby.o
-	g++ -g main.cpp lobby.o
+	g++ -g main.cpp lobby.o interface.cpp spreadsheet.cpp network_controller.cpp -lpthread
 
 lobby.o:
-	g++ -c lobby.cpp -pthread
-
+	g++ -c -pthread lobby.cpp
 clean:
 	rm *.o ./a.out
 test:

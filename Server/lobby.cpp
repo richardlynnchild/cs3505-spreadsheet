@@ -185,7 +185,7 @@ void Lobby::Start(){
        
   while(running){
     bool clientsWaiting = CheckForNewClient();
-    //bool messagesWaiting = CheckForMessages();
+    bool messagesWaiting = CheckForMessages();
     if(!clientsWaiting && !messagesWaiting){
       int ten_ms = 10000;
       usleep(ten_ms); 

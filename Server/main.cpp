@@ -1,6 +1,6 @@
 #include "lobby.h"
-#include <iostream>
 #include "interface.h"
+#include <iostream>
 #include <stdio.h>
 #include <sys/socket.h>
 #include <stdlib.h>

@@ -1,3 +1,7 @@
+#ifndef INTERFACE_H
+#define INTERFACE_H
+
+
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -47,3 +51,5 @@ public:
     void StartClientThread();
     void StopClientThread();
 };
+
+#endif
