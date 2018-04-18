@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using SS;
 using SpreadsheetUtilities;
 using System.Net.Sockets;
-using NetworkingController;
+using Networking;
 
 namespace SpreadsheetGUI
 {
@@ -40,7 +40,8 @@ namespace SpreadsheetGUI
             this.KeyDown += ProcessKeyStroke;
             this.FormClosing += OnExit;
             this.MouseMove += FilePanelMove;
-            this.FileList.Click += FileSelected;
+            //this.FileList.Click += FileSelected;
+            this.FileList.SelectedIndexChanged += FileSelected;
             this.Open_FileMenu.Click += SendSpreadsheetSelection;
 
             this.Width = 1000;
@@ -104,7 +105,7 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void ProcessKeyStroke(object sender, KeyEventArgs e)
         {
-            if ( ! ServerTextBox.Focused)
+            if ( ! ServerTextBox.Focused && ! FilePanel.Visible)
             {
                 //they are no longer editing
                 if (e.KeyData == Keys.Enter)
@@ -186,7 +187,7 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void ServerTextBoxLeft(object sender, EventArgs e)
         {
-            if (!connected)
+            if ( ! connected && ServerTextBox.Text.Length < 1)
             {
                 ServerTextBox.Text = "Enter Hostname";
                 ServerTextBox.ForeColor = SystemColors.ScrollBar;
@@ -206,7 +207,7 @@ namespace SpreadsheetGUI
             {
                 try
                 {
-                    //theServer = Network.ConnectToServer(SendRegisterMessage, ServerTextBox.Text);
+                    theServer = Network.ConnectToServer(SendRegisterMessage, ServerTextBox.Text);
                     ServerTextBox.Enabled = false;
                     ConnectButton.Enabled = false;
                 }
@@ -224,8 +225,11 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void FileSelected(object sender, EventArgs e)
         {
-            ListViewItem fileSelected = FileList.SelectedItems[0];
-            FileTextSelect.Text = fileSelected.Text;
+            if (FileList.SelectedItems.Count > 0)
+            {
+                ListViewItem fileSelected = FileList.SelectedItems[0];
+                FileTextSelect.Text = fileSelected.Text;
+            }
         }
 
         private void OnExit(object sender, EventArgs e)
@@ -257,7 +261,8 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void SendSpreadsheetSelection(object sender, EventArgs e)
         {
-            Network.Send(theServer, FileTextSelect.Text);
+            string message = "load " + FileTextSelect.Text + (char)3;
+            Network.Send(theServer, message);
             //TODO: add full state message processing function.
             //HandleFullState();
         }
@@ -304,32 +309,51 @@ namespace SpreadsheetGUI
 
         private void SendMessage(string msg)
         {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-            Network.Send(theServer, message);
-=======
-            Networking.Networking.Send(theServer, msg);
->>>>>>> 3b621c7a9260775beda53286b6ad430535ae1379
-=======
-            Networking.Networking.Send(theServer, msg);
->>>>>>> 4e169b4b671bd73e24e54373fd7e05c2b48f8caa
-=======
             Network.Send(theServer, msg);
->>>>>>> parent of 22d1183... merge
+        }
+        /// <summary>
+        /// Sends the register message to the server after a connection is established.
+        /// </summary>
+        /// <param name="state"></param>
+        private void SendRegisterMessage(SocketState state)
+        {
+            state.callMe = ActivateFileMenu;
+            string message = "register" + (char)3;
+            Network.Send(state.sock, message);
+
+            Network.GetData(state);
         }
 
-        #endregion
+    private void ActivateFileMenu(SocketState state)
+    {
+        string message;
+        lock (state)
+        {
+            message = state.builder.ToString();
+        }
+
+        MethodInvoker FMInvoker = new MethodInvoker(() =>
+        {
+            ShowFileMenu(message);
+        });
+
+        this.Invoke(FMInvoker);
+
+        state.builder.Clear();
+        Network.GetData(state);
+    }
+
+    #endregion
 
         #region Row/Col Info
 
-        /// <summary>
-        /// Calculates the sum, count and average of the current row. Displays the results in a textbox.
-        /// If a cell contains a variable or formula that cannot be solved due to the dependency being unfinished it is left out of the calculations.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ReturnRow_Click(object sender, EventArgs e)
+    /// <summary>
+    /// Calculates the sum, count and average of the current row. Displays the results in a textbox.
+    /// If a cell contains a variable or formula that cannot be solved due to the dependency being unfinished it is left out of the calculations.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void ReturnRow_Click(object sender, EventArgs e)
         {
             //handle logic of row info
             OnReturnRowClick();
@@ -561,7 +585,7 @@ namespace SpreadsheetGUI
             string[] files = fileString.Split('\n');
             //for some reason Split() does not remove the delimter from the last part of the string
             string lastString = files[files.Length - 1];
-            lastString = lastString.Substring(0, lastString.Length - 2);
+            //lastString = lastString.Substring(0, lastString.Length - 2);
             files[files.Length - 1] = lastString;
             foreach (string file in files)
             {
@@ -619,7 +643,7 @@ namespace SpreadsheetGUI
 
             //once networking is back up...
             string unfocusMessage = "unfocus " + ((char)3);
-            SendMessage(unfocusMessage);
+            //SendMessage(unfocusMessage);
         }
 
         /// <summary>
@@ -730,20 +754,8 @@ namespace SpreadsheetGUI
                 UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
             }
         }
-        /*
-        /// <summary>
-        /// Sends the register message to the server after a connection is established.
-        /// </summary>
-        /// <param name="state"></param>
-        private void SendRegisterMessage(SocketState state)
-        {
-            string message = "register" + (char)3;
-            Network.Send(state.Socket, message);
 
-        }
-        */
-
-        private void HandleFullState()
+        private void HandleFullState(SocketState state)
         {
             /*
              * string message = Network.Recieve();
