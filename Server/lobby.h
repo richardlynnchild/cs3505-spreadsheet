@@ -30,6 +30,12 @@ class Lobby {
     void OpenSpreadsheet(std::string filename);
     std::string BuildFocus();
     std::string BuildUnfocus();
+<<<<<<< HEAD
+=======
+    bool CheckForMessages();
+    void HandleMessage(std::string message,std::string sheet);
+    void SendChangeMessage(std::string message, std::string sheet);
+>>>>>>> ab6c31d1adf507d07ccbb9d1f112f120517ca87c
 
   public:
     Lobby();

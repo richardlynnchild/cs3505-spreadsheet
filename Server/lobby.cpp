@@ -138,7 +138,7 @@ bool Lobby::CheckForNewClient(){
  * Split the given string by the given delimiter.
  * Returns a vector of sub-strings.
  */
-std::vector<std::string> Lobby::SplitString(std::string str, char delim){
+std::vector<std::string> SplitString(std::string str, char delim){
   std::stringstream ss(str);
   std::string token;
   std::vector<std::string> tokens;
@@ -179,17 +179,17 @@ void Lobby::HandleMessage(std::string message, std::string sheet){
   if(command == "edit"){
     char delim = ':';
     std::vector<std::string> cell = SplitString(tokens[1], delim);
-    spreadsheets[sheet]->EditSheet(cell[0],cell[1]);
+    spreadsheets[sheet].EditSheet(cell[0],cell[1]);
     SendChangeMessage(tokens[1], sheet); 
   }
   else if(command == "undo"){
-    std::pair<std::string,std::string> cell = spreadsheets[sheet]->Undo();
-    std::string message = cell->first;
-    message += cell->second;
+    std::pair<std::string,std::string> cell = spreadsheets[sheet].Undo();
+    std::string message = cell.first;
+    message += cell.second;
     SendChangeMessage(message,sheet); 
   }
   else if(command == "revert"){
-   std::string message = spreadsheets[sheet]->Revert(tokens[1]);
+   std::string message = spreadsheets[sheet].Revert(tokens[1]);
    SendChangeMessage(message,sheet); 
   }
   else if(command == "disconnect"){
