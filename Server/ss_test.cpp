@@ -1,15 +1,21 @@
 #include "spreadsheet.h"
+#include <stdio.h>
 #include <iostream>
 int main(){
-  Spreadsheet s("test");
-  s.EditSheet("A6","3");
-  s.EditSheet("A9","=A6/2");
-  std::string actual = s.GetFullState();
-  std::string expected = "full_state A6:3\nA9:=A6/2\n";
-  char end = (char) 3;
-  expected += end;
-  std::cout << "Testing Spreadsheet::GetFullState()" << std::endl;
-  std::cout << "Expected: " <<  expected << std::endl;
-  std::cout << "Actual: " << actual << std::endl;
-
+  Spreadsheet s("Test1");
+  s.EditSheet("A1","1");
+  s.EditSheet("A2","5");
+  s.EditSheet("B1","3");
+  s.EditSheet("B2","7");
+  s.EditSheet("A1","17");
+  s.EditSheet("A1", "99");
+  s.EditSheet("A1", "0");
+  std::pair<std::string,std::string> undo = s.Undo();
+  std::cout << "Undo - " << undo.first << ":" << undo.second << std::endl;
+  undo = s.Undo();
+  std::cout << "Undo - " << undo.first << ":" << undo.second << std::endl;
+  undo = s.Undo();
+  std::cout << "Undo - " << undo.first << ":" << undo.second << std::endl;
+  undo = s.Undo();
+  std::cout << "Undo - " << undo.first << ":" << undo.second << std::endl;
 }

@@ -6,6 +6,7 @@ using SS;
 using SpreadsheetUtilities;
 using System.Net.Sockets;
 using Networking;
+using System.Runtime.InteropServices;
 
 namespace SpreadsheetGUI
 {
@@ -15,7 +16,8 @@ namespace SpreadsheetGUI
         public string filename;
         private Socket theServer;
         private bool connected;
-        private Dictionary<string, KeyValuePair<bool, string>> cellStatus;
+        private Dictionary<string, string> clientFocus;
+        private string previousSelection;
         public Form1()
         {
             //
@@ -27,35 +29,36 @@ namespace SpreadsheetGUI
             InitializeComponent();
             this.KeyPreview = true;
 
+            clientFocus = new Dictionary<string, string>();
 
             //Set up valid open/save file types
             openFileDialog1.Filter = "Spreadsheet Files (*.sprd)|*.sprd|Text Files (*.txt)|*.txt";
             saveFileDialog1.Filter = "Spreadsheet Files (*.sprd)|*.sprd|Text Files (*.txt)|*.txt";
 
-            //set up delegate listeners for the selection changed event.
+            //set up delegate listeners for the events.
             spreadsheetPanel1.SelectionChanged += MakeWriteable;
-            spreadsheetPanel1.SelectionChanged += setCellNameVal;
-
-            //set up listeners for keydown and formclosing events.
             this.KeyDown += ProcessKeyStroke;
             this.FormClosing += OnExit;
             this.MouseMove += FilePanelMove;
-            this.FileList.Click += FileSelected;
+            this.FileList.SelectedIndexChanged += FileSelected;
             this.Open_FileMenu.Click += SendSpreadsheetSelection;
+            this.spreadsheetPanel1.SelectionChanged += HandleSelectionChange;
+            this.ServerTextBox.Enter += ServerTextBoxEntered;
+            this.ServerTextBox.LostFocus += ServerTextBoxLeft;
+            this.FormulaBox.GotFocus += HandleFomrulaBoxFocus;
 
             this.Width = 1000;
             this.Height = 600;
 
-            FilePanel.Visible = false;
+            this.FilePanel.Visible = false;
 
-            ServerTextBox.Enter += ServerTextBoxEntered;
-            ServerTextBox.LostFocus += ServerTextBoxLeft; 
-
-            FormulaBox.Focus();
+            this.spreadsheetPanel1.SetSelection(0, 0);
+            this.previousSelection = GetCellName(0, 0);
 
         }
 
         #region Spreadsheet Control
+
 
         /// <summary>
         /// Sets the formula box to the value of the selected cell and sets focus to the formula box.
@@ -69,33 +72,9 @@ namespace SpreadsheetGUI
 
             //set the contents of the formula box and set focus to it.
             FormulaBox.Text = ss1.GetCellContents(cellName).ToString();
-            FormulaBox.Focus();
 
-            //put the cursor to the end of the text
-            if (FormulaBox.Text.Length > 0)
-                FormulaBox.SelectionStart = FormulaBox.Text.Length;
         }
 
-        /// <summary>
-        /// Delegate to handle the setting of cell name and cell value text boxes
-        /// on cell selection change.
-        /// </summary>
-        /// <param name="sender"></param>
-        private void setCellNameVal(SpreadsheetPanel sender)
-        {
-            sender.GetSelection(out int col, out int row);
-
-            string cellName = GetCellName(col, row);
-            object cellVal = ss1.GetCellValue(cellName);
-
-            CellNameOutput.Text = cellName;
-
-            //if the result is a formulaError display a Formula Error string, otherwise set the cell normally.
-            if (cellVal.GetType() == typeof(FormulaError))
-                CellValueOutput.Text = "Formula Error";
-            else
-                CellValueOutput.Text = cellVal.ToString();
-        }
 
         /// <summary>
         /// Processes keystrokes from the user and updates the spreadsheet accordingly.
@@ -104,8 +83,19 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void ProcessKeyStroke(object sender, KeyEventArgs e)
         {
-            if ( ! ServerTextBox.Focused)
+            if (!ServerTextBox.Focused && !FilePanel.Visible)
             {
+                if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.Oemplus)
+                    OperatorKey("+");
+                else if (e.KeyCode == Keys.Oemplus)
+                    OperatorKey("=");
+                else if (e.KeyCode == Keys.OemMinus)
+                    OperatorKey("-");
+                else if (e.KeyData == Keys.Oem2)
+                    OperatorKey("/");
+                else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.D8)
+                    OperatorKey("*");
+
                 //they are no longer editing
                 if (e.KeyData == Keys.Enter)
                 {
@@ -140,10 +130,10 @@ namespace SpreadsheetGUI
                     }
                 }
             }
-            
+
         }
 
-        /*
+
         /// <summary>
         /// Overrides the ProcessCmdKey function in order to use the arrow keys and Tab to make
         /// Cell selections.
@@ -155,18 +145,7 @@ namespace SpreadsheetGUI
         {
             return spreadsheetPanel1.MovementKey(ref msg, keyData);
         }
-        */
 
-        /// <summary>
-        /// EnterButton clicked event. Sets selected cell to contents of the formula box.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void EnterButton_Click(object sender, EventArgs e)
-        {
-            SetCell();
-            FormulaBox.Focus();
-        }
 
         /// <summary>
         /// Delegate to remove text and change color when ServerTextbox is entered.
@@ -179,6 +158,7 @@ namespace SpreadsheetGUI
             ServerTextBox.ForeColor = Color.Black;
         }
 
+
         /// <summary>
         /// Delegate to add text and change text color when ServerTextBox is left (if the client has not connected to a server yet).
         /// </summary>
@@ -186,12 +166,13 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void ServerTextBoxLeft(object sender, EventArgs e)
         {
-            if (!connected)
+            if (!connected && ServerTextBox.Text.Length < 1)
             {
                 ServerTextBox.Text = "Enter Hostname";
                 ServerTextBox.ForeColor = SystemColors.ScrollBar;
             }
         }
+
 
         ///<summary>
         /// checks that the the servename is valid and connects the client to the server.
@@ -206,9 +187,10 @@ namespace SpreadsheetGUI
             {
                 try
                 {
-                    theServer = Networking.Networking.ConnectToServer(SendRegisterMessage, ServerTextBox.Text);
+                    theServer = Network.ConnectToServer(SendRegisterMessage, ServerTextBox.Text);
                     ServerTextBox.Enabled = false;
                     ConnectButton.Enabled = false;
+                    connected = true;
                 }
                 catch (ArgumentException)
                 {
@@ -217,6 +199,7 @@ namespace SpreadsheetGUI
             }
         }
 
+
         /// <summary>
         /// Sets the FileTextBox contents to the name of the selected spreadsheet.
         /// </summary>
@@ -224,25 +207,57 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void FileSelected(object sender, EventArgs e)
         {
-            ListViewItem fileSelected = FileList.SelectedItems[0];
-            FileTextSelect.Text = fileSelected.Text;
+            if (FileList.SelectedItems.Count > 0)
+            {
+                ListViewItem fileSelected = FileList.SelectedItems[0];
+                FileTextSelect.Text = fileSelected.Text;
+            }
         }
 
+        [DllImport("user32.dll")]
+        static extern bool HideCaret(IntPtr hWnd);
+        /// <summary>
+        /// Hides the caret for the formula box and returns focus to spreadsheet panel.
+        /// </summary>
+        /// <param name="hWnd"></param>
+        /// <returns></returns>
+        public void HandleFomrulaBoxFocus(object sender, EventArgs e)
+        {
+            HideCaret(FormulaBox.Handle);
+            spreadsheetPanel1.Focus();
+        }
+
+        /// <summary>
+        /// Sends a disconnect message to the server when the client is closed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnExit(object sender, EventArgs e)
         {
-
+            SendMessage("disconnnect " + (char)3);
         }
 
-
-        private void undo_button_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Requests the server to undo the most recent change.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void UndoButton_Click(object sender, EventArgs e)
         {
-
+            SendMessage("undo " + (char)3);
         }
 
-        private void revert_button_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Requests the server to revert the currently selected cell.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RevertButton_Click(object sender, EventArgs e)
         {
+            spreadsheetPanel1.GetSelection(out int col, out int row);
+            string cellName = GetCellName(col, row);
 
-
+            SendMessage("revert " + CellName + (char)3);
         }
 
 
@@ -257,10 +272,14 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void SendSpreadsheetSelection(object sender, EventArgs e)
         {
-            Networking.Networking.Send(theServer, FileTextSelect.Text);
-            //TODO: add full state message processing function.
-            //HandleFullState();
+            Open_FileMenu.Enabled = false;
+            string message = "load " + FileTextSelect.Text + (char)3;
+            Network.Send(theServer, message);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
         private void Receive()
         {
             /*
@@ -275,34 +294,161 @@ namespace SpreadsheetGUI
         /// </summary>
         private void SendFocus(string message)
         {
-            //hacking, but allows you to test
+            //hacking, but allows you to test diff cases
+            //if in column c, receive will be column d
+            //so you can test a case where someone else would have been editing a diff cell
             ReceiveFocus(message);
             //Network.Send(theServer, message);
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
         private void ReceiveFocus(string message)
         {
-            //color the cell
-
-            //figure out what cell the focus is on
-            //string[] msg_parts = message.Split(null);
-            //string[] smaller_parts = msg_parts[1].Split(':');
-
             char[] delimiters = new char[] { ' ', ':', ((char)3) };
             string[] msg_parts = message.Split(delimiters);
-
             string cell_name = msg_parts[1];
+            string user_id = msg_parts[2];
 
+            clientFocus[user_id] = cell_name;
 
-            //KeyValuePair<bool, string> newStatus = new KeyValuePair<bool, string>(true, smaller_parts[1]);
-            //cellStatus[cell_name] = newStatus;
             GetCellPosition(cell_name, out int row, out int col);
             spreadsheetPanel1.SetFocus(row, col);
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        private void SendUnfocus(string message)
+        {
+            ReceiveUnfocus(message);
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        private void ReceiveUnfocus(string message)
+        {
+            char[] delimiters = new char[] { ' ', ((char)3) };
+            string[] msg_parts = message.Split(delimiters);
+            string user_id = msg_parts[1];
+
+            string cell_name = clientFocus[user_id];
+
+            GetCellPosition(cell_name, out int row, out int col);
+            spreadsheetPanel1.SetUnfocus(row, col);
+        }
+        
+        /// <summary>
+        /// Sends a string message to the server.
+        /// </summary>
+        /// <param name="msg"></param>
         private void SendMessage(string msg)
         {
-            Networking.Networking.Send(theServer, msg);
+            Network.Send(theServer, msg);
+        }
+
+
+        /// <summary>
+        /// Sends the register message to the server after a connection is established.
+        /// </summary>
+        /// <param name="state"></param>
+        private void SendRegisterMessage(SocketState state)
+        {
+            state.callMe = ActivateFileMenu;
+            string message = "register" + (char)3;
+            Network.Send(state.sock, message);
+
+            Network.GetData(state);
+        }
+
+
+        /// <summary>
+        /// Processes a full state message. Assigns processMessage() as the socket state's callme when finished.
+        /// </summary>
+        /// <param name="state"></param>
+        private void HandleFullState(SocketState state)
+        {
+            string message;
+            string complete_message = "";
+
+            lock (state) { message = state.builder.ToString(); }
+
+            complete_message += message;
+
+            if (message.Contains(((char)3).ToString()))
+            {
+                if (complete_message.Length < 18 && complete_message.Contains("file_load_error"))
+                {
+                    MessageBox.Show("Could not open/create spreadsheet!");
+                    Open_FileMenu.Enabled = true;
+                }
+                else
+                {
+                    state.callMe = ProcessMessage;
+                    string[] cells = complete_message.Split('\n');
+
+                    //split the cell name and value then set the cell.
+                    foreach (string cell in cells)
+                    {
+                        string[] cellAndval = cell.Split(':');
+                        string cellName = cellAndval[0];
+                        string cellVal = cellAndval[1];
+
+                        int[] colRow = GetCellPosition(cellName);
+
+                        SetCell(colRow[1], colRow[0], cellVal);
+                    }
+
+                    FilePanel.Visible = false;
+                }
+            }
+
+            Network.GetData(state);
+        }
+
+        /// <summary>
+        /// Process incoming messages from the server.
+        /// </summary>
+        /// <param name="state"></param>
+        private void ProcessMessage(SocketState state)
+        {
+            string message;
+
+            lock (state)
+            {
+                message = state.builder.ToString();
+                string[] messages = message.Split((char)3);
+
+                foreach (string msg in messages)
+                {
+                    switch (msg.Substring(0,3))
+                    {
+                        case "chan":
+                            //TODO
+                            break;
+                        case "ping":
+                            //TODO
+                            break;
+                        case "disc":
+                            //TODO
+                            break;
+                    }
+
+
+                    state.builder.Remove(0, msg.Length);
+                }
+            }
+
+
+            Network.GetData(state);
         }
 
         #endregion
@@ -335,6 +481,7 @@ namespace SpreadsheetGUI
             OutputColumnInfo.Visible = false;
         }
 
+
         /// <summary>
         /// Calculates the sum, count, and average of the values in the current column. Displays results in a textbox
         /// If a cell contains a variable or formula that cannot be solved due to the dependency being unfinished it is left out of the calculations.
@@ -360,6 +507,7 @@ namespace SpreadsheetGUI
             OutputRowInfo.Visible = false;
             RowExit.Visible = false;
         }
+
 
         /// <summary>
         /// Helper Method for ReturnCollumClick
@@ -402,6 +550,7 @@ namespace SpreadsheetGUI
             OutputColumnInfo.Visible = false;
         }
 
+
         /// <summary>
         /// Helper method for returnRow_Click
         /// </summary>
@@ -430,6 +579,7 @@ namespace SpreadsheetGUI
             int rowNum = row + 1;
             OutputRowInfo.Text = " \r\nSum of row " + rowNum + "  =  " + sum + "\r\n \r\nCount of row " + rowNum + "  =  " + count + " \r\n \r\nAverage of row " + rowNum + "  =  " + average + "";
         }
+
 
         /// <summary>
         /// Makes the information box for the row and the row button invisible.
@@ -464,6 +614,7 @@ namespace SpreadsheetGUI
             CloseOther.Visible = false;
         }
 
+
         /// <summary>
         /// If the user selects the Cell Editing help option, the help text box and exit button are made visible. 
         /// </summary>
@@ -481,6 +632,7 @@ namespace SpreadsheetGUI
             HelpOtherText.Visible = false;
             CloseOther.Visible = false;
         }
+
 
         /// <summary>
         /// If the user selects the File Menu help option, the help text box and exit button are made visible. 
@@ -500,6 +652,7 @@ namespace SpreadsheetGUI
             CloseMove.Visible = false;
         }
 
+
         /// <summary>
         /// This makes the Cell Selection help text boxes and exit button invisible. 
         /// </summary>
@@ -511,6 +664,7 @@ namespace SpreadsheetGUI
             CloseSet.Visible = false;
         }
 
+
         /// <summary>
         /// This makes the Cell Editing help text boxes and exit button invisible.
         /// </summary>
@@ -521,6 +675,7 @@ namespace SpreadsheetGUI
             HelpOtherText.Visible = false;
             CloseOther.Visible = false;
         }
+
 
         /// <summary>
         /// This makes the File menu help text boxes and exit button invisible.
@@ -538,17 +693,13 @@ namespace SpreadsheetGUI
         #region File Menu
 
         /// <summary>
-        /// Displays a custom file menu containing all the sent spreadsheet name from the server.
+        /// Displays a custom file menu containing all spreadsheet name from a string.
         /// </summary>
         /// <param name="fileString"></param>
         private void ShowFileMenu(string fileString)
         {
             FilePanel.Show();
             string[] files = fileString.Split('\n');
-            //for some reason Split() does not remove the delimter from the last part of the string
-            string lastString = files[files.Length - 1];
-            lastString = lastString.Substring(0, lastString.Length - 2);
-            files[files.Length - 1] = lastString;
             foreach (string file in files)
             {
                 ListViewItem item = new ListViewItem(file);
@@ -556,6 +707,35 @@ namespace SpreadsheetGUI
                 FileList.Items.Add(item);
             }
         }
+
+        /// <summary>
+        /// Retrieves the list of spreadhseet names from the server and displays a file menu with the names.
+        /// </summary>
+        /// <param name="state"></param>
+        private void ActivateFileMenu(SocketState state)
+        {
+            state.callMe = HandleFullState;
+
+            string message;
+            lock (state)
+            {
+                message = state.builder.ToString();
+            }
+
+            //remove the first 17 ("connect_accepted ") characters from the string.
+            message = message.Substring(16);
+
+            MethodInvoker FMInvoker = new MethodInvoker(() =>
+            {
+                ShowFileMenu(message);
+            });
+
+            this.Invoke(FMInvoker);
+
+            state.builder.Clear();
+            Network.GetData(state);
+        }
+
 
         /// <summary>
         /// Work in progress, low priority
@@ -574,6 +754,10 @@ namespace SpreadsheetGUI
 
         #region Helper Methods
 
+        /// <summary>
+        /// Removes one character from the cell's text.
+        /// </summary>
+        /// <param name="e"></param>
         private void BackspaceKey(KeyEventArgs e)
         {
             spreadsheetPanel1.GetSelection(out int col, out int row);
@@ -586,6 +770,10 @@ namespace SpreadsheetGUI
             }
         }
 
+        /// <summary>
+        /// Processes a standard key and append its char value to the text in the cell.
+        /// </summary>
+        /// <param name="e"></param>
         private void StandardKey(KeyEventArgs e)
         {
             spreadsheetPanel1.GetSelection(out int col, out int row);
@@ -597,16 +785,67 @@ namespace SpreadsheetGUI
             spreadsheetPanel1.SetValue(col, row, newVal);
         }
 
+        /// <summary>
+        /// Sets the value of a cell based on the text in the cell.
+        /// </summary>
+        /// <param name="e"></param>
         private void EnterKey(KeyEventArgs e)
         {
-            SetCell();
-            setCellNameVal(spreadsheetPanel1);
-            e.SuppressKeyPress = true;
+            spreadsheetPanel1.GetSelection(out int col, out int row);
+            spreadsheetPanel1.GetValue(col, row, out string value);
+            SetCell(row, col, value);
+            e.SuppressKeyPress = true; //disables the annoying *ding* sound when pressing enter.
+
+            //set the formula box to the contents of the cell
+            string contents = ss1.GetCellContents(GetCellName(col, row)).ToString();
+            FormulaBox.Text = contents;
+            if (FormulaBox.Text.Length > 0)
+                FormulaBox.SelectionStart = FormulaBox.Text.Length;
 
             //once networking is back up...
             string unfocusMessage = "unfocus " + ((char)3);
-            SendMessage(unfocusMessage);
+            //SendMessage(unfocusMessage);
+            SendUnfocus(unfocusMessage);
+            string cellName = GetCellName(col, row);
+            string editMsg = "edit " + cellName + ":" + contents + ((char)3);
+            SendMessage(editMsg);
         }
+
+        /// <summary>
+        /// Appends the char value of an operator key to the text in the cell.
+        /// </summary>
+        /// <param name="key"></param>
+        private void OperatorKey(string key)
+        {
+            spreadsheetPanel1.GetSelection(out int col, out int row);
+            spreadsheetPanel1.GetValue(col, row, out string value);
+            string newVal = value + key.ToLower();
+            spreadsheetPanel1.SetValue(col, row, newVal);
+        }
+
+        /// <summary>
+        /// Resets the value display of a cell when a cell is exited.
+        /// </summary>
+        /// <param name="sender"></param>
+        private void HandleSelectionChange(SpreadsheetPanel sender)
+        {
+            ResetCell(previousSelection);
+
+            spreadsheetPanel1.GetSelection(out int col, out int row);
+            spreadsheetPanel1.GetValue(col, row, out string value);
+
+            previousSelection = GetCellName(col, row);
+
+            string name = GetCellName(col, row);
+
+            CellValueOutput.Text = value;
+            string contents = ss1.GetCellContents(name).ToString();
+
+            FormulaBox.Text = contents;
+
+            spreadsheetPanel1.SetValue(col, row, contents);
+        }
+
 
         /// <summary>
         /// Returns a string Cell name based on a numeric row, column position.
@@ -620,6 +859,21 @@ namespace SpreadsheetGUI
         }
 
         /// <summary>
+        /// Returns an array containing the numerical [col, row] position of a cell name.
+        /// </summary>
+        /// <param name="cellName"></param>
+        /// <returns>int[row, col]</returns>
+        private int[] GetCellPosition(string cellName)
+        {
+            int[] colRow = new int[2];
+            colRow[0] = (int)cellName[0] - 65;
+            colRow[1] = int.Parse(cellName[1].ToString()) - 1;
+
+            return colRow;
+        }
+
+
+        /// <summary>
         /// Helper method that returns the int row, col postiion of a cell name.
         /// </summary>
         /// <param name="cellName"></param>
@@ -630,6 +884,7 @@ namespace SpreadsheetGUI
             col = Convert.ToChar(cellName[0]) - 65;
             row = Convert.ToInt16(cellName.Substring(1)) - 1;
         }
+
 
         /// <summary>
         /// determines if a given variable is valid according to the PS6 specifications.
@@ -652,27 +907,41 @@ namespace SpreadsheetGUI
             return true;
         }
 
+
         /// <summary>
-        /// Writes the contents of the Formula Text box to the currently selected cell.
+        /// Sets the specified cell to 
         /// </summary>
-        private void SetCell()
+        /// <param name="cellName"></param>
+        private void ResetCell(string cellName)
         {
-            //attempt to set the cell, if there is an error set the formula box to display an error message.
+            int[] rowCol = GetCellPosition(cellName);
+            int col = rowCol[0];
+            int row = rowCol[1];
+
+            string value = ss1.GetCellValue(cellName).ToString();
+
+            if (ss1.GetCellValue(cellName).GetType() == typeof(FormulaError))
+                spreadsheetPanel1.SetValue(col, row, "Formula Error!");
+            else
+                spreadsheetPanel1.SetValue(col, row, ss1.GetCellValue(cellName).ToString());
+
+        }
+
+
+        /// <summary>
+        /// Writes the given contents to a specified cell location.
+        /// </summary>
+        private void SetCell(int row, int col, string cellVal)
+        {
             try
             {
-                spreadsheetPanel1.GetSelection(out int col, out int row);
                 string cellName = GetCellName(col, row);
-
-                //set the contents of the cell and update all the cells that need to be updated
-                //UpdateCells(ss1.SetContentsOfCell(cellName, FormulaBox.Text));
-                ss1.SetContentsOfCell(cellName, FormulaBox.Text);
+                ss1.SetContentsOfCell(cellName, cellVal);
 
                 //if the result is a formula error display a formula error message, otherwise set the cell with the result.
                 if (ss1.GetCellValue(cellName).GetType() == typeof(FormulaError))
-                {
-                    //FormulaError f = new FormulaError(ss1.GetCellValue(cellName));
                     spreadsheetPanel1.SetValue(col, row, "Formula Error!");
-                }
+
                 else
                 {
                     spreadsheetPanel1.SetValue(col, row, ss1.GetCellValue(cellName).ToString());
@@ -682,14 +951,15 @@ namespace SpreadsheetGUI
 
             catch (CircularException)
             {
-                FormulaBox.Text = "Ciruclar Dependency!";
+                spreadsheetPanel1.SetValue(col, row, "Ciruclar Dependency!");
             }
 
             catch (FormulaFormatException)
             {
-                FormulaBox.Text = "Invalid Formula!";
+                spreadsheetPanel1.SetValue(col, row, "Invalid Formula!");
             }
         }
+
 
         /// <summary>
         /// Update the displayed value of all the cells that need to be changed after a cell value is set.
@@ -715,31 +985,6 @@ namespace SpreadsheetGUI
                 //update all dependent cells
                 UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
             }
-        }
-        
-        /// <summary>
-        /// Sends the register message to the server after a connection is established.
-        /// </summary>
-        /// <param name="state"></param>
-        private void SendRegisterMessage(SocketState state)
-        {
-            string message = "register" + (char)3;
-            Networking.Networking.Send(state.sock, message);
-
-        }
-        
-
-        private void HandleFullState()
-        {
-            /*
-             * string message = Network.Recieve();
-             * if (message == ...)
-             * MessageBox.Show(Spreadsheet not valid!);
-             * 
-             * else
-             * 
-             * POSSIBLE TODO: add recieve function to networking file if needed.
-             * */
         }
         #endregion
     }

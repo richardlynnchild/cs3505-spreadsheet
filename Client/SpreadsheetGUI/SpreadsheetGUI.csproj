@@ -58,9 +58,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Resources\Libraries\Formula.dll</HintPath>
     </Reference>
-    <Reference Include="Networking">
-      <HintPath>..\Networking\obj\Debug\Networking.dll</HintPath>
-    </Reference>
     <Reference Include="Spreadsheet, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Resources\Libraries\Spreadsheet.dll</HintPath>
@@ -123,10 +120,13 @@
     <None Include="Resources\undo1.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\CS-3500\SpaceWars\Controller\NetworkController.csproj">
-      <Project>{c1ab7ec1-9fcb-4c87-926f-233e13897609}</Project>
-      <Name>NetworkController</Name>
+    <ProjectReference Include="..\Networking\Networking.csproj">
+      <Project>{76003832-fc23-45c0-a086-24a6b49c3eec}</Project>
+      <Name>Networking</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\Spreadsheet_Icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

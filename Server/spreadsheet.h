@@ -1,8 +1,6 @@
 #ifndef SPREADSHEET_H
 #define SPREADSHEET_H
 
-#include <sys/socket.h>
-#include <pthread.h>
 #include <string>
 #include <map>
 #include <vector>

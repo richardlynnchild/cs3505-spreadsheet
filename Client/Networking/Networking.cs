@@ -14,8 +14,8 @@ namespace Networking {
     /// Static class that provides all necessary networking components
     /// to connect to a server, send, and receive data.
     /// </summary>
-    public static class Networking {
-        private const int DEFAULT_PORT = 11000;
+    public static class Network {
+        private const int DEFAULT_PORT = 2112;
 
         /// <summary>
         /// Makes a socket with the included parameters.
