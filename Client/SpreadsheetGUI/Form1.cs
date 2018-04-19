@@ -29,29 +29,26 @@ namespace SpreadsheetGUI
             this.KeyPreview = true;
 
             clientFocus = new Dictionary<string, string>();
+
             //Set up valid open/save file types
             openFileDialog1.Filter = "Spreadsheet Files (*.sprd)|*.sprd|Text Files (*.txt)|*.txt";
             saveFileDialog1.Filter = "Spreadsheet Files (*.sprd)|*.sprd|Text Files (*.txt)|*.txt";
 
-            //set up delegate listeners for the selection changed event.
+            //set up delegate listeners for the events.
             spreadsheetPanel1.SelectionChanged += MakeWriteable;
-            //spreadsheetPanel1.SelectionChanged += setCellNameVal;
-
-            //set up listeners for keydown and formclosing events.
             this.KeyDown += ProcessKeyStroke;
             this.FormClosing += OnExit;
             this.MouseMove += FilePanelMove;
             this.FileList.SelectedIndexChanged += FileSelected;
             this.Open_FileMenu.Click += SendSpreadsheetSelection;
             this.spreadsheetPanel1.SelectionChanged += HandleSelectionChange;
+            this.ServerTextBox.Enter += ServerTextBoxEntered;
+            this.ServerTextBox.LostFocus += ServerTextBoxLeft;
 
             this.Width = 1000;
             this.Height = 600;
 
-            FilePanel.Visible = false;
-
-            ServerTextBox.Enter += ServerTextBoxEntered;
-            ServerTextBox.LostFocus += ServerTextBoxLeft;
+            this.FilePanel.Visible = false;
 
             this.spreadsheetPanel1.SetSelection(0, 0);
             this.previousSelection = GetCellName(0, 0);
@@ -59,6 +56,7 @@ namespace SpreadsheetGUI
         }
 
         #region Spreadsheet Control
+
 
         /// <summary>
         /// Sets the formula box to the value of the selected cell and sets focus to the formula box.
@@ -73,41 +71,8 @@ namespace SpreadsheetGUI
             //set the contents of the formula box and set focus to it.
             FormulaBox.Text = ss1.GetCellContents(cellName).ToString();
 
-            //put the cursor to the end of the text
-            //if (FormulaBox.Text.Length > 0)
-            //FormulaBox.SelectionStart = FormulaBox.Text.Length;
         }
 
-        /*
-        /// <summary>
-        /// Delegate to handle the setting of cell name and cell value text boxes
-        /// on cell selection change.
-        /// </summary>
-        /// <param name="sender"></param>
-        private void setCellNameVal(SpreadsheetPanel sender)
-        {
-            sender.GetSelection(out int col, out int row);
-
-            string cellName = GetCellName(col, row);
-
-            SetCellNameVal(cellName);
-        }
-
-        /// <summary>
-        /// Main method for setting a cell value on the spreadsheet panel
-        /// </summary>
-        /// <param name="cellName"></param>
-        private void SetCellNameVal(string cellName)
-        {
-
-            object cellVal = ss1.GetCellValue(cellName);
-
-            if (cellVal.GetType() == typeof(FormulaError))
-                CellValueOutput.Text = "Formula Error";
-            else
-                CellValueOutput.Text = cellVal.ToString();
-        }
-        */
 
         /// <summary>
         /// Processes keystrokes from the user and updates the spreadsheet accordingly.
@@ -180,21 +145,6 @@ namespace SpreadsheetGUI
         }
 
 
-    /*
-    /// <summary>
-    /// EnterButton clicked event. Sets selected cell to contents of the formula box.
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void EnterButton_Click(object sender, EventArgs e)
-    {
-        spreadsheetPanel1.GetSelection(out int col, out int row);
-        spreadsheetPanel1.GetValue(col, row, out string value);
-        SetCell(row, col, value);
-        FormulaBox.Focus();
-    }
-    */
-
         /// <summary>
         /// Delegate to remove text and change color when ServerTextbox is entered.
         /// </summary>
@@ -205,6 +155,7 @@ namespace SpreadsheetGUI
             ServerTextBox.Text = "";
             ServerTextBox.ForeColor = Color.Black;
         }
+
 
         /// <summary>
         /// Delegate to add text and change text color when ServerTextBox is left (if the client has not connected to a server yet).
@@ -219,6 +170,7 @@ namespace SpreadsheetGUI
                 ServerTextBox.ForeColor = SystemColors.ScrollBar;
             }
         }
+
 
         ///<summary>
         /// checks that the the servename is valid and connects the client to the server.
@@ -244,6 +196,7 @@ namespace SpreadsheetGUI
                 }
             }
         }
+
 
         /// <summary>
         /// Sets the FileTextBox contents to the name of the selected spreadsheet.
@@ -290,8 +243,6 @@ namespace SpreadsheetGUI
         {
             string message = "load " + FileTextSelect.Text + (char)3;
             Network.Send(theServer, message);
-            //TODO: add full state message processing function.
-            //HandleFullState();
         }
         private void Receive()
         {
@@ -364,6 +315,8 @@ namespace SpreadsheetGUI
 
         private void ActivateFileMenu(SocketState state)
         {
+            state.callMe = HandleFullState;
+
             string message;
             lock (state)
             {
@@ -411,6 +364,7 @@ namespace SpreadsheetGUI
             OutputColumnInfo.Visible = false;
         }
 
+
         /// <summary>
         /// Calculates the sum, count, and average of the values in the current column. Displays results in a textbox
         /// If a cell contains a variable or formula that cannot be solved due to the dependency being unfinished it is left out of the calculations.
@@ -436,6 +390,7 @@ namespace SpreadsheetGUI
             OutputRowInfo.Visible = false;
             RowExit.Visible = false;
         }
+
 
         /// <summary>
         /// Helper Method for ReturnCollumClick
@@ -478,6 +433,7 @@ namespace SpreadsheetGUI
             OutputColumnInfo.Visible = false;
         }
 
+
         /// <summary>
         /// Helper method for returnRow_Click
         /// </summary>
@@ -506,6 +462,7 @@ namespace SpreadsheetGUI
             int rowNum = row + 1;
             OutputRowInfo.Text = " \r\nSum of row " + rowNum + "  =  " + sum + "\r\n \r\nCount of row " + rowNum + "  =  " + count + " \r\n \r\nAverage of row " + rowNum + "  =  " + average + "";
         }
+
 
         /// <summary>
         /// Makes the information box for the row and the row button invisible.
@@ -540,6 +497,7 @@ namespace SpreadsheetGUI
             CloseOther.Visible = false;
         }
 
+
         /// <summary>
         /// If the user selects the Cell Editing help option, the help text box and exit button are made visible. 
         /// </summary>
@@ -557,6 +515,7 @@ namespace SpreadsheetGUI
             HelpOtherText.Visible = false;
             CloseOther.Visible = false;
         }
+
 
         /// <summary>
         /// If the user selects the File Menu help option, the help text box and exit button are made visible. 
@@ -576,6 +535,7 @@ namespace SpreadsheetGUI
             CloseMove.Visible = false;
         }
 
+
         /// <summary>
         /// This makes the Cell Selection help text boxes and exit button invisible. 
         /// </summary>
@@ -587,6 +547,7 @@ namespace SpreadsheetGUI
             CloseSet.Visible = false;
         }
 
+
         /// <summary>
         /// This makes the Cell Editing help text boxes and exit button invisible.
         /// </summary>
@@ -597,6 +558,7 @@ namespace SpreadsheetGUI
             HelpOtherText.Visible = false;
             CloseOther.Visible = false;
         }
+
 
         /// <summary>
         /// This makes the File menu help text boxes and exit button invisible.
@@ -633,6 +595,7 @@ namespace SpreadsheetGUI
             }
         }
 
+
         /// <summary>
         /// Work in progress, low priority
         /// </summary>
@@ -650,6 +613,7 @@ namespace SpreadsheetGUI
 
         #region Helper Methods
 
+
         private void BackspaceKey(KeyEventArgs e)
         {
             spreadsheetPanel1.GetSelection(out int col, out int row);
@@ -662,6 +626,7 @@ namespace SpreadsheetGUI
             }
         }
 
+
         private void StandardKey(KeyEventArgs e)
         {
             spreadsheetPanel1.GetSelection(out int col, out int row);
@@ -672,6 +637,7 @@ namespace SpreadsheetGUI
             string newVal = value + keyString;
             spreadsheetPanel1.SetValue(col, row, newVal);
         }
+
 
         private void EnterKey(KeyEventArgs e)
         {
@@ -693,6 +659,7 @@ namespace SpreadsheetGUI
             SendUnfocus(unfocusMessage);
         }
 
+
         private void OperatorKey(string key)
         {
             spreadsheetPanel1.GetSelection(out int col, out int row);
@@ -700,6 +667,7 @@ namespace SpreadsheetGUI
             string newVal = value + key.ToLower();
             spreadsheetPanel1.SetValue(col, row, newVal);
         }
+
 
         private void HandleSelectionChange(SpreadsheetPanel sender)
         {
@@ -722,6 +690,7 @@ namespace SpreadsheetGUI
             spreadsheetPanel1.SetValue(col, row, contents);
         }
 
+
         /// <summary>
         /// Returns a string Cell name based on a numeric row, column position.
         /// </summary>
@@ -733,6 +702,7 @@ namespace SpreadsheetGUI
             return Convert.ToChar(col + 65).ToString() + (row + 1).ToString();
         }
 
+
         private int[] GetCellPosition(string cellName)
         {
             int[] colRow = new int[2];
@@ -741,6 +711,7 @@ namespace SpreadsheetGUI
 
             return colRow;
         }
+
 
         /// <summary>
         /// Helper method that returns the int row, col postiion of a cell name.
@@ -753,6 +724,7 @@ namespace SpreadsheetGUI
             col = Convert.ToChar(cellName[0]) - 65;
             row = Convert.ToInt16(cellName.Substring(1)) - 1;
         }
+
 
         /// <summary>
         /// determines if a given variable is valid according to the PS6 specifications.
@@ -774,6 +746,7 @@ namespace SpreadsheetGUI
             }
             return true;
         }
+
 
         /*
         /// <summary>
@@ -817,6 +790,7 @@ namespace SpreadsheetGUI
         }
         */
 
+
         /// <summary>
         /// Sets the specified cell to 
         /// </summary>
@@ -835,6 +809,7 @@ namespace SpreadsheetGUI
                 spreadsheetPanel1.SetValue(col, row, ss1.GetCellValue(cellName).ToString());
 
         }
+
 
         /// <summary>
         /// Writes the contents of the Formula Text box to a specified cell.
@@ -870,6 +845,7 @@ namespace SpreadsheetGUI
             }
         }
 
+
         /// <summary>
         /// Update the displayed value of all the cells that need to be changed after a cell value is set.
         /// </summary>
@@ -895,6 +871,7 @@ namespace SpreadsheetGUI
                 UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
             }
         }
+
 
         private void HandleFullState(SocketState state)
         {
