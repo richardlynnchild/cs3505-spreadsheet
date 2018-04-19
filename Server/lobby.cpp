@@ -160,7 +160,7 @@ void Lobby::HandleMessage(std::string message, std::string sheet){
   if(command == "edit"){
     char delim = ':';
     std::vector<std::string> tokens = SplitString(tokens[1], delim);
-    spreadsheets[sheet]->EditSheet(tokens[0],tokens[1]);
+    spreadsheets[sheet].EditSheet(tokens[0],tokens[1]);
     std::string change = "change ";
     change += tokens[0];
     change += tokens[1];

@@ -203,7 +203,15 @@ void* NetworkController::Handshake(void* ptr){
     std::cout << message << std::endl;
     const char* mbuffer = message.c_str();
     int msg_accept_size = strlen(mbuffer);
-    send(id, mbuffer, msg_accept_size, MSG_EOR);
+    //TODO fix buffer size, client gets junk data
+    if (send(id, mbuffer, msg_accept_size, MSG_EOR) != -1)
+    {
+      std::cout << "Sent spreadsheet list" << std::endl;
+    }
+    else
+    {
+      std::cout << "Error sending spreadsheet list" << std::endl;
+    }
 
     buf_next = 0;
     msg_str = "";
