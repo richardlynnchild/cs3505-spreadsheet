@@ -18,6 +18,7 @@ namespace SpreadsheetGUI
         private bool connected;
         private Dictionary<string, string> clientFocus;
         private string previousSelection;
+        private System.Timers.Timer serverTimer;
         private System.Timers.Timer myTimer;
         public Form1()
         {
@@ -57,9 +58,13 @@ namespace SpreadsheetGUI
             this.previousSelection = GetCellName(0, 0);
 
 
-            myTimer = new System.Timers.Timer();
-            myTimer.Interval = 60000; //60 s?
+            serverTimer = new System.Timers.Timer();
+            serverTimer.Interval = 60000; //60 s?
             //myTimer.Elapsed += Disconnect?;
+
+            myTimer = new System.Timers.Timer();
+            myTimer.Interval = 10000;
+            myTimer.Elapsed += SendPing;
         }
 
         #region Spreadsheet Control
@@ -305,6 +310,12 @@ namespace SpreadsheetGUI
             Network.GetData(state);
         }
 
+        private void SendPing(object sender, EventArgs e)
+        {
+            string pingMsg = "ping " + ((char)3);
+            SendMessage(pingMsg);
+        }
+
 
         /// <summary>
         /// Processes a full state message. Assigns processMessage() as the socket state's callme when finished.
@@ -347,6 +358,7 @@ namespace SpreadsheetGUI
                 }
             }
 
+            serverTimer.Start();
             myTimer.Start();
 
             Network.GetData(state);
@@ -390,8 +402,8 @@ namespace SpreadsheetGUI
                             else if(msg == "ping_response ")
                             {
                                 //timer reset -- not sure this is right
-                                myTimer.Stop();
-                                myTimer.Start();
+                                serverTimer.Stop();
+                                serverTimer.Start();
                             }
                             break;
                         case "disc":
