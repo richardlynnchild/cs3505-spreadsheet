@@ -13,12 +13,14 @@ namespace SpreadsheetGUI
     public partial class Form1 : Form
     {
         public Spreadsheet ss1;
-        public string filename;
         private Socket theServer;
         private bool connected;
         private Dictionary<string, string> clientFocus;
         private string previousSelection;
-        private System.Timers.Timer myTimer;
+        private System.Timers.Timer pingTimer;
+        private System.Timers.Timer serverTimer;
+        private string complete_message;
+        private SocketState serverSock;
         public Form1()
         {
             //
@@ -56,10 +58,13 @@ namespace SpreadsheetGUI
             this.spreadsheetPanel1.SetSelection(0, 0);
             this.previousSelection = GetCellName(0, 0);
 
+            serverTimer = new System.Timers.Timer();
+            serverTimer.Interval = 60000; //60 s?
+            serverTimer.Elapsed += DisconnectDetector;
 
-            myTimer = new System.Timers.Timer();
-            myTimer.Interval = 60000; //60 s?
-            //myTimer.Elapsed += Disconnect?;
+            pingTimer = new System.Timers.Timer();
+            pingTimer.Interval = 10000;
+            pingTimer.Elapsed += SendPing;
         }
 
         #region Spreadsheet Control
@@ -88,7 +93,7 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void ProcessKeyStroke(object sender, KeyEventArgs e)
         {
-            if (!ServerTextBox.Focused && !FilePanel.Visible)
+            if ( ! ServerTextBox.Focused && ! FilePanel.Visible &&  connected)
             {
                 if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.Oemplus)
                     OperatorKey("+");
@@ -134,6 +139,11 @@ namespace SpreadsheetGUI
                         return;
                     }
                 }
+            }
+            else if (! connected && ! ServerTextBox.Focused)
+            {
+                MessageBox.Show("Please connect to a server before editing a spreadsheet");
+                ServerTextBox.Focus();
             }
 
         }
@@ -239,7 +249,10 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void OnExit(object sender, EventArgs e)
         {
-            SendMessage("disconnnect " + (char)3);
+            if (connected)
+            {
+                SendMessage("disconnnect " + (char)3);
+            }
         }
 
         /// <summary>
@@ -249,7 +262,10 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void UndoButton_Click(object sender, EventArgs e)
         {
-            SendMessage("undo " + (char)3);
+            if (connected)
+            {
+                SendMessage("undo " + (char)3);
+            }
         }
 
         /// <summary>
@@ -259,16 +275,40 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void RevertButton_Click(object sender, EventArgs e)
         {
-            spreadsheetPanel1.GetSelection(out int col, out int row);
-            string cellName = GetCellName(col, row);
+            if (connected)
+            {
+                spreadsheetPanel1.GetSelection(out int col, out int row);
+                string cellName = GetCellName(col, row);
 
-            SendMessage("revert " + CellName + (char)3);
+                SendMessage("revert " + CellName + (char)3);
+            }
         }
 
 
         #endregion
 
         #region Networking Control
+
+        private void Disconnect()
+        {
+            Network.Send(theServer, "disconnect " + (char)3);
+            HandleDisconnect();
+        }
+
+        private void HandleDisconnect()
+        {
+            connected = false;
+            previousSelection = "A1";
+
+            serverSock = null;
+            theServer = null;
+            ServerTextBox.Enabled = true;
+            ConnectButton.Enabled = true;
+
+            spreadsheetPanel1.Clear();
+
+            MessageBox.Show("Disconnected Successfully");
+        }
 
         /// <summary>
         /// Sends the server the name of the spreadsheet the 
@@ -280,6 +320,7 @@ namespace SpreadsheetGUI
             Open_FileMenu.Enabled = false;
             string message = "load " + FileTextSelect.Text + (char)3;
             Network.Send(theServer, message);
+            Network.GetData(serverSock);
         }
  
         /// <summary>
@@ -305,6 +346,12 @@ namespace SpreadsheetGUI
             Network.GetData(state);
         }
 
+        private void SendPing(object sender, EventArgs e)
+        {
+            string pingMsg = "ping " + ((char)3);
+            SendMessage(pingMsg);
+        }
+
 
         /// <summary>
         /// Processes a full state message. Assigns processMessage() as the socket state's callme when finished.
@@ -313,7 +360,6 @@ namespace SpreadsheetGUI
         private void HandleFullState(SocketState state)
         {
             string message;
-            string complete_message = "";
 
             lock (state) { message = state.builder.ToString(); }
 
@@ -321,7 +367,7 @@ namespace SpreadsheetGUI
 
             if (message.Contains(((char)3).ToString()))
             {
-                if (complete_message.Length < 18 && complete_message.Contains("file_load_error"))
+                if (complete_message.Length < 20 && complete_message.Contains("file_load_error"))
                 {
                     MessageBox.Show("Could not open/create spreadsheet!");
                     Open_FileMenu.Enabled = true;
@@ -347,7 +393,8 @@ namespace SpreadsheetGUI
                 }
             }
 
-            myTimer.Start();
+            pingTimer.Start();
+            serverTimer.Start();
 
             Network.GetData(state);
         }
@@ -390,12 +437,12 @@ namespace SpreadsheetGUI
                             else if(msg == "ping_response ")
                             {
                                 //timer reset -- not sure this is right
-                                myTimer.Stop();
-                                myTimer.Start();
+                                serverTimer.Stop();
+                                serverTimer.Start();
                             }
                             break;
                         case "disc":
-                            //TODO
+                            HandleDisconnect();
                             break;
                         case "unfo":
                             char[] delimiters2 = new char[] { ' '};
@@ -694,6 +741,8 @@ namespace SpreadsheetGUI
         {
             state.callMe = HandleFullState;
 
+            serverSock = state;
+
             string message;
             lock (state)
             {
@@ -701,7 +750,7 @@ namespace SpreadsheetGUI
             }
 
             //remove the first 17 ("connect_accepted ") characters from the string.
-            message = message.Substring(16);
+            message = message.Substring(17);
 
             MethodInvoker FMInvoker = new MethodInvoker(() =>
             {
@@ -731,6 +780,24 @@ namespace SpreadsheetGUI
         #endregion
 
         #region Helper Methods
+
+        private void DisconnectButton_Click(object sender, EventArgs e)
+        {
+            if (connected)
+                Disconnect();
+            else
+                MessageBox.Show("Not yet connected");
+        }
+
+        /// <summary>
+        /// Listener to detect when the ping loop expires. Calls HandleDisconnnect.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DisconnectDetector(object sender, EventArgs e)
+        {
+            HandleDisconnect();
+        }
 
         /// <summary>
         /// Removes one character from the cell's text.
@@ -769,23 +836,26 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void EnterKey(KeyEventArgs e)
         {
-            spreadsheetPanel1.GetSelection(out int col, out int row);
-            spreadsheetPanel1.GetValue(col, row, out string value);
-            SetCell(row, col, value);
-            e.SuppressKeyPress = true; //disables the annoying *ding* sound when pressing enter.
+            if (connected)
+            {
+                spreadsheetPanel1.GetSelection(out int col, out int row);
+                spreadsheetPanel1.GetValue(col, row, out string value);
+                SetCell(row, col, value);
+                e.SuppressKeyPress = true; //disables the annoying *ding* sound when pressing enter.
 
-            //set the formula box to the contents of the cell
-            string contents = ss1.GetCellContents(GetCellName(col, row)).ToString();
-            FormulaBox.Text = contents;
-            if (FormulaBox.Text.Length > 0)
-                FormulaBox.SelectionStart = FormulaBox.Text.Length;
+                //set the formula box to the contents of the cell
+                string contents = ss1.GetCellContents(GetCellName(col, row)).ToString();
+                FormulaBox.Text = contents;
+                if (FormulaBox.Text.Length > 0)
+                    FormulaBox.SelectionStart = FormulaBox.Text.Length;
 
-            //once networking is back up...
-            string unfocusMessage = "unfocus " + ((char)3);
-            SendMessage(unfocusMessage);
-            string cellName = GetCellName(col, row);
-            string editMsg = "edit " + cellName + ":" + contents + ((char)3);
-            SendMessage(editMsg);
+                //once networking is back up...
+                string unfocusMessage = "unfocus " + ((char)3);
+                SendMessage(unfocusMessage);
+                string cellName = GetCellName(col, row);
+                string editMsg = "edit " + cellName + ":" + contents + ((char)3);
+                SendMessage(editMsg);
+            }
         }
 
         /// <summary>
