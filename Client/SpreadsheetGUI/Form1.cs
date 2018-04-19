@@ -19,6 +19,8 @@ namespace SpreadsheetGUI
         private Dictionary<string, string> clientFocus;
         private string previousSelection;
         private System.Timers.Timer myTimer;
+        private string complete_message;
+        private SocketState serverSock;
         public Form1()
         {
             //
@@ -88,7 +90,7 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void ProcessKeyStroke(object sender, KeyEventArgs e)
         {
-            if (!ServerTextBox.Focused && !FilePanel.Visible)
+            if ( ! ServerTextBox.Focused && ! FilePanel.Visible &&  connected)
             {
                 if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.Oemplus)
                     OperatorKey("+");
@@ -134,6 +136,11 @@ namespace SpreadsheetGUI
                         return;
                     }
                 }
+            }
+            else if (! connected && ! ServerTextBox.Focused)
+            {
+                MessageBox.Show("Please connect to a server before editing a spreadsheet");
+                ServerTextBox.Focus();
             }
 
         }
@@ -239,7 +246,10 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void OnExit(object sender, EventArgs e)
         {
-            SendMessage("disconnnect " + (char)3);
+            if (connected)
+            {
+                SendMessage("disconnnect " + (char)3);
+            }
         }
 
         /// <summary>
@@ -249,7 +259,10 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void UndoButton_Click(object sender, EventArgs e)
         {
-            SendMessage("undo " + (char)3);
+            if (connected)
+            {
+                SendMessage("undo " + (char)3);
+            }
         }
 
         /// <summary>
@@ -259,10 +272,13 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void RevertButton_Click(object sender, EventArgs e)
         {
-            spreadsheetPanel1.GetSelection(out int col, out int row);
-            string cellName = GetCellName(col, row);
+            if (connected)
+            {
+                spreadsheetPanel1.GetSelection(out int col, out int row);
+                string cellName = GetCellName(col, row);
 
-            SendMessage("revert " + CellName + (char)3);
+                SendMessage("revert " + CellName + (char)3);
+            }
         }
 
 
@@ -280,6 +296,7 @@ namespace SpreadsheetGUI
             Open_FileMenu.Enabled = false;
             string message = "load " + FileTextSelect.Text + (char)3;
             Network.Send(theServer, message);
+            Network.GetData(serverSock);
         }
  
         /// <summary>
@@ -313,7 +330,6 @@ namespace SpreadsheetGUI
         private void HandleFullState(SocketState state)
         {
             string message;
-            string complete_message = "";
 
             lock (state) { message = state.builder.ToString(); }
 
@@ -321,7 +337,7 @@ namespace SpreadsheetGUI
 
             if (message.Contains(((char)3).ToString()))
             {
-                if (complete_message.Length < 18 && complete_message.Contains("file_load_error"))
+                if (complete_message.Length < 20 && complete_message.Contains("file_load_error"))
                 {
                     MessageBox.Show("Could not open/create spreadsheet!");
                     Open_FileMenu.Enabled = true;
@@ -694,6 +710,8 @@ namespace SpreadsheetGUI
         {
             state.callMe = HandleFullState;
 
+            serverSock = state;
+
             string message;
             lock (state)
             {
@@ -701,7 +719,7 @@ namespace SpreadsheetGUI
             }
 
             //remove the first 17 ("connect_accepted ") characters from the string.
-            message = message.Substring(16);
+            message = message.Substring(17);
 
             MethodInvoker FMInvoker = new MethodInvoker(() =>
             {
@@ -769,23 +787,26 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void EnterKey(KeyEventArgs e)
         {
-            spreadsheetPanel1.GetSelection(out int col, out int row);
-            spreadsheetPanel1.GetValue(col, row, out string value);
-            SetCell(row, col, value);
-            e.SuppressKeyPress = true; //disables the annoying *ding* sound when pressing enter.
+            if (connected)
+            {
+                spreadsheetPanel1.GetSelection(out int col, out int row);
+                spreadsheetPanel1.GetValue(col, row, out string value);
+                SetCell(row, col, value);
+                e.SuppressKeyPress = true; //disables the annoying *ding* sound when pressing enter.
 
-            //set the formula box to the contents of the cell
-            string contents = ss1.GetCellContents(GetCellName(col, row)).ToString();
-            FormulaBox.Text = contents;
-            if (FormulaBox.Text.Length > 0)
-                FormulaBox.SelectionStart = FormulaBox.Text.Length;
+                //set the formula box to the contents of the cell
+                string contents = ss1.GetCellContents(GetCellName(col, row)).ToString();
+                FormulaBox.Text = contents;
+                if (FormulaBox.Text.Length > 0)
+                    FormulaBox.SelectionStart = FormulaBox.Text.Length;
 
-            //once networking is back up...
-            string unfocusMessage = "unfocus " + ((char)3);
-            SendMessage(unfocusMessage);
-            string cellName = GetCellName(col, row);
-            string editMsg = "edit " + cellName + ":" + contents + ((char)3);
-            SendMessage(editMsg);
+                //once networking is back up...
+                string unfocusMessage = "unfocus " + ((char)3);
+                SendMessage(unfocusMessage);
+                string cellName = GetCellName(col, row);
+                string editMsg = "edit " + cellName + ":" + contents + ((char)3);
+                SendMessage(editMsg);
+            }
         }
 
         /// <summary>
