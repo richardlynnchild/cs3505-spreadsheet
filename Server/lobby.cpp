@@ -9,6 +9,7 @@
 #include <utility>
 #include <iostream>
 #include <string>
+#include <set>
 #include <unistd.h>
 
 
@@ -44,7 +45,7 @@ void Lobby::InitSheetList()
 	{
 	  getline(in_file, spreadsheet_name);
 	  std::cout << "Lobby constructor: adding " << spreadsheet_name << " to sheet_list" << std::endl;
-	  sheet_list.push_back(spreadsheet_name);
+	  sheet_list.insert(spreadsheet_name);
 	}
 	
 	in_file.close();
@@ -64,7 +65,7 @@ Spreadsheet Lobby::BuildSheetFromFile(std::string name){
 /*
  * Returns the sheet list of this Lobby
  */
-std::vector<std::string> Lobby::GetSheetList(){
+std::set<std::string> Lobby::GetSheetList(){
   return this->sheet_list;
 }
 
@@ -87,7 +88,7 @@ std::string Lobby::BuildConnectAccepted(){
   std::string message = "connect_accepted ";
 
   pthread_mutex_lock (&list_mutex);
-  std::vector<std::string>::iterator it = sheet_list.begin();
+  std::set<std::string>::iterator it = sheet_list.begin();
   for(;it != sheet_list.end(); it++){
     message += *it;
     message += "\n";
@@ -134,7 +135,8 @@ bool Lobby::CheckForNewClient(){
         Spreadsheet new_sheet = BuildSheetFromFile(name);
       }
     }
-    std::string full_state = spreadsheets[name].GetFullState(); 
+    std::string full_state = spreadsheets[name].GetFullState();
+	new_client.StartClientThread(); 
     new_client.PushMessage(LOBBY, full_state);
   } 
   return idle;
