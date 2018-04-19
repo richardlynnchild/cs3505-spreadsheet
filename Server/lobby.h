@@ -11,6 +11,7 @@
 #include <sys/socket.h>
 #include <pthread.h>
 #include "interface.h"
+#include <set>
 
 class Lobby {
   private:
@@ -18,7 +19,7 @@ class Lobby {
     bool running;
     std::vector<Interface> clients;
     std::map<std::string, Spreadsheet> spreadsheets;
-    std::vector<std::string> sheet_list;
+    std::set<std::string> sheet_list;
     std::queue< Interface > new_clients;
 
     static void* PingLoop(void* ptr);
