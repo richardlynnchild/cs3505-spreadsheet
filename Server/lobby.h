@@ -1,20 +1,20 @@
 #ifndef LOBBY_H
 #define LOBBY_H
 
-#include "spreadsheet.h"
-#include "interface.h"
-#include <queue>
 #include <string>
 #include <map>
 #include <queue>
-#include <utility>
-#include <sys/socket.h>
+#include <vector>
 #include <pthread.h>
+#include "spreadsheet.h"
 #include "interface.h"
 #include <set>
 
 class Lobby {
   private:
+
+	pthread_mutex_t list_mutex;
+	pthread_mutex_t new_client_mutex;
 
     bool running;
     std::vector<Interface> clients;
@@ -22,6 +22,7 @@ class Lobby {
     std::set<std::string> sheet_list;
     std::queue< Interface > new_clients;
 
+	void InitSheetList();
     static void* PingLoop(void* ptr);
     bool CheckForNewClient();
     void InitNewClient(int id);
