@@ -21,8 +21,7 @@ class Lobby {
     std::map<std::string, Spreadsheet> spreadsheets;
     std::set<std::string> sheet_list;
     std::queue< Interface > new_clients;
-
-	void InitSheetList();
+    void InitSheetList();
     static void* PingLoop(void* ptr);
     bool CheckForNewClient();
     void InitNewClient(int id);
@@ -37,9 +36,10 @@ class Lobby {
     void HandleMessage(std::string message,std::string sheet);
     std::vector<std::string> SplitString(std::string str, char delim);
     void SendChangeMessage(std::string message, std::string sheet);
+    static void* StartMainThread(void* ptr);
+    void MainLoop();
+    Spreadsheet BuildSheetFromFile(std::string name);
 
-	static void* StartMainThread(void* ptr);
-	void MainLoop();
 
   public:
     Lobby();

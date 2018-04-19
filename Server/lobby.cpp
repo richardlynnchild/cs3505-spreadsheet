@@ -51,6 +51,17 @@ void Lobby::InitSheetList()
 }
 
 /*
+ * Return a spreadsheet object that has been built from the
+ * file on disk.
+ */
+
+Spreadsheet Lobby::BuildSheetFromFile(std::string name){
+
+
+}
+
+
+/*
  * Returns the sheet list of this Lobby
  */
 std::vector<std::string> Lobby::GetSheetList(){
@@ -114,8 +125,14 @@ bool Lobby::CheckForNewClient(){
     std::string name = new_client.GetSprdName();
     clients.push_back(new_client); 
     if(spreadsheets.count(name)<1){
-      Spreadsheet new_sheet(name);
-      spreadsheets.insert(std::pair<std::string,Spreadsheet>(name,new_sheet));
+      std::set<std::string>::iterator it = sheet_list.find(name);
+      if(it == sheet_list.end()){
+        Spreadsheet new_sheet(name);
+        spreadsheets.insert(std::pair<std::string,Spreadsheet>(name,new_sheet));
+      }
+      else {
+        Spreadsheet new_sheet = BuildSheetFromFile(name);
+      }
     }
     std::string full_state = spreadsheets[name].GetFullState(); 
     new_client.PushMessage(LOBBY, full_state);
