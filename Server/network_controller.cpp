@@ -122,6 +122,7 @@ std::string NetworkController::GetSpreadsheetChoice(int socket_id, Lobby* lobby_
 
 	int send_buf_size = sprd_list.length();
     char* send_buf = new char [send_buf_size+1];
+	std::strcpy(send_buf, sprd_list.c_str());
 	int send_buf_next = 0;
 	int bytes_sent = 0;
 
