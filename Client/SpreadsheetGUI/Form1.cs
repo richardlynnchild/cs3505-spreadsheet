@@ -272,6 +272,7 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void SendSpreadsheetSelection(object sender, EventArgs e)
         {
+            Open_FileMenu.Enabled = false;
             string message = "load " + FileTextSelect.Text + (char)3;
             Network.Send(theServer, message);
         }
@@ -384,22 +385,30 @@ namespace SpreadsheetGUI
 
             if (message.Contains(((char)3).ToString()))
             {
-                state.callMe = ProcessMessage;
-                string[] cells = complete_message.Split('\n');
-
-                //split the cell name and value then set the cell.
-                foreach (string cell in cells)
+                if (complete_message.Length < 18 && complete_message.Contains("file_load_error"))
                 {
-                    string[] cellAndval = cell.Split(':');
-                    string cellName = cellAndval[0];
-                    string cellVal = cellAndval[1];
-
-                    int[] colRow = GetCellPosition(cellName);
-
-                    SetCell(colRow[1], colRow[0], cellVal);
+                    MessageBox.Show("Could not open/create spreadsheet!");
+                    Open_FileMenu.Enabled = true;
                 }
+                else
+                {
+                    state.callMe = ProcessMessage;
+                    string[] cells = complete_message.Split('\n');
 
-                FilePanel.Visible = false;
+                    //split the cell name and value then set the cell.
+                    foreach (string cell in cells)
+                    {
+                        string[] cellAndval = cell.Split(':');
+                        string cellName = cellAndval[0];
+                        string cellVal = cellAndval[1];
+
+                        int[] colRow = GetCellPosition(cellName);
+
+                        SetCell(colRow[1], colRow[0], cellVal);
+                    }
+
+                    FilePanel.Visible = false;
+                }
             }
 
             Network.GetData(state);
@@ -411,7 +420,35 @@ namespace SpreadsheetGUI
         /// <param name="state"></param>
         private void ProcessMessage(SocketState state)
         {
+            string message;
 
+            lock (state)
+            {
+                message = state.builder.ToString();
+                string[] messages = message.Split((char)3);
+
+                foreach (string msg in messages)
+                {
+                    switch (msg.Substring(0,3))
+                    {
+                        case "chan":
+                            //TODO
+                            break;
+                        case "ping":
+                            //TODO
+                            break;
+                        case "disc":
+                            //TODO
+                            break;
+                    }
+
+
+                    state.builder.Remove(0, msg.Length);
+                }
+            }
+
+
+            Network.GetData(state);
         }
 
         #endregion
@@ -717,7 +754,10 @@ namespace SpreadsheetGUI
 
         #region Helper Methods
 
-
+        /// <summary>
+        /// Removes one character from the cell's text.
+        /// </summary>
+        /// <param name="e"></param>
         private void BackspaceKey(KeyEventArgs e)
         {
             spreadsheetPanel1.GetSelection(out int col, out int row);
@@ -730,7 +770,10 @@ namespace SpreadsheetGUI
             }
         }
 
-
+        /// <summary>
+        /// Processes a standard key and append its char value to the text in the cell.
+        /// </summary>
+        /// <param name="e"></param>
         private void StandardKey(KeyEventArgs e)
         {
             spreadsheetPanel1.GetSelection(out int col, out int row);
@@ -742,14 +785,16 @@ namespace SpreadsheetGUI
             spreadsheetPanel1.SetValue(col, row, newVal);
         }
 
-
+        /// <summary>
+        /// Sets the value of a cell based on the text in the cell.
+        /// </summary>
+        /// <param name="e"></param>
         private void EnterKey(KeyEventArgs e)
         {
             spreadsheetPanel1.GetSelection(out int col, out int row);
             spreadsheetPanel1.GetValue(col, row, out string value);
             SetCell(row, col, value);
-            //setCellNameVal(spreadsheetPanel1);
-            e.SuppressKeyPress = true;
+            e.SuppressKeyPress = true; //disables the annoying *ding* sound when pressing enter.
 
             //set the formula box to the contents of the cell
             string contents = ss1.GetCellContents(GetCellName(col, row)).ToString();
@@ -763,7 +808,10 @@ namespace SpreadsheetGUI
             SendUnfocus(unfocusMessage);
         }
 
-
+        /// <summary>
+        /// Appends the char value of an operator key to the text in the cell.
+        /// </summary>
+        /// <param name="key"></param>
         private void OperatorKey(string key)
         {
             spreadsheetPanel1.GetSelection(out int col, out int row);
@@ -772,7 +820,10 @@ namespace SpreadsheetGUI
             spreadsheetPanel1.SetValue(col, row, newVal);
         }
 
-
+        /// <summary>
+        /// Resets the value display of a cell when a cell is exited.
+        /// </summary>
+        /// <param name="sender"></param>
         private void HandleSelectionChange(SpreadsheetPanel sender)
         {
             ResetCell(previousSelection);
@@ -788,8 +839,6 @@ namespace SpreadsheetGUI
             string contents = ss1.GetCellContents(name).ToString();
 
             FormulaBox.Text = contents;
-            //if (FormulaBox.Text.Length > 0)
-            //FormulaBox.SelectionStart = FormulaBox.Text.Length;
 
             spreadsheetPanel1.SetValue(col, row, contents);
         }
@@ -877,7 +926,7 @@ namespace SpreadsheetGUI
 
 
         /// <summary>
-        /// Writes the contents of the Formula Text box to a specified cell.
+        /// Writes the given contents to a specified cell location.
         /// </summary>
         private void SetCell(int row, int col, string cellVal)
         {
@@ -888,10 +937,8 @@ namespace SpreadsheetGUI
 
                 //if the result is a formula error display a formula error message, otherwise set the cell with the result.
                 if (ss1.GetCellValue(cellName).GetType() == typeof(FormulaError))
-                {
-                    //FormulaError f = new FormulaError(ss1.GetCellValue(cellName));
                     spreadsheetPanel1.SetValue(col, row, "Formula Error!");
-                }
+
                 else
                 {
                     spreadsheetPanel1.SetValue(col, row, ss1.GetCellValue(cellName).ToString());
