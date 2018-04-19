@@ -6,6 +6,7 @@ using SS;
 using SpreadsheetUtilities;
 using System.Net.Sockets;
 using Networking;
+using System.Runtime.InteropServices;
 
 namespace SpreadsheetGUI
 {
@@ -44,6 +45,7 @@ namespace SpreadsheetGUI
             this.spreadsheetPanel1.SelectionChanged += HandleSelectionChange;
             this.ServerTextBox.Enter += ServerTextBoxEntered;
             this.ServerTextBox.LostFocus += ServerTextBoxLeft;
+            this.FormulaBox.GotFocus += HandleFomrulaBoxFocus;
 
             this.Width = 1000;
             this.Height = 600;
@@ -212,6 +214,14 @@ namespace SpreadsheetGUI
             }
         }
 
+        [DllImport("user32.dll")]
+        static extern bool HideCaret(IntPtr hWnd);
+        public void HandleFomrulaBoxFocus(object sender, EventArgs e)
+        {
+            HideCaret(FormulaBox.Handle);
+            spreadsheetPanel1.Focus();
+        }
+
         private void OnExit(object sender, EventArgs e)
         {
 
@@ -310,27 +320,6 @@ namespace SpreadsheetGUI
             string message = "register" + (char)3;
             Network.Send(state.sock, message);
 
-            Network.GetData(state);
-        }
-
-        private void ActivateFileMenu(SocketState state)
-        {
-            state.callMe = HandleFullState;
-
-            string message;
-            lock (state)
-            {
-                message = state.builder.ToString();
-            }
-
-            MethodInvoker FMInvoker = new MethodInvoker(() =>
-            {
-                ShowFileMenu(message);
-            });
-
-            this.Invoke(FMInvoker);
-
-            state.builder.Clear();
             Network.GetData(state);
         }
 
@@ -595,6 +584,26 @@ namespace SpreadsheetGUI
             }
         }
 
+        private void ActivateFileMenu(SocketState state)
+        {
+            state.callMe = HandleFullState;
+
+            string message;
+            lock (state)
+            {
+                message = state.builder.ToString();
+            }
+
+            MethodInvoker FMInvoker = new MethodInvoker(() =>
+            {
+                ShowFileMenu(message);
+            });
+
+            this.Invoke(FMInvoker);
+
+            state.builder.Clear();
+            Network.GetData(state);
+        }
 
         /// <summary>
         /// Work in progress, low priority

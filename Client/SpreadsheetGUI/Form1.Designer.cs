@@ -423,7 +423,7 @@
             this.FilePanel.Controls.Add(this.FileTextSelect);
             this.FilePanel.Controls.Add(this.FileList);
             this.FilePanel.Location = new System.Drawing.Point(90, 86);
-            this.FilePanel.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.FilePanel.Margin = new System.Windows.Forms.Padding(2);
             this.FilePanel.Name = "FilePanel";
             this.FilePanel.Size = new System.Drawing.Size(563, 383);
             this.FilePanel.TabIndex = 29;
@@ -433,7 +433,7 @@
             this.MovementBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.MovementBox.Cursor = System.Windows.Forms.Cursors.SizeAll;
             this.MovementBox.Location = new System.Drawing.Point(493, 346);
-            this.MovementBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.MovementBox.Margin = new System.Windows.Forms.Padding(2);
             this.MovementBox.Name = "MovementBox";
             this.MovementBox.Size = new System.Drawing.Size(67, 32);
             this.MovementBox.TabIndex = 5;
@@ -444,7 +444,7 @@
             this.panel1.BackColor = System.Drawing.SystemColors.Window;
             this.panel1.Controls.Add(this.FileMenuLabel);
             this.panel1.Location = new System.Drawing.Point(13, 18);
-            this.panel1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.panel1.Margin = new System.Windows.Forms.Padding(2);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(535, 30);
             this.panel1.TabIndex = 4;
@@ -463,7 +463,7 @@
             // Open_FileMenu
             // 
             this.Open_FileMenu.Location = new System.Drawing.Point(381, 347);
-            this.Open_FileMenu.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Open_FileMenu.Margin = new System.Windows.Forms.Padding(2);
             this.Open_FileMenu.Name = "Open_FileMenu";
             this.Open_FileMenu.Size = new System.Drawing.Size(73, 25);
             this.Open_FileMenu.TabIndex = 3;
@@ -473,7 +473,7 @@
             // FileTextSelect
             // 
             this.FileTextSelect.Location = new System.Drawing.Point(13, 350);
-            this.FileTextSelect.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.FileTextSelect.Margin = new System.Windows.Forms.Padding(2);
             this.FileTextSelect.Name = "FileTextSelect";
             this.FileTextSelect.Size = new System.Drawing.Size(365, 20);
             this.FileTextSelect.TabIndex = 2;
@@ -484,7 +484,7 @@
             this.NameColHeader,
             this.DateColHeader});
             this.FileList.Location = new System.Drawing.Point(13, 52);
-            this.FileList.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.FileList.Margin = new System.Windows.Forms.Padding(2);
             this.FileList.Name = "FileList";
             this.FileList.Size = new System.Drawing.Size(536, 282);
             this.FileList.TabIndex = 1;
@@ -629,6 +629,7 @@
             this.Controls.Add(this.spreadsheetPanel1);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.menuStrip1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
