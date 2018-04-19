@@ -18,6 +18,7 @@ namespace SpreadsheetGUI
         private Dictionary<string, string> clientFocus;
         private string previousSelection;
         private System.Timers.Timer pingTimer;
+        private System.Timers.Timer serverTimer;
         private string complete_message;
         private SocketState serverSock;
         public Form1()
@@ -57,10 +58,13 @@ namespace SpreadsheetGUI
             this.spreadsheetPanel1.SetSelection(0, 0);
             this.previousSelection = GetCellName(0, 0);
 
+            serverTimer = new System.Timers.Timer();
+            serverTimer.Interval = 60000; //60 s?
+            serverTimer.Elapsed += DisconnectDetector;
 
             pingTimer = new System.Timers.Timer();
-            pingTimer.Interval = 60000; //60 s?
-            pingTimer.Elapsed += DisconnectDetector;
+            pingTimer.Interval = 10000;
+            pingTimer.Elapsed += SendPing;
         }
 
         #region Spreadsheet Control
@@ -342,6 +346,12 @@ namespace SpreadsheetGUI
             Network.GetData(state);
         }
 
+        private void SendPing(object sender, EventArgs e)
+        {
+            string pingMsg = "ping " + ((char)3);
+            SendMessage(pingMsg);
+        }
+
 
         /// <summary>
         /// Processes a full state message. Assigns processMessage() as the socket state's callme when finished.
@@ -384,6 +394,7 @@ namespace SpreadsheetGUI
             }
 
             pingTimer.Start();
+            serverTimer.Start();
 
             Network.GetData(state);
         }
@@ -426,8 +437,8 @@ namespace SpreadsheetGUI
                             else if(msg == "ping_response ")
                             {
                                 //timer reset -- not sure this is right
-                                pingTimer.Stop();
-                                pingTimer.Start();
+                                serverTimer.Stop();
+                                serverTimer.Start();
                             }
                             break;
                         case "disc":
@@ -773,9 +784,9 @@ namespace SpreadsheetGUI
         private void DisconnectButton_Click(object sender, EventArgs e)
         {
             if (connected)
-            {
                 Disconnect();
-            }
+            else
+                MessageBox.Show("Not yet connected");
         }
 
         /// <summary>
