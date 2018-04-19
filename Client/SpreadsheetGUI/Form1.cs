@@ -806,6 +806,9 @@ namespace SpreadsheetGUI
             string unfocusMessage = "unfocus " + ((char)3);
             //SendMessage(unfocusMessage);
             SendUnfocus(unfocusMessage);
+            string cellName = GetCellName(col, row);
+            string editMsg = "edit " + cellName + ":" + contents + ((char)3);
+            SendMessage(editMsg);
         }
 
         /// <summary>
