@@ -2,8 +2,6 @@
 #include "spreadsheet.h"
 #include "network_controller.h"
 #include <pthread.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -12,52 +10,46 @@
 #include <iostream>
 #include <string>
 #include <unistd.h>
-/***********************
-    Global Variables
-***********************/
-
-pthread_mutex_t list_mutex;
-pthread_mutex_t new_client_mutex;
-
-static void* ListenForClients(void* ptr);
-static void* Handshake(void* ptr);
-bool  CheckForNewClient();
-void  InitNewClient(int id);
-void Send(int id, std::string message);
-void Receive(int id);
-void AddToSheetList(std::string filename);
-void DeleteFromSheetList(std::string filename);
 
 
 Lobby::Lobby()
 {
+	if (pthread_mutex_init(&list_mutex, NULL) != 0)
+		std::cerr << "mutex init failure" << std::endl;
+	
+	if (pthread_mutex_init(&new_client_mutex, NULL) != 0)
+	  std::cerr << "mutex init failure" << std::endl;
 
-  //read spreadsheet names from a text file, and populate the 
-  //internal list of spreadsheets
-  this->running = true;
-  
-  std::ifstream in_file;
-  std::string file_name = "sheet_list.txt";
-
-  in_file.open(file_name.c_str());
-
-  std::string spreadsheet_name;
-
-  while(!in_file.eof() && !in_file.fail())
-  {
-    getline(in_file, spreadsheet_name);
-    std::cout << "Lobby constructor: adding " << spreadsheet_name << " to sheet_list" << std::endl;
-    sheet_list.push_back(spreadsheet_name);
-  }
-
-  in_file.close();
-
+	InitSheetList();
 }
 
 
 /**************************
      Helper Methods
 **************************/
+
+
+void Lobby::InitSheetList()
+{
+	//read spreadsheet names from a text file, and populate the 
+	//internal list of spreadsheets
+	std::ifstream in_file;
+	std::string file_name = "sheet_list.txt";
+	
+	in_file.open(file_name.c_str());
+	
+	std::string spreadsheet_name;
+	
+	while(!in_file.eof() && !in_file.fail())
+	{
+	  getline(in_file, spreadsheet_name);
+	  std::cout << "Lobby constructor: adding " << spreadsheet_name << " to sheet_list" << std::endl;
+	  sheet_list.push_back(spreadsheet_name);
+	}
+	
+	in_file.close();
+}
+
 /*
  * Returns the sheet list of this Lobby
  */
@@ -127,7 +119,7 @@ bool Lobby::CheckForNewClient(){
       spreadsheets.insert(std::pair<std::string,Spreadsheet>(name,new_sheet));
     }
     std::string full_state = spreadsheets[name].GetFullState(); 
-    new_client.Send(full_state);
+    new_client.PushMessage(LOBBY, full_state);
   } 
   return idle;
 }
@@ -137,7 +129,7 @@ bool Lobby::CheckForNewClient(){
  * Split the given string by the given delimiter.
  * Returns a vector of sub-strings.
  */
-std::vector<std::string> SplitString(std::string str, char delim){
+std::vector<std::string> Lobby::SplitString(std::string str, char delim){
   std::stringstream ss(str);
   std::string token;
   std::vector<std::string> tokens;
@@ -159,7 +151,7 @@ void Lobby::SendChangeMessage(std::string message, std::string sheet){
   std::vector<Interface>::iterator it = clients.begin();
     for(; it != clients.end(); ++it){
       if(it->GetSprdName() == sheet){
-        it->Send(change);
+        it->PushMessage(LOBBY, change);
       }
     } 
 }
@@ -206,7 +198,7 @@ bool Lobby::CheckForMessages(){
   std::vector<Interface>::iterator it = clients.begin();
   for(; it != clients.end(); ++it){
     //Pop next message off Interface incoming message queue
-    std::string message = it->GetMessage();
+    std::string message = it->PullMessage(LOBBY);
     std::string sheet = it->GetSprdName();
     if(message == ""){
       continue;
@@ -223,44 +215,42 @@ bool Lobby::CheckForMessages(){
 
 bool Lobby::IsRunning()
 {
-  return this->running;
+  return running;
 }
    
 void Lobby::Start(){
-  
-  // Start a new thread that continuosly listens and accepts new connections 
-  pthread_t listen_thread;
-  if (pthread_create(&listen_thread, NULL, NetworkController::ListenForClients, this))
-  {
-    std::cerr << "error creating thread for client listener" << std::endl;
-    this->running = false;
-  }
 
-  // Start timer thread for pinging clients
-
-  // Enter main loop:
-  //
-  //
-  // 1. Check for new clients in the new client queue
-  //      - If they exist push a full state message into their interface
-  //      - Add them to client list
-       
-  bool idle;
-  while(running){
-    idle = CheckForNewClient();
-    if(idle){
-      int ten_ms = 10000;
-      usleep(ten_ms); 
-    }
-  } 
-  // 2. For each client, process incoming messages in a Round Robin fashion
-  //      - Get message
-  //      - Update spreadsheet object
-  //      - Push change command to all client interfaces
-  // 
-  // 3. Check to see if program should be shutdown
-  //
-  //
+	// Start a new thread that continuosly listens and accepts new connections 
+	pthread_t listen_thread;
+	if (pthread_create(&listen_thread, NULL, NetworkController::ListenForClients, this))
+		 std::cerr << "error creating thread for client listener" << std::endl;
+	else
+		running = true;
+	// Start timer thread for pinging clients
+	
+	// Enter main loop:
+	//
+	//
+	// 1. Check for new clients in the new client queue
+	//      - If they exist push a full state message into their interface
+	//      - Add them to client list
+	     
+	bool idle;
+	while(running){
+	  idle = CheckForNewClient();
+	  if(idle){
+	    int ten_ms = 10000;
+	    usleep(ten_ms); 
+	  }
+	} 
+	// 2. For each client, process incoming messages in a Round Robin fashion
+	//      - Get message
+	//      - Update spreadsheet object
+	//      - Push change command to all client interfaces
+	// 
+	// 3. Check to see if program should be shutdown
+	//
+	//
 
 }
 
@@ -274,5 +264,5 @@ void* Lobby::PingLoop(void* ptr)
 }
 
 void Lobby::Shutdown(){
-  this->running = false;
+  	running = false;
 }
