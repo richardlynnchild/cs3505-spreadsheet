@@ -124,19 +124,24 @@ bool Lobby::CheckForNewClient(){
     Interface new_client = new_clients.front();
     new_clients.pop();
     std::string name = new_client.GetSprdName();
-    clients.push_back(new_client); 
+    clients.push_back(new_client);
+    
+    //Check if the spreadsheet is active 
     if(spreadsheets.count(name)<1){
+
+      //Check if the spreadsheet is saved
       std::set<std::string>::iterator it = sheet_list.find(name);
       if(it == sheet_list.end()){
-        Spreadsheet new_sheet(name);
+        Spreadsheet new_sheet(name);  //not active, not saved
         spreadsheets.insert(std::pair<std::string,Spreadsheet>(name,new_sheet));
       }
       else {
-        Spreadsheet new_sheet = BuildSheetFromFile(name);
+        Spreadsheet new_sheet = BuildSheetFromFile(name); //not active, but saved
+        spreadsheets.insert(std::pair<std::string,Spreadsheet>(name,new_sheet));
       }
     }
     std::string full_state = spreadsheets[name].GetFullState();
-	new_client.StartClientThread(); 
+    new_client.StartClientThread(); 
     new_client.PushMessage(LOBBY, full_state);
   } 
   return idle;
@@ -175,10 +180,29 @@ void Lobby::SendChangeMessage(std::string message, std::string sheet){
 }
 
 /*
+ * Send a focus message with the specified cell name
+ * to the clients of the specified spreadsheet.
+ */
+void Lobby::SendFocusMessage(std::string cell, std::string sheet, int id){
+  std::string focus = "focus ";
+  focus += cell;
+  focus += ":";
+  focus += id; 
+  char end = (char) 3;
+  focus += end;
+  std::vector<Interface>::iterator it = clients.begin();
+    for(; it != clients.end(); ++it){
+      if(it->GetSprdName() == sheet){
+        it->PushMessage(LOBBY, focus);
+      }
+    } 
+}
+
+/*
  * Processes a single message from a client.
  */
 
-void Lobby::HandleMessage(std::string message, std::string sheet){
+void Lobby::HandleMessage(std::string message, std::string sheet, int id){
   
   //Split the message and get the command
   char delim = ' ';
@@ -204,6 +228,9 @@ void Lobby::HandleMessage(std::string message, std::string sheet){
   else if(command == "disconnect"){
      
   }
+  else if(command == "focus"){
+    SendFocusMessage(message, sheet, id);
+  }
 
 }
 
@@ -218,11 +245,12 @@ bool Lobby::CheckForMessages(){
     //Pop next message off Interface incoming message queue
     std::string message = it->PullMessage(LOBBY);
     std::string sheet = it->GetSprdName();
+    int client_id = it->GetClientSocketID();
     if(message == ""){
       continue;
     }
     else {
-      HandleMessage(message, sheet);
+      HandleMessage(message, sheet, client_id);
       messagesHandled++;
     }
 
