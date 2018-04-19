@@ -83,6 +83,7 @@
             this.CloseMove = new System.Windows.Forms.Button();
             this.revert_button = new System.Windows.Forms.Button();
             this.DisconnectButton = new System.Windows.Forms.Button();
+            this.NewSpreadsheetButton = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.menuStrip2.SuspendLayout();
@@ -490,10 +491,10 @@
             this.undo_button.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.undo_button.Image = global::SpreadsheetGUI.Properties.Resources.undo1;
             this.undo_button.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.undo_button.Location = new System.Drawing.Point(14, 6);
+            this.undo_button.Location = new System.Drawing.Point(168, 4);
             this.undo_button.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.undo_button.Name = "undo_button";
-            this.undo_button.Size = new System.Drawing.Size(112, 43);
+            this.undo_button.Size = new System.Drawing.Size(112, 45);
             this.undo_button.TabIndex = 30;
             this.undo_button.Text = "Undo";
             this.undo_button.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -573,7 +574,7 @@
             // revert_button
             // 
             this.revert_button.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.revert_button.Location = new System.Drawing.Point(135, 5);
+            this.revert_button.Location = new System.Drawing.Point(288, 4);
             this.revert_button.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.revert_button.Name = "revert_button";
             this.revert_button.Size = new System.Drawing.Size(106, 45);
@@ -593,12 +594,24 @@
             this.DisconnectButton.UseVisualStyleBackColor = true;
             this.DisconnectButton.Click += new System.EventHandler(this.DisconnectButton_Click);
             // 
+            // NewSpreadsheetButton
+            // 
+            this.NewSpreadsheetButton.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("NewSpreadsheetButton.BackgroundImage")));
+            this.NewSpreadsheetButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.NewSpreadsheetButton.Location = new System.Drawing.Point(20, -1);
+            this.NewSpreadsheetButton.Name = "NewSpreadsheetButton";
+            this.NewSpreadsheetButton.Size = new System.Drawing.Size(55, 52);
+            this.NewSpreadsheetButton.TabIndex = 33;
+            this.NewSpreadsheetButton.UseVisualStyleBackColor = true;
+            this.NewSpreadsheetButton.Click += new System.EventHandler(this.NewSpreadsheetButton_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.ClientSize = new System.Drawing.Size(1178, 749);
+            this.Controls.Add(this.NewSpreadsheetButton);
             this.Controls.Add(this.DisconnectButton);
             this.Controls.Add(this.undo_button);
             this.Controls.Add(this.revert_button);
@@ -699,6 +712,7 @@
         private System.Windows.Forms.Button undo_button;
         private System.Windows.Forms.Button revert_button;
         private System.Windows.Forms.Button DisconnectButton;
+        private System.Windows.Forms.Button NewSpreadsheetButton;
     }
 }
 

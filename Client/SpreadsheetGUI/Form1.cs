@@ -1022,6 +1022,12 @@ namespace SpreadsheetGUI
                 UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
             }
         }
+
+        private void NewSpreadsheetButton_Click(object sender, EventArgs e)
+        {
+            SpreadsheetApplicationContext.getAppContext().RunForm(new Form1());
+        }
+
         #endregion
     }
 }
