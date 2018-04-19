@@ -114,7 +114,7 @@ namespace SpreadsheetGUI
                     spreadsheetPanel1.GetSelection(out int c, out int r);
                     string cellName = GetCellName(c, r);
                     string focusMessage = "focus " + cellName + ((char)3);
-                    SendFocus(focusMessage);
+                    SendMessage(focusMessage);
 
                     //special case for backspace
                     if (e.KeyData == Keys.Back)
@@ -281,65 +281,7 @@ namespace SpreadsheetGUI
             string message = "load " + FileTextSelect.Text + (char)3;
             Network.Send(theServer, message);
         }
-
-
-        /// <summary>
-        /// Sends the focus message to the server when a cell is being edited.
-        /// </summary>
-        private void SendFocus(string message)
-        {
-            //hacking, but allows you to test diff cases
-            //if in column c, receive will be column d
-            //so you can test a case where someone else would have been editing a diff cell
-            ReceiveFocus(message);
-            //Network.Send(theServer, message);
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        private void ReceiveFocus(string message)
-        {
-            char[] delimiters = new char[] { ' ', ':', ((char)3) };
-            string[] msg_parts = message.Split(delimiters);
-            string cell_name = msg_parts[1];
-            string user_id = msg_parts[2];
-
-            clientFocus[user_id] = cell_name;
-
-            GetCellPosition(cell_name, out int row, out int col);
-            spreadsheetPanel1.SetFocus(row, col);
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        private void SendUnfocus(string message)
-        {
-            ReceiveUnfocus(message);
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
-        private void ReceiveUnfocus(string message)
-        {
-            char[] delimiters = new char[] { ' ', ((char)3) };
-            string[] msg_parts = message.Split(delimiters);
-            string user_id = msg_parts[1];
-
-            string cell_name = clientFocus[user_id];
-
-            GetCellPosition(cell_name, out int row, out int col);
-            spreadsheetPanel1.SetUnfocus(row, col);
-        }
-        
+ 
         /// <summary>
         /// Sends a string message to the server.
         /// </summary>
@@ -454,6 +396,27 @@ namespace SpreadsheetGUI
                             break;
                         case "disc":
                             //TODO
+                            break;
+                        case "unfo":
+                            char[] delimiters2 = new char[] { ' '};
+                            string[] msg_parts2 = message.Split(delimiters2);
+                            string user_id = msg_parts2[1];
+
+                            cell_name = clientFocus[user_id];
+
+                            GetCellPosition(cell_name, out row, out col);
+                            spreadsheetPanel1.SetUnfocus(row, col);
+                            break;
+                        case "focu":
+                            char[] delimiters3 = new char[] { ' ', ':'};
+                            string[] msg_parts3 = message.Split(delimiters3);
+                            cell_name = msg_parts3[1];
+                            user_id = msg_parts3[2];
+
+                            clientFocus[user_id] = cell_name;
+
+                            GetCellPosition(cell_name, out row, out col);
+                            spreadsheetPanel1.SetFocus(row, col);
                             break;
                     }
 
@@ -819,8 +782,7 @@ namespace SpreadsheetGUI
 
             //once networking is back up...
             string unfocusMessage = "unfocus " + ((char)3);
-            //SendMessage(unfocusMessage);
-            SendUnfocus(unfocusMessage);
+            SendMessage(unfocusMessage);
             string cellName = GetCellName(col, row);
             string editMsg = "edit " + cellName + ":" + contents + ((char)3);
             SendMessage(editMsg);
