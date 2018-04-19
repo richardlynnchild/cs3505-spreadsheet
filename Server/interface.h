@@ -24,11 +24,6 @@ private:
     //interface and client networking socket
     int client_socket_id;
 
-    //helper methods
-    void ClearBuffer(char buffer[]);
-    void Receive();
-    std::string GetLine(std::string &buf);
-
 public:
 
     Interface(int socket_id, std::string sprd_name);

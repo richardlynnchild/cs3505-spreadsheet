@@ -54,4 +54,12 @@ int main(int argc, char* argv[])
   {
     std::cout << "Sent load" << std::endl;
   }
+ 
+  char buffer4[4096];
+  bytes = recv(sock_descriptor, &(buffer4[0]), 4096, 0);
+
+  for (int i = 0; i < bytes; i++)
+	{
+		std::cout << "[" << i << "]: " << buffer4[i] << std::endl;
+	}
 }
