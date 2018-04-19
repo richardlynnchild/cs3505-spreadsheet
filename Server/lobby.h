@@ -21,13 +21,11 @@ class Lobby {
     std::map<std::string, Spreadsheet> spreadsheets;
     std::set<std::string> sheet_list;
     std::queue< Interface > new_clients;
-
-	void InitSheetList();
+    void InitSheetList();
     static void* PingLoop(void* ptr);
     bool CheckForNewClient();
     void InitNewClient(int id);
     std::string ParseSheetList();
-    static void Send(int socket_id, std::string message);
     void UpdateSheetList(std::string name);
     void OpenSpreadsheet(std::string filename);
     std::string BuildFocus();
@@ -37,13 +35,17 @@ class Lobby {
     void HandleMessage(std::string message,std::string sheet);
     std::vector<std::string> SplitString(std::string str, char delim);
     void SendChangeMessage(std::string message, std::string sheet);
+    static void* StartMainThread(void* ptr);
+    void MainLoop();
+    Spreadsheet BuildSheetFromFile(std::string name);
+
 
   public:
     Lobby();
     void Start();
     void Shutdown();
     std::string BuildConnectAccepted();
-    std::vector<std::string> GetSheetList();
+    std::set<std::string> GetSheetList();
     bool IsRunning();
     void AddNewClient(Interface interface);
 
