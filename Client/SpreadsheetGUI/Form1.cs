@@ -216,6 +216,11 @@ namespace SpreadsheetGUI
 
         [DllImport("user32.dll")]
         static extern bool HideCaret(IntPtr hWnd);
+        /// <summary>
+        /// Hides the caret for the formula box and returns focus to spreadsheet panel.
+        /// </summary>
+        /// <param name="hWnd"></param>
+        /// <returns></returns>
         public void HandleFomrulaBoxFocus(object sender, EventArgs e)
         {
             HideCaret(FormulaBox.Handle);
@@ -224,19 +229,26 @@ namespace SpreadsheetGUI
 
         private void OnExit(object sender, EventArgs e)
         {
-
+            SendMessage("disconnnect " + (char)3);
         }
 
 
-        private void undo_button_Click(object sender, EventArgs e)
+        private void UndoButton_Click(object sender, EventArgs e)
         {
-
+            SendMessage("undo " + (char)3);
         }
 
-        private void revert_button_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Requests the server to revert the currently selected cell.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RevertButton_Click(object sender, EventArgs e)
         {
+            spreadsheetPanel1.GetSelection(out int col, out int row);
+            string cellName = GetCellName(col, row);
 
-
+            SendMessage("revert " + CellName + (char)3);
         }
 
 

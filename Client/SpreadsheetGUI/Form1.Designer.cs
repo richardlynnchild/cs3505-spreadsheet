@@ -513,7 +513,7 @@
             this.undo_button.Text = "Undo";
             this.undo_button.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.undo_button.UseVisualStyleBackColor = true;
-            this.undo_button.Click += new System.EventHandler(this.undo_button_Click);
+            this.undo_button.Click += new System.EventHandler(this.UndoButton_Click);
             // 
             // ColumnExit
             // 
@@ -594,7 +594,7 @@
             this.revert_button.TabIndex = 31;
             this.revert_button.Text = "Revert";
             this.revert_button.UseVisualStyleBackColor = true;
-            this.revert_button.Click += new System.EventHandler(this.revert_button_Click);
+            this.revert_button.Click += new System.EventHandler(this.RevertButton_Click);
             // 
             // Form1
             // 
