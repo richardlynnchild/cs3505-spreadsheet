@@ -50,7 +50,7 @@ namespace SpreadsheetGUI
             this.ServerTextBox.LostFocus += ServerTextBoxLeft;
             this.FormulaBox.GotFocus += HandleFomrulaBoxFocus;
 
-            this.Width = 1000;
+            this.Width = 800;
             this.Height = 600;
 
             this.FilePanel.Visible = false;

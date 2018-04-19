@@ -594,11 +594,12 @@
             // 
             // DisconnectButton
             // 
-            this.DisconnectButton.Location = new System.Drawing.Point(708, 6);
+            this.DisconnectButton.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("DisconnectButton.BackgroundImage")));
+            this.DisconnectButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.DisconnectButton.Location = new System.Drawing.Point(793, -1);
             this.DisconnectButton.Name = "DisconnectButton";
-            this.DisconnectButton.Size = new System.Drawing.Size(128, 38);
+            this.DisconnectButton.Size = new System.Drawing.Size(56, 50);
             this.DisconnectButton.TabIndex = 32;
-            this.DisconnectButton.Text = "Disconnect";
             this.DisconnectButton.UseVisualStyleBackColor = true;
             this.DisconnectButton.Click += new System.EventHandler(this.DisconnectButton_Click);
             // 
@@ -630,12 +631,12 @@
             this.Controls.Add(this.HelpMoveText);
             this.Controls.Add(this.HelpOtherText);
             this.Controls.Add(this.HelpSetText);
-            this.Controls.Add(this.menuStrip2);
             this.Controls.Add(this.LabelContents);
             this.Controls.Add(this.FormulaBox);
             this.Controls.Add(this.spreadsheetPanel1);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.menuStrip1);
+            this.Controls.Add(this.menuStrip2);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip1;

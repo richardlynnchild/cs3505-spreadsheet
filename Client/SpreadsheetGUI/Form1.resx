@@ -436,6 +436,28 @@ dependencies, they will be left off of the "Information" calculations.</value>
         ZuHh9P74evgIqa46HP4H1ySHAIkV/8IAAAAASUVORK5CYII=
 </value>
   </data>
+  <data name="DisconnectButton.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAJcEhZcwAAGp4AABqeAfDUIyUAAAAZdEVYdFNvZnR3YXJlAHd3dy5pbmtzY2FwZS5vcmeb7jwa
+        AAADeUlEQVRoQ9Xax4sUQRjG4TWimDCBijkiGBCPgoqKIurdgx486ElB8O5BVDBcFCNiQNQ/QjFcBSMi
+        5hxBEbyYMP1edgvK4uvZ6p6qnvWFB5bena76tkNVdU/bf5zFeIEv2KANXSlDMR9LMBu9YWU5vuJPB/3c
+        8kzETjyD65jzAxexBr2grMI3+H/3AS3LQOyHOut3qsh9bMV3b5uoqGVoSabgLvwOVaEiViBrpmNO+4//
+        ZALewepYGToyK5E1m/EbavAkekAZi8cIO1XFRmTPA/iNnsEkWBd0VboJZM85hA2Hd5oUFiBrhuE2rMZT
+        OobsUTE3YXUgleeoJUNwHVYnUtANReNRLemHK7A6ksI41JZZ+AWrI80aj1qi2+5LWJ1olgZFNwfLmjFI
+        NQBa7iB7RsMq4ihS3c22IWtUxCOEDR9AN2jdcatjW1U6rbQEyBbtXCu3sGGtOfwMwlWEfxdrN7JlJB4i
+        bPQgdCTCaNCscmR0bQxAtpxG2OghWEW4lC3mPXQnjM4W3INmrhqhY3IBfqOH0agIRb9Xsf7niryF1jnR
+        0R/7A5imGTHFLMQn6LN7EFPEPvidLfIaU1EqGonDHcUW0xN9239sGBWhNXvYjjUD0FOS0kW46LQIdxhb
+        TGdREboVh/vXqayz4Zq3zTmO7igdfegEwh3eQDPFFF0TKkJ3PWUwrGKOoFKmwX8Q5lQtRkVYR1qPelwR
+        LirGWgLMQKmoiDcId+SoGI3QZbIX4X5UxChY0T/LL+YnSs12dZ7qVuc3aNGcKbaY/ggvZD2kKCrCRcWc
+        gpbO67QhNpOhQcdvsJHYYnQ3+wj3Oc0AOiuicrRsrPIEMLaYeTgPPesaoQ25Yl2IsawLtiXRKRX7QLlI
+        mWsmW3bB6lxZLT8y6oDVsSo0m9WstvZobpT6KUej8SFbtKqzOtOs2o+MFipWR1Ko9choXmN1IhWNyrUd
+        mVewOpGKihmO7LGm7KnVcmQWwWq8GdbLnbPInssIG67qKXQT0cMLf7uOSvZsgt9oVZrZ6rmvoheh7rTV
+        emI9skbfKAhfxlehdYy1+NG7dVdctuile4qXlVo1lnp4ljJLERahI6OvS4SvmYtoXb8dfdCyhOOHinLf
+        KNBLlLW4BGuK/wQ7oG8ztDyf4Tqm/6y+QmRFXznSE4y5mAm9G+xSWQ0VoycmGkv+w7S1/QW7uaZ5PH+v
+        UQAAAABJRU5ErkJggg==
+</value>
+  </data>
   <metadata name="$this.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
