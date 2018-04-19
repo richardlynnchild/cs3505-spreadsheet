@@ -13,12 +13,11 @@ namespace SpreadsheetGUI
     public partial class Form1 : Form
     {
         public Spreadsheet ss1;
-        public string filename;
         private Socket theServer;
         private bool connected;
         private Dictionary<string, string> clientFocus;
         private string previousSelection;
-        private System.Timers.Timer myTimer;
+        private System.Timers.Timer pingTimer;
         private string complete_message;
         private SocketState serverSock;
         public Form1()
@@ -59,9 +58,9 @@ namespace SpreadsheetGUI
             this.previousSelection = GetCellName(0, 0);
 
 
-            myTimer = new System.Timers.Timer();
-            myTimer.Interval = 60000; //60 s?
-            //myTimer.Elapsed += Disconnect?;
+            pingTimer = new System.Timers.Timer();
+            pingTimer.Interval = 60000; //60 s?
+            pingTimer.Elapsed += DisconnectDetector;
         }
 
         #region Spreadsheet Control
@@ -286,6 +285,27 @@ namespace SpreadsheetGUI
 
         #region Networking Control
 
+        private void Disconnect()
+        {
+            Network.Send(theServer, "disconnect " + (char)3);
+            HandleDisconnect();
+        }
+
+        private void HandleDisconnect()
+        {
+            connected = false;
+            previousSelection = "A1";
+
+            serverSock = null;
+            theServer = null;
+            ServerTextBox.Enabled = true;
+            ConnectButton.Enabled = true;
+
+            spreadsheetPanel1.Clear();
+
+            MessageBox.Show("Disconnected Successfully");
+        }
+
         /// <summary>
         /// Sends the server the name of the spreadsheet the 
         /// </summary>
@@ -363,7 +383,7 @@ namespace SpreadsheetGUI
                 }
             }
 
-            myTimer.Start();
+            pingTimer.Start();
 
             Network.GetData(state);
         }
@@ -406,12 +426,12 @@ namespace SpreadsheetGUI
                             else if(msg == "ping_response ")
                             {
                                 //timer reset -- not sure this is right
-                                myTimer.Stop();
-                                myTimer.Start();
+                                pingTimer.Stop();
+                                pingTimer.Start();
                             }
                             break;
                         case "disc":
-                            //TODO
+                            HandleDisconnect();
                             break;
                         case "unfo":
                             char[] delimiters2 = new char[] { ' '};
@@ -749,6 +769,24 @@ namespace SpreadsheetGUI
         #endregion
 
         #region Helper Methods
+
+        private void DisconnectButton_Click(object sender, EventArgs e)
+        {
+            if (connected)
+            {
+                Disconnect();
+            }
+        }
+
+        /// <summary>
+        /// Listener to detect when the ping loop expires. Calls HandleDisconnnect.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DisconnectDetector(object sender, EventArgs e)
+        {
+            HandleDisconnect();
+        }
 
         /// <summary>
         /// Removes one character from the cell's text.
