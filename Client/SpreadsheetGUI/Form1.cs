@@ -227,12 +227,21 @@ namespace SpreadsheetGUI
             spreadsheetPanel1.Focus();
         }
 
+        /// <summary>
+        /// Sends a disconnect message to the server when the client is closed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnExit(object sender, EventArgs e)
         {
             SendMessage("disconnnect " + (char)3);
         }
 
-
+        /// <summary>
+        /// Requests the server to undo the most recent change.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void UndoButton_Click(object sender, EventArgs e)
         {
             SendMessage("undo " + (char)3);
@@ -266,6 +275,10 @@ namespace SpreadsheetGUI
             string message = "load " + FileTextSelect.Text + (char)3;
             Network.Send(theServer, message);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
         private void Receive()
         {
             /*
@@ -287,6 +300,11 @@ namespace SpreadsheetGUI
             //Network.Send(theServer, message);
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
         private void ReceiveFocus(string message)
         {
             char[] delimiters = new char[] { ' ', ':', ((char)3) };
@@ -300,28 +318,43 @@ namespace SpreadsheetGUI
             spreadsheetPanel1.SetFocus(row, col);
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
         private void SendUnfocus(string message)
         {
             ReceiveUnfocus(message);
         }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
         private void ReceiveUnfocus(string message)
         {
             char[] delimiters = new char[] { ' ', ((char)3) };
             string[] msg_parts = message.Split(delimiters);
             string user_id = msg_parts[1];
 
-            //if (clientFocus[user_id] == null)
-            //return;
             string cell_name = clientFocus[user_id];
 
             GetCellPosition(cell_name, out int row, out int col);
             spreadsheetPanel1.SetUnfocus(row, col);
         }
-
+        
+        /// <summary>
+        /// Sends a string message to the server.
+        /// </summary>
+        /// <param name="msg"></param>
         private void SendMessage(string msg)
         {
             Network.Send(theServer, msg);
         }
+
+
         /// <summary>
         /// Sends the register message to the server after a connection is established.
         /// </summary>
@@ -333,6 +366,52 @@ namespace SpreadsheetGUI
             Network.Send(state.sock, message);
 
             Network.GetData(state);
+        }
+
+
+        /// <summary>
+        /// Processes a full state message. Assigns processMessage() as the socket state's callme when finished.
+        /// </summary>
+        /// <param name="state"></param>
+        private void HandleFullState(SocketState state)
+        {
+            string message;
+            string complete_message = "";
+
+            lock (state) { message = state.builder.ToString(); }
+
+            complete_message += message;
+
+            if (message.Contains(((char)3).ToString()))
+            {
+                state.callMe = ProcessMessage;
+                string[] cells = complete_message.Split('\n');
+
+                //split the cell name and value then set the cell.
+                foreach (string cell in cells)
+                {
+                    string[] cellAndval = cell.Split(':');
+                    string cellName = cellAndval[0];
+                    string cellVal = cellAndval[1];
+
+                    int[] colRow = GetCellPosition(cellName);
+
+                    SetCell(colRow[1], colRow[0], cellVal);
+                }
+
+                FilePanel.Visible = false;
+            }
+
+            Network.GetData(state);
+        }
+
+        /// <summary>
+        /// Process incoming messages from the server.
+        /// </summary>
+        /// <param name="state"></param>
+        private void ProcessMessage(SocketState state)
+        {
+
         }
 
         #endregion
@@ -577,17 +656,13 @@ namespace SpreadsheetGUI
         #region File Menu
 
         /// <summary>
-        /// Displays a custom file menu containing all the sent spreadsheet name from the server.
+        /// Displays a custom file menu containing all spreadsheet name from a string.
         /// </summary>
         /// <param name="fileString"></param>
         private void ShowFileMenu(string fileString)
         {
             FilePanel.Show();
             string[] files = fileString.Split('\n');
-            //for some reason Split() does not remove the delimter from the last part of the string
-            string lastString = files[files.Length - 1];
-            //lastString = lastString.Substring(0, lastString.Length - 2);
-            files[files.Length - 1] = lastString;
             foreach (string file in files)
             {
                 ListViewItem item = new ListViewItem(file);
@@ -596,6 +671,10 @@ namespace SpreadsheetGUI
             }
         }
 
+        /// <summary>
+        /// Retrieves the list of spreadhseet names from the server and displays a file menu with the names.
+        /// </summary>
+        /// <param name="state"></param>
         private void ActivateFileMenu(SocketState state)
         {
             state.callMe = HandleFullState;
@@ -605,6 +684,9 @@ namespace SpreadsheetGUI
             {
                 message = state.builder.ToString();
             }
+
+            //remove the first 17 ("connect_accepted ") characters from the string.
+            message = message.Substring(16);
 
             MethodInvoker FMInvoker = new MethodInvoker(() =>
             {
@@ -616,6 +698,7 @@ namespace SpreadsheetGUI
             state.builder.Clear();
             Network.GetData(state);
         }
+
 
         /// <summary>
         /// Work in progress, low priority
@@ -726,7 +809,11 @@ namespace SpreadsheetGUI
             return Convert.ToChar(col + 65).ToString() + (row + 1).ToString();
         }
 
-
+        /// <summary>
+        /// Returns an array containing the numerical [col, row] position of a cell name.
+        /// </summary>
+        /// <param name="cellName"></param>
+        /// <returns>int[row, col]</returns>
         private int[] GetCellPosition(string cellName)
         {
             int[] colRow = new int[2];
@@ -770,49 +857,6 @@ namespace SpreadsheetGUI
             }
             return true;
         }
-
-
-        /*
-        /// <summary>
-        /// Writes the contents of the Formula Text box to the currently selected cell.
-        /// </summary>
-        private void SetCell()
-        {
-            //attempt to set the cell, if there is an error set the formula box to display an error message.
-            try
-            {
-                spreadsheetPanel1.GetSelection(out int col, out int row);
-                string cellName = GetCellName(col, row);
-
-                //set the contents of the cell and update all the cells that need to be updated
-                //UpdateCells(ss1.SetContentsOfCell(cellName, FormulaBox.Text));
-                ss1.SetContentsOfCell(cellName, FormulaBox.Text);
-
-                //if the result is a formula error display a formula error message, otherwise set the cell with the result.
-                if (ss1.GetCellValue(cellName).GetType() == typeof(FormulaError))
-                {
-                    //FormulaError f = new FormulaError(ss1.GetCellValue(cellName));
-                    spreadsheetPanel1.SetValue(col, row, "Formula Error!");
-                }
-                else
-                {
-                    spreadsheetPanel1.SetValue(col, row, ss1.GetCellValue(cellName).ToString());
-                    UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
-                }
-            }
-            
-
-            catch (CircularException)
-            {
-                FormulaBox.Text = "Ciruclar Dependency!";
-            }
-
-            catch (FormulaFormatException)
-            {
-                FormulaBox.Text = "Invalid Formula!";
-            }
-        }
-        */
 
 
         /// <summary>
@@ -894,20 +938,6 @@ namespace SpreadsheetGUI
                 //update all dependent cells
                 UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
             }
-        }
-
-
-        private void HandleFullState(SocketState state)
-        {
-            /*
-             * string message = Network.Recieve();
-             * if (message == ...)
-             * MessageBox.Show(Spreadsheet not valid!);
-             * 
-             * else
-             * 
-             * POSSIBLE TODO: add recieve function to networking file if needed.
-             * */
         }
         #endregion
     }
