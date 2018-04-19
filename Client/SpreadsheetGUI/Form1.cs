@@ -18,6 +18,7 @@ namespace SpreadsheetGUI
         private bool connected;
         private Dictionary<string, string> clientFocus;
         private string previousSelection;
+        private System.Timers.Timer myTimer;
         public Form1()
         {
             //
@@ -55,6 +56,10 @@ namespace SpreadsheetGUI
             this.spreadsheetPanel1.SetSelection(0, 0);
             this.previousSelection = GetCellName(0, 0);
 
+
+            myTimer = new System.Timers.Timer();
+            myTimer.Interval = 60000; //60 s?
+            //myTimer.Elapsed += Disconnect?;
         }
 
         #region Spreadsheet Control
@@ -277,17 +282,6 @@ namespace SpreadsheetGUI
             Network.Send(theServer, message);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        private void Receive()
-        {
-            /*
-            string message = Network.Recieve();
-            if (message is focus)
-                ReceiveFocus(message);
-            */
-        }
 
         /// <summary>
         /// Sends the focus message to the server when a cell is being edited.
@@ -411,6 +405,8 @@ namespace SpreadsheetGUI
                 }
             }
 
+            myTimer.Start();
+
             Network.GetData(state);
         }
 
@@ -432,10 +428,29 @@ namespace SpreadsheetGUI
                     switch (msg.Substring(0,3))
                     {
                         case "chan":
-                            //TODO
+                            //get cell name and contents from message
+                            char[] delimiters = new char[] { ' ', ':'};
+                            string[] msg_parts = msg.Split(delimiters);
+                            string cell_name = msg_parts[1];
+                            string contents = msg_parts[2];
+
+                            //set the contents of the cell
+                            GetCellPosition(cell_name, out int row, out int col);
+                            SetCell(row, col, contents);
                             break;
+
                         case "ping":
-                            //TODO
+                            if(msg == "ping ")
+                            {
+                                SendMessage("ping_response " + ((char)3));
+                            }
+
+                            else if(msg == "ping_response ")
+                            {
+                                //timer reset -- not sure this is right
+                                myTimer.Stop();
+                                myTimer.Start();
+                            }
                             break;
                         case "disc":
                             //TODO
