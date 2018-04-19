@@ -37,6 +37,9 @@ class Lobby {
     std::vector<std::string> SplitString(std::string str, char delim);
     void SendChangeMessage(std::string message, std::string sheet);
 
+	static void* StartMainThread(void* ptr);
+	void MainLoop();
+
   public:
     Lobby();
     void Start();

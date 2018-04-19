@@ -91,7 +91,6 @@ std::string Lobby::BuildConnectAccepted(){
 std::string Lobby::BuildFocus()
 {
   std::string message = "focus ";
-
 }
 
 std::string Lobby::BuildUnfocus()
@@ -220,14 +219,27 @@ bool Lobby::IsRunning()
    
 void Lobby::Start(){
 
+	bool listening = false;
+	bool loop_running = false;
 	// Start a new thread that continuosly listens and accepts new connections 
 	pthread_t listen_thread;
 	if (pthread_create(&listen_thread, NULL, NetworkController::ListenForClients, this))
 		 std::cerr << "error creating thread for client listener" << std::endl;
 	else
-		running = true;
+		listening = true;
 	// Start timer thread for pinging clients
 	
+	pthread_t main_thread;	
+	if (pthread_create(&main_thread, NULL, StartMainThread, this))
+		 std::cerr << "error creating main lobby thread" << std::endl;
+	else
+		loop_running = true;
+
+	running = (listening && loop_running);
+}
+
+void Lobby::MainLoop()
+{
 	// Enter main loop:
 	//
 	//
@@ -251,7 +263,12 @@ void Lobby::Start(){
 	// 3. Check to see if program should be shutdown
 	//
 	//
+}
 
+void* Lobby::StartMainThread(void* ptr)
+{
+	Lobby* lobby_ptr = (Lobby*) ptr;
+	lobby_ptr->MainLoop();
 }
 
 void* Lobby::PingLoop(void* ptr)
