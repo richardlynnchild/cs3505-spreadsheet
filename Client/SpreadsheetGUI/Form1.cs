@@ -504,17 +504,7 @@ namespace SpreadsheetGUI
             CloseOther.Visible = false;
             ColumnExit.Visible = false;
             OutputColumnInfo.Visible = false;
-        }
 
-
-        /// <summary>
-        /// Calculates the sum, count, and average of the values in the current column. Displays results in a textbox
-        /// If a cell contains a variable or formula that cannot be solved due to the dependency being unfinished it is left out of the calculations.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ReturnCollumn_Click(object sender, EventArgs e)
-        {
             //handle logic of column info
             OnRerutrnColumnClick();
 
@@ -529,9 +519,8 @@ namespace SpreadsheetGUI
             CloseMove.Visible = false;
             HelpOtherText.Visible = false;
             CloseOther.Visible = false;
-            OutputRowInfo.Visible = false;
-            RowExit.Visible = false;
         }
+
 
 
         /// <summary>

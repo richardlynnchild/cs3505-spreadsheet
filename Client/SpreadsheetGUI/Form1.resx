@@ -132,6 +132,9 @@
   <metadata name="FormulaBox.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
+  <metadata name="CellName.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
   <metadata name="LabelContents.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
@@ -161,11 +164,17 @@
   <metadata name="tableLayoutPanel1.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
+  <metadata name="ReturnRow.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
   <metadata name="contextMenuStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>659, 17</value>
   </metadata>
   <metadata name="menuStrip2.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>845, 17</value>
+  </metadata>
+  <metadata name="menuStrip2.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
   </metadata>
   <data name="HelpMenu.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -208,6 +217,9 @@
         8AMvWD+tNneLzXT/EOT6+Gq1v3GkaSVcKE0cAAAAAElFTkSuQmCC
 </value>
   </data>
+  <metadata name="HelpMoveText.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
   <data name="HelpMoveText.Text" xml:space="preserve">
     <value>Clicking on a cell will select that cell.
 
@@ -217,6 +229,9 @@ The spreadsheet Wraps, so moving left of A1 will take you to Z1 and vice versa.
 
 Moving up from A1 will take you to A99 and vice versa.</value>
   </data>
+  <metadata name="HelpSetText.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
   <data name="HelpSetText.Text" xml:space="preserve">
     <value>To set cell contents, move to the cell you wish to change and input the 
 desired contents.
@@ -226,6 +241,9 @@ After setting the contents, press enter on the keyboard or hit the enter button 
 If the contents are a formula, the cell will display the value of that formula and the formula box will display the formula.
 </value>
   </data>
+  <metadata name="HelpOtherText.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
   <data name="HelpOtherText.Text" xml:space="preserve">
     <value>The folder Icon brings up the File Menu
 
@@ -246,6 +264,57 @@ of whatever row the selected cell is on.
 If any cells, such as variables or formulas, cannot be solved due to incomplete 
 dependencies, they will be left off of the "Information" calculations.</value>
   </data>
+  <metadata name="LabelName.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="LabelValue.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="CellNameOutput.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="CellValueOutput.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="OutputColumnInfo.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="OutputRowInfo.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="ServerTextBox.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="ConnectButton.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="FilePanel.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="MovementBox.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="panel1.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="FileMenuLabel.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="Open_FileMenu.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="FileTextSelect.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="FileList.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="undo_button.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="ColumnExit.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
   <data name="ColumnExit.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAABGdBTUEAALGPC/xhBQAAAD9QTFRF/wAA
@@ -284,6 +353,9 @@ dependencies, they will be left off of the "Information" calculations.</value>
         ZuHh9P74evgIqa46HP4H1ySHAIkV/8IAAAAASUVORK5CYII=
 </value>
   </data>
+  <metadata name="RowExit.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
   <data name="RowExit.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAABGdBTUEAALGPC/xhBQAAAD9QTFRF/wAA
@@ -322,6 +394,9 @@ dependencies, they will be left off of the "Information" calculations.</value>
         ZuHh9P74evgIqa46HP4H1ySHAIkV/8IAAAAASUVORK5CYII=
 </value>
   </data>
+  <metadata name="CloseSet.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
   <data name="CloseSet.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAABGdBTUEAALGPC/xhBQAAAD9QTFRF/wAA
@@ -360,6 +435,9 @@ dependencies, they will be left off of the "Information" calculations.</value>
         ZuHh9P74evgIqa46HP4H1ySHAIkV/8IAAAAASUVORK5CYII=
 </value>
   </data>
+  <metadata name="CloseOther.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
   <data name="CloseOther.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAABGdBTUEAALGPC/xhBQAAAD9QTFRF/wAA
@@ -398,6 +476,9 @@ dependencies, they will be left off of the "Information" calculations.</value>
         ZuHh9P74evgIqa46HP4H1ySHAIkV/8IAAAAASUVORK5CYII=
 </value>
   </data>
+  <metadata name="CloseMove.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
   <data name="CloseMove.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAABGdBTUEAALGPC/xhBQAAAD9QTFRF/wAA
@@ -436,26 +517,31 @@ dependencies, they will be left off of the "Information" calculations.</value>
         ZuHh9P74evgIqa46HP4H1ySHAIkV/8IAAAAASUVORK5CYII=
 </value>
   </data>
+  <metadata name="revert_button.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="DisconnectButton.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
   <data name="DisconnectButton.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
-        iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAAGp4AABqeAfDUIyUAAAAZdEVYdFNvZnR3YXJlAHd3dy5pbmtzY2FwZS5vcmeb7jwa
-        AAADeUlEQVRoQ9Xax4sUQRjG4TWimDCBijkiGBCPgoqKIurdgx486ElB8O5BVDBcFCNiQNQ/QjFcBSMi
-        5hxBEbyYMP1edgvK4uvZ6p6qnvWFB5bena76tkNVdU/bf5zFeIEv2KANXSlDMR9LMBu9YWU5vuJPB/3c
-        8kzETjyD65jzAxexBr2grMI3+H/3AS3LQOyHOut3qsh9bMV3b5uoqGVoSabgLvwOVaEiViBrpmNO+4//
-        ZALewepYGToyK5E1m/EbavAkekAZi8cIO1XFRmTPA/iNnsEkWBd0VboJZM85hA2Hd5oUFiBrhuE2rMZT
-        OobsUTE3YXUgleeoJUNwHVYnUtANReNRLemHK7A6ksI41JZZ+AWrI80aj1qi2+5LWJ1olgZFNwfLmjFI
-        NQBa7iB7RsMq4ihS3c22IWtUxCOEDR9AN2jdcatjW1U6rbQEyBbtXCu3sGGtOfwMwlWEfxdrN7JlJB4i
-        bPQgdCTCaNCscmR0bQxAtpxG2OghWEW4lC3mPXQnjM4W3INmrhqhY3IBfqOH0agIRb9Xsf7niryF1jnR
-        0R/7A5imGTHFLMQn6LN7EFPEPvidLfIaU1EqGonDHcUW0xN9239sGBWhNXvYjjUD0FOS0kW46LQIdxhb
-        TGdREboVh/vXqayz4Zq3zTmO7igdfegEwh3eQDPFFF0TKkJ3PWUwrGKOoFKmwX8Q5lQtRkVYR1qPelwR
-        LirGWgLMQKmoiDcId+SoGI3QZbIX4X5UxChY0T/LL+YnSs12dZ7qVuc3aNGcKbaY/ggvZD2kKCrCRcWc
-        gpbO67QhNpOhQcdvsJHYYnQ3+wj3Oc0AOiuicrRsrPIEMLaYeTgPPesaoQ25Yl2IsawLtiXRKRX7QLlI
-        mWsmW3bB6lxZLT8y6oDVsSo0m9WstvZobpT6KUej8SFbtKqzOtOs2o+MFipWR1Ko9choXmN1IhWNyrUd
-        mVewOpGKihmO7LGm7KnVcmQWwWq8GdbLnbPInssIG67qKXQT0cMLf7uOSvZsgt9oVZrZ6rmvoheh7rTV
-        emI9skbfKAhfxlehdYy1+NG7dVdctuile4qXlVo1lnp4ljJLERahI6OvS4SvmYtoXb8dfdCyhOOHinLf
-        KNBLlLW4BGuK/wQ7oG8ztDyf4Tqm/6y+QmRFXznSE4y5mAm9G+xSWQ0VoycmGkv+w7S1/QW7uaZ5PH+v
-        UQAAAABJRU5ErkJggg==
+        iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAa
+        ngAAGp4B8NQjJQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAN5SURBVGhD1drH
+        ixRBGMbhNaKYMIGKOSIYEI+Ciooi6t2DHjzoSUHw7kFUMFwUI2JA1D9CMVwFIyLmHEERvJgw/V52C8ri
+        69nqnqqe9YUHlt6drvq2Q1V1T9t/nMV4gS/YoA1dKUMxH0swG71hZTm+4k8H/dzyTMROPIPrmPMDF7EG
+        vaCswjf4f/cBLctA7Ic663eqyH1sxXdvm6ioZWhJpuAu/A5VoSJWIGumY077j/9kAt7B6lgZOjIrkTWb
+        8Rtq8CR6QBmLxwg7VcVGZM8D+I2ewSRYF3RVuglkzzmEDYd3mhQWIGuG4TasxlM6huxRMTdhdSCV56gl
+        Q3AdVidS0A1F41Et6YcrsDqSwjjUlln4BasjzRqPWqLb7ktYnWiWBkU3B8uaMUg1AFruIHtGwyriKFLd
+        zbYha1TEI4QNH0A3aN1xq2NbVTqttATIFu1cK7ewYa05/AzCVYR/F2s3smUkHiJs9CB0JMJo0KxyZHRt
+        DEC2nEbY6CFYRbiULeY9dCeMzhbcg2auGqFjcgF+o4fRqAhFv1ex/ueKvIXWOdHRH/sDmKYZMcUsxCfo
+        s3sQU8Q++J0t8hpTUSoaicMdxRbTE33bf2wYFaE1e9iONQPQU5LSRbjotAh3GFtMZ1ERuhWH+9eprLPh
+        mrfNOY7uKB196ATCHd5AM8UUXRMqQnc9ZTCsYo6gUqbBfxDmVC1GRVhHWo96XBEuKsZaAsxAqaiINwh3
+        5KgYjdBlshfhflTEKFjRP8sv5idKzXZ1nupW5zdo0Zwptpj+CC9kPaQoKsJFxZyCls7rtCE2k6FBx2+w
+        kdhidDf7CPc5zQA6K6JytGys8gQwtph5OA896xqhDbliXYixrAu2JdEpFftAuUiZayZbdsHqXFktPzLq
+        gNWxKjSb1ay29mhulPopR6PxIVu0qrM606zaj4wWKlZHUqj1yGheY3UiFY3KtR2ZV7A6kYqKGY7ssabs
+        qdVyZBbBarwZ1suds8ieywgbruopdBPRwwt/u45K9myC32hVmtnqua+iF6HutNV6Yj2yRt8oCF/GV6F1
+        jLX40bt1V1y26KV7ipeVWjWWeniWMksRFqEjo69LhK+Zi2hdvx190LKE44eKct8o0EuUtbgEa4r/BDug
+        bzO0PJ/hOqb/rL5CZEVfOdITjLmYCb0b7FJZDRWjJyYaS/7DtLX9Bbu5pnk8f69RAAAAAElFTkSuQmCC
 </value>
   </data>
   <metadata name="$this.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">

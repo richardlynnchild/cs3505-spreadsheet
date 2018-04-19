@@ -48,6 +48,7 @@
             this.FileMenu_Open = new System.Windows.Forms.ToolStripMenuItem();
             this.FileMenu_Close = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.ReturnRow = new System.Windows.Forms.Button();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.menuStrip2 = new System.Windows.Forms.MenuStrip();
             this.HelpMenu = new System.Windows.Forms.ToolStripMenuItem();
@@ -61,8 +62,6 @@
             this.LabelValue = new System.Windows.Forms.Label();
             this.CellNameOutput = new System.Windows.Forms.TextBox();
             this.CellValueOutput = new System.Windows.Forms.TextBox();
-            this.ReturnColumn = new System.Windows.Forms.Button();
-            this.ReturnRow = new System.Windows.Forms.Button();
             this.OutputColumnInfo = new System.Windows.Forms.TextBox();
             this.OutputRowInfo = new System.Windows.Forms.TextBox();
             this.ServerTextBox = new System.Windows.Forms.TextBox();
@@ -85,6 +84,7 @@
             this.revert_button = new System.Windows.Forms.Button();
             this.DisconnectButton = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
             this.menuStrip2.SuspendLayout();
             this.FilePanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MovementBox)).BeginInit();
@@ -202,16 +202,30 @@
             // 
             this.tableLayoutPanel1.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.OutsetPartial;
             this.tableLayoutPanel1.ColumnCount = 1;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel1.Controls.Add(this.ReturnRow, 0, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 49);
             this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tableLayoutPanel1.MinimumSize = new System.Drawing.Size(0, 49);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.Size = new System.Drawing.Size(1178, 65);
             this.tableLayoutPanel1.TabIndex = 9;
+            // 
+            // ReturnRow
+            // 
+            this.ReturnRow.Dock = System.Windows.Forms.DockStyle.Right;
+            this.ReturnRow.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ReturnRow.Location = new System.Drawing.Point(921, 6);
+            this.ReturnRow.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.ReturnRow.Name = "ReturnRow";
+            this.ReturnRow.Size = new System.Drawing.Size(250, 53);
+            this.ReturnRow.TabIndex = 22;
+            this.ReturnRow.Text = "Row/col Information";
+            this.ReturnRow.UseVisualStyleBackColor = true;
+            this.ReturnRow.Click += new System.EventHandler(this.ReturnRow_Click);
             // 
             // contextMenuStrip1
             // 
@@ -344,30 +358,6 @@
             this.CellValueOutput.TabIndex = 20;
             this.CellValueOutput.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // ReturnColumn
-            // 
-            this.ReturnColumn.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ReturnColumn.Location = new System.Drawing.Point(294, 2);
-            this.ReturnColumn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.ReturnColumn.Name = "ReturnColumn";
-            this.ReturnColumn.Size = new System.Drawing.Size(171, 45);
-            this.ReturnColumn.TabIndex = 21;
-            this.ReturnColumn.Text = "Col Information";
-            this.ReturnColumn.UseVisualStyleBackColor = true;
-            this.ReturnColumn.Click += new System.EventHandler(this.ReturnCollumn_Click);
-            // 
-            // ReturnRow
-            // 
-            this.ReturnRow.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ReturnRow.Location = new System.Drawing.Point(472, 2);
-            this.ReturnRow.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.ReturnRow.Name = "ReturnRow";
-            this.ReturnRow.Size = new System.Drawing.Size(162, 45);
-            this.ReturnRow.TabIndex = 22;
-            this.ReturnRow.Text = "Row Information";
-            this.ReturnRow.UseVisualStyleBackColor = true;
-            this.ReturnRow.Click += new System.EventHandler(this.ReturnRow_Click);
-            // 
             // OutputColumnInfo
             // 
             this.OutputColumnInfo.Location = new System.Drawing.Point(248, 106);
@@ -375,7 +365,7 @@
             this.OutputColumnInfo.Multiline = true;
             this.OutputColumnInfo.Name = "OutputColumnInfo";
             this.OutputColumnInfo.ReadOnly = true;
-            this.OutputColumnInfo.Size = new System.Drawing.Size(211, 162);
+            this.OutputColumnInfo.Size = new System.Drawing.Size(210, 162);
             this.OutputColumnInfo.TabIndex = 23;
             this.OutputColumnInfo.Text = " \r\n \r\n \r\n \r\n ";
             this.OutputColumnInfo.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -383,12 +373,12 @@
             // 
             // OutputRowInfo
             // 
-            this.OutputRowInfo.Location = new System.Drawing.Point(399, 109);
+            this.OutputRowInfo.Location = new System.Drawing.Point(461, 106);
             this.OutputRowInfo.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.OutputRowInfo.Multiline = true;
             this.OutputRowInfo.Name = "OutputRowInfo";
             this.OutputRowInfo.ReadOnly = true;
-            this.OutputRowInfo.Size = new System.Drawing.Size(210, 156);
+            this.OutputRowInfo.Size = new System.Drawing.Size(210, 162);
             this.OutputRowInfo.TabIndex = 25;
             this.OutputRowInfo.Text = " \r\n \r\n \r\n \r\n ";
             this.OutputRowInfo.Visible = false;
@@ -514,7 +504,7 @@
             // 
             this.ColumnExit.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("ColumnExit.BackgroundImage")));
             this.ColumnExit.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ColumnExit.Location = new System.Drawing.Point(438, 111);
+            this.ColumnExit.Location = new System.Drawing.Point(436, 106);
             this.ColumnExit.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.ColumnExit.Name = "ColumnExit";
             this.ColumnExit.Size = new System.Drawing.Size(22, 25);
@@ -527,7 +517,7 @@
             // 
             this.RowExit.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("RowExit.BackgroundImage")));
             this.RowExit.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.RowExit.Location = new System.Drawing.Point(588, 108);
+            this.RowExit.Location = new System.Drawing.Point(649, 106);
             this.RowExit.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.RowExit.Name = "RowExit";
             this.RowExit.Size = new System.Drawing.Size(22, 25);
@@ -619,8 +609,6 @@
             this.Controls.Add(this.RowExit);
             this.Controls.Add(this.OutputColumnInfo);
             this.Controls.Add(this.OutputRowInfo);
-            this.Controls.Add(this.ReturnRow);
-            this.Controls.Add(this.ReturnColumn);
             this.Controls.Add(this.CellValueOutput);
             this.Controls.Add(this.CellNameOutput);
             this.Controls.Add(this.LabelValue);
@@ -645,6 +633,7 @@
             this.Text = "Form1";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            this.tableLayoutPanel1.ResumeLayout(false);
             this.menuStrip2.ResumeLayout(false);
             this.menuStrip2.PerformLayout();
             this.FilePanel.ResumeLayout(false);
@@ -691,7 +680,6 @@
         private System.Windows.Forms.Label LabelValue;
         private System.Windows.Forms.TextBox CellNameOutput;
         private System.Windows.Forms.TextBox CellValueOutput;
-        private System.Windows.Forms.Button ReturnColumn;
         private System.Windows.Forms.Button ReturnRow;
         private System.Windows.Forms.TextBox OutputColumnInfo;
         private System.Windows.Forms.Button ColumnExit;
