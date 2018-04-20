@@ -18,7 +18,7 @@ network_controller.o:
 	g++ -c network_controller.cpp -pthread
 
 dummy_client:
-	g++ -o dummy_client dummy_client.cpp
+	g++ -o dummy_client.o dummy_client.cpp
 
 clean:
 	rm *.o ./a.out

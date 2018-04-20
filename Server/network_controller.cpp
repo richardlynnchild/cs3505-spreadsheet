@@ -44,12 +44,11 @@ void* NetworkController::ListenForClients(void* ptr){
 		std::cout << "Listener bound to port: " << PORT << std::endl;
 	}
 	
+	if (listen(listen_socket, 10) < 0)
+		std::cerr << "socket listen failure" << std::endl;
+
 	while(ptr_lobby->IsRunning())
-	{  
-		std::cout << "Listening..." << std::endl;
-		if (listen(listen_socket, 10) < 0)
-			std::cerr << "socket listen failure" << std::endl;
-		
+	{  	
 		if ((new_client_socket = accept(listen_socket, (struct sockaddr *)&address, (socklen_t*)&address_length)) < 0)
 			std::cerr << "error accepting new client connection" << std::endl;
 
@@ -183,7 +182,6 @@ void* NetworkController::ClientCommunicate(void* ptr)
 
 	std::cout << "ClientCommunicate: Pre-loop" << std::endl;
 	bool recv_idle, send_idle;
-	int i = 1;
 	while(interface->IsActive())
 	{
 		recv_idle = true;
@@ -244,12 +242,23 @@ void* NetworkController::ClientCommunicate(void* ptr)
 		// Sleep when things get boring
 		if (recv_idle && send_idle)
 			usleep(10000);
-
-		i++;
 	}
 
+	SendDisconnect(socket_id);
 	delete interface;
 	close(socket_id);
+}
+
+void NetworkController::SendDisconnect(int socket_id)
+{
+	char discon_msg[11] = "disconnect";
+	discon_msg[10] = (char) 3;
+	int bytes_sent = 0;
+	while (bytes_sent < 11)
+	{
+		bytes_sent += send(socket_id, &(discon_msg[bytes_sent]),
+								11-bytes_sent, 0);
+	}
 }
 
 //helper method that returns a message and removes it from the messages string buffer, only if the message is complete ('\n' found).
@@ -258,7 +267,6 @@ std::string NetworkController::GetMessage(char* msg_buf, int &buf_end)
     std::string message = "";
     for (int i = 0; i < buf_end; i++)
     {
-      std::cout << "message[" << i << "]: " << msg_buf[i] << std::endl;
       if (msg_buf[i] == (char) 3)
       {
          CleanBuffer(msg_buf, i+1, buf_end);

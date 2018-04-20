@@ -38,8 +38,6 @@ class Lobby {
     void SendPingResponse(int id);
     static void* StartMainThread(void* ptr);
     void MainLoop();
-    Spreadsheet BuildSheetFromFile(std::string name);
-
 
   public:
     Lobby();

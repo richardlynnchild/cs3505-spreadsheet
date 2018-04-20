@@ -53,17 +53,6 @@ void Lobby::InitSheetList()
 }
 
 /*
- * Return a spreadsheet object that has been built from the
- * file on disk.
- */
-
-Spreadsheet Lobby::BuildSheetFromFile(std::string name){
-
-
-}
-
-
-/*
  * Returns the sheet list of this Lobby
  */
 std::set<std::string> Lobby::GetSheetList(){
@@ -123,22 +112,17 @@ bool Lobby::CheckForNewClient(){
       //Check if the spreadsheet is saved
       std::set<std::string>::iterator it = sheet_list.find(name);
       if(it == sheet_list.end()){
-        std::cout << "no spread named: " << name << std::endl;
         Spreadsheet new_sheet(name);  //not active, not saved
         spreadsheets.insert(std::pair<std::string,Spreadsheet>(name,new_sheet));
-    	std::cout << "created and added" << std::endl;
       }
       else {
-        std::cout << "loading spread: " << name << std::endl;
         Spreadsheet new_sheet (name, name + ".txt"); //not active, but saved
         spreadsheets.insert(std::pair<std::string,Spreadsheet>(name,new_sheet));
       }
     }
     std::string full_state = spreadsheets[name].GetFullState();
 	new_client->StartClientThread();
-	std::cout << "Started client's thread" << std::endl;
     new_client->PushMessage(LOBBY, full_state);
-	std::cout << "Pushed Full State" << std::endl;
   } 
   return idle;
 }
@@ -216,12 +200,12 @@ void Lobby::SendUnfocusMessage(std::string sheet, int id)
 void Lobby::SendPingResponse(int id)
 {
   std::string msg = "ping_response " + ((char)3);
-  std::vector<Interface>::iterator it = clients.begin();
+  std::vector<Interface*>::iterator it = clients.begin();
   for(; it!= clients.end(); ++it)
   {
-    if(it->GetClientSocketID() == id)
+    if((*it)->GetClientSocketID() == id)
     {
-      it->PushMessage(LOBBY, msg);
+      (*it)->PushMessage(LOBBY, msg);
     }
   }
 }
