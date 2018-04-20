@@ -196,8 +196,8 @@ void Lobby::SendFocusMessage(std::string cell, std::string sheet, int id){
 void Lobby::SendUnfocusMessage(std::string sheet, int id)
 {
   std::string msg = "unfocus ";
-  focus += id;
-  focus += ((char)3);
+  msg += id;
+  msg += ((char)3);
   std::vector<Interface>::iterator it = clients.begin();
   for(; it != clients.end(); ++it)
   {
