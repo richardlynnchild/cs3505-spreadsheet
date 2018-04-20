@@ -20,7 +20,7 @@ class Lobby {
     std::vector<Interface> clients;
     std::map<std::string, Spreadsheet> spreadsheets;
     std::set<std::string> sheet_list;
-    std::queue< Interface > new_clients;
+    std::queue< Interface* > new_clients;
 
 	void InitSheetList();
     static void* PingLoop(void* ptr);
@@ -47,7 +47,7 @@ class Lobby {
     std::string BuildConnectAccepted();
     std::set<std::string> GetSheetList();
     bool IsRunning();
-    void AddNewClient(Interface interface);
+    void AddNewClient(Interface* interface);
 
 };
 

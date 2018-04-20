@@ -61,7 +61,7 @@ std::set<std::string> Lobby::GetSheetList(){
 /*
  * Add an Interface to the new_client queue.
  */
-void Lobby::AddNewClient(Interface interface){
+void Lobby::AddNewClient(Interface* interface){
   pthread_mutex_lock(&new_client_mutex);
   this->new_clients.push(interface);
   pthread_mutex_unlock(&new_client_mutex);
@@ -110,17 +110,18 @@ bool Lobby::CheckForNewClient(){
   bool idle = true;
   if(new_clients.size() > 0){
     idle = false;
-    Interface new_client = new_clients.front();
+    Interface* new_client = new_clients.front();
     new_clients.pop();
-    std::string name = new_client.GetSprdName();
-    clients.push_back(new_client); 
+    std::string name = new_client->GetSprdName();
+    clients.push_back(*new_client); 
     if(spreadsheets.count(name)<1){
       Spreadsheet new_sheet(name);
       spreadsheets.insert(std::pair<std::string,Spreadsheet>(name,new_sheet));
     }
     std::string full_state = spreadsheets[name].GetFullState();
-	new_client.StartClientThread(); 
-    new_client.PushMessage(LOBBY, full_state);
+	std::cout << full_state << std::endl;
+	new_client->StartClientThread(); 
+    new_client->PushMessage(LOBBY, full_state);
   } 
   return idle;
 }

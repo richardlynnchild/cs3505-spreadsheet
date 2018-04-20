@@ -107,7 +107,7 @@ void* NetworkController::Handshake(void* ptr){
 	  	std::string sprd_name = GetSpreadsheetChoice(id, ptr_obj);
 	  	if (sprd_name != "")
 	  	{
-	  		Interface interface(id,sprd_name);
+	  		Interface* interface = new Interface(id,sprd_name);
 	  		ptr_obj->AddNewClient(interface);
 	  		std::cout << "Added client" << std::endl;
 	  	}
@@ -174,13 +174,16 @@ void* NetworkController::ClientCommunicate(void* ptr)
 	std::string rcv_str;
 	ClearBuffer(&rcv_buf[0], rcv_buf_size);
 
-	char* send_buf;
-	int send_buf_size = 0;
+	int send_buf_size = 2048;
 	int send_buf_next = 0;
+	char send_buf[send_buf_size];
+	int send_msg_size = 0;
 	int bytes_sent = 0;
-	std::string snd_str;
+	std::string snd_str = "";
 
+	std::cout << "ClientCommunicate: Pre-loop" << std::endl;
 	bool recv_idle, send_idle;
+	int i = 1;
 	while(interface->IsActive())
 	{
 		recv_idle = true;
@@ -200,37 +203,52 @@ void* NetworkController::ClientCommunicate(void* ptr)
 		if (rcv_str != "")
 			interface->PushMessage(CLIENT, rcv_str);
 
-
 		// Check for outgoing messages
-		if ((send_buf_size - send_buf_next <= 0) && (snd_str = interface->PullMessage(CLIENT)) != "")
+		if (send_msg_size - send_buf_next <= 0)
 		{
-			send_buf_size = snd_str.length();
-			send_buf = new char [send_buf_size+1];
-			std::strcpy(send_buf, snd_str.c_str());
-			send_idle = false;
+			send_msg_size = 0;
+			send_buf_next = 0;
+			if (snd_str == "")
+				snd_str = interface->PullMessage(CLIENT);
+
+			if (snd_str != "")
+			{
+				std::cout << snd_str << std::endl;
+				std::cout << snd_str.length() << std::endl;
+				if (snd_str.length() > send_buf_size-1)
+				{
+					std::string sub_str = snd_str.substr(0, send_buf_size-1);
+					send_msg_size = sub_str.length();
+					std::strcpy(send_buf, sub_str.c_str());
+					snd_str = snd_str.substr(send_buf_size-1);
+				}
+				else
+				{
+					std::strcpy(send_buf, snd_str.c_str());
+					send_msg_size = snd_str.length();
+					snd_str = "";
+				}
+				send_idle = false;
+			}	
 		}
 
 		// Send any data in buffer
-		if (send_buf_size - send_buf_next > 0)
+		if (send_msg_size - send_buf_next > 0)
 		{
 			bytes_sent = send(socket_id, &(send_buf[send_buf_next]),
-								send_buf_size-send_buf_next, 0);
+								send_msg_size-send_buf_next, 0);
 			if (bytes_sent > 0)
 				send_buf_next += bytes_sent;
-
-			if (send_buf_next >= send_buf_size)
-			{
-				send_buf_size = 0;
-				send_buf_next = 0;
-				delete [] send_buf;
-			}
 		}
 
 		// Sleep when things get boring
 		if (recv_idle && send_idle)
 			usleep(10000);
+
+		i++;
 	}
 
+	delete interface;
 	close(socket_id);
 }
 

@@ -37,8 +37,8 @@ int main(int argc, char* argv[])
     std::cout << "Sent register" << std::endl;
   }
 
-  char buffer2[4096];
-  int bytes = recv(sock_descriptor, &(buffer2[0]), 4096, 0);
+  char buffer2[2048];
+  int bytes = recv(sock_descriptor, &(buffer2[0]), 2048, 0);
 
   for (int i = 0; i < bytes; i++)
 	{
@@ -55,8 +55,8 @@ int main(int argc, char* argv[])
     std::cout << "Sent load" << std::endl;
   }
  
-  char buffer4[4096];
-  bytes = recv(sock_descriptor, &(buffer4[0]), 4096, 0);
+  char buffer4[2048];
+  bytes = recv(sock_descriptor, &(buffer4[0]), 2048, 0);
 
   for (int i = 0; i < bytes; i++)
 	{
