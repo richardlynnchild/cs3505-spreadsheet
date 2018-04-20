@@ -216,24 +216,24 @@ void Lobby::SendUnfocusMessage(std::string sheet, int id)
 void Lobby::SendPingResponse(int id)
 {
   std::string msg = "ping_response " + ((char)3);
-  std::vector<Interface>::iterator it = clients.begin();
+  std::vector<Interface*>::iterator it = clients.begin();
   for(; it!= clients.end(); ++it)
   {
-    if(it->GetClientSocketID() == id)
+    if((*it)->GetClientSocketID() == id)
     {
-      it->PushMessage(LOBBY, msg);
+      (*it)->PushMessage(LOBBY, msg);
     }
   }
 }
 
 void Lobby::ResetPingMiss(int id)
 {
-  std::vector<Interface>::iterator it = clients.begin();
+  std::vector<Interface*>::iterator it = clients.begin();
   for(; it!= clients.end(); ++it)
   {
-    if(it->GetClientSocketID() == id)
+    if((*it)->GetClientSocketID() == id)
     {
-      it->PingMiss == 0;
+      (*it)->PingMiss == 0;
     }
   }
 }
@@ -312,14 +312,14 @@ void Lobby::LobbyPing()
   while(true)
   {
     std::string msg = "ping " + ((char)3);
-    std::vector<Interface>::iterator it = clients.begin();
+    std::vector<Interface*>::iterator it = clients.begin();
     for(; it!= clients.end(); ++it)
     {
-      it->PushMessage(LOBBY, msg);
-      it->PingMiss++;
-      if(it->PingMiss >= 6)
+      (*it)->PushMessage(LOBBY, msg);
+      (*it)->PingMiss++;
+      if((*it)->PingMiss >= 6)
       {
-	it->StopClientThread();
+	(*it)->StopClientThread();
       }
     }
     sleep(10);
