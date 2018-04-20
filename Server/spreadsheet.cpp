@@ -32,6 +32,29 @@ std::vector<std::string> SplitString(std::string input, char delimiter)
 }
 */
 
+bool FileContains(std::string filename, std::string query)
+{
+  std::ifstream file;
+  std::string line;
+  file.open(filename.c_str());
+
+  if ( ! file)
+  {
+    std::cout << "Failed to open file in FileContains" << std::endl;
+    return false;
+  }
+
+  if (file.is_open())
+  {
+    while (getline (file, line))
+    {
+      if (line == query)
+        return true;
+    }
+  }
+  return false;
+}
+
 //Splits a string into two parts on the first space character it encounters
 std::vector<std::string> SplitString(std::string input)
 {
@@ -96,10 +119,7 @@ bool Spreadsheet::ReadSpreadsheet(std::string filename)
   std::ifstream file;
   std::vector<std::string> cell_name_val;
 
-  char filename_char_array[filename.length() +1];
-  strcpy(filename_char_array, filename.c_str());
-
-  file.open(filename_char_array);
+  file.open(filename.c_str());
 
   if ( ! file)
   {
@@ -128,10 +148,7 @@ bool Spreadsheet::WriteSpreadsheet(std::string filename)
 {
   std::ofstream file;
 
-  char filename_char_array[filename.length() +1];
-  strcpy(filename_char_array, filename.c_str());
-
-  file.open(filename_char_array);
+  file.open(filename.c_str());
 
   if ( ! file)
   {
@@ -155,6 +172,26 @@ bool Spreadsheet::WriteSpreadsheet(std::string filename)
     }
   }
   file << "***FILE_END***";
+
+  //check to see if the file exits in the list of spreadsheets, if not add it.
+  if ( ! FileContains("sheet_list.txt", filename))
+  {
+    std::ofstream sheet_list;
+
+    sheet_list.open("sheet_list.txt", std::ios_base::app);
+
+    if ( ! sheet_list)
+    {
+      std::cout << "Failed to open the sheet list" << std::endl;
+      return false;
+    }
+
+    if (sheet_list.is_open())
+    {
+      sheet_list << filename;
+      sheet_list << '\n';
+    }
+  }
 
   file.close();
   return true;
