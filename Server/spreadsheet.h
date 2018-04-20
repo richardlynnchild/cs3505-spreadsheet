@@ -18,6 +18,10 @@ class Spreadsheet
  public:
   Spreadsheet(std::string name);
   Spreadsheet();
+  Spreadsheet(std::string name, std::string filename);
+  void AddCell(std::string cell_name, std::string contents);
+  bool ReadSpreadsheet(std::string filename);
+  bool WriteSpreadsheet(std::string filename);
   void EditSheet(std::string cell_name, std::string contents);
   std::pair<std::string, std::string> Undo();
   std::string Revert(std::string cell_name);
