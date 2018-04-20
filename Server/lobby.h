@@ -35,6 +35,7 @@ class Lobby {
     void SendFocusMessage(std::string cell, std::string sheet, int id);
     void SendUnfocusMessage(std::string sheet, int id);
     void SendPingResponse(int id);
+    void ResetPingMiss(int id);
     static void* StartMainThread(void* ptr);
     void MainLoop();
     Spreadsheet BuildSheetFromFile(std::string name);
@@ -48,6 +49,7 @@ class Lobby {
     std::set<std::string> GetSheetList();
     bool IsRunning();
     void AddNewClient(Interface* interface);
+    void LobbyPing();
 
 };
 
