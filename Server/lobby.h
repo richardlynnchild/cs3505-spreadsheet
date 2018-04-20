@@ -17,7 +17,8 @@ class Lobby {
 	pthread_mutex_t new_client_mutex;
 
     bool running;
-    std::vector<Interface> clients;
+    std::vector<Interface*> clients;
+	std::queue<Interface*> new_clients;
     std::map<std::string, Spreadsheet> spreadsheets;
     std::set<std::string> sheet_list;
 	void InitSheetList();

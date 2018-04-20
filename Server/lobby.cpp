@@ -74,9 +74,11 @@ std::set<std::string> Lobby::GetSheetList(){
  * Add an Interface to the new_client queue.
  */
 void Lobby::AddNewClient(Interface* interface){
+  std::cout << "Called AddNewClient" << std::endl;
   pthread_mutex_lock(&new_client_mutex);
   this->new_clients.push(interface);
   pthread_mutex_unlock(&new_client_mutex);
+  std::cout << "End AddNewClient" << std::endl;
 }
 
 
@@ -115,24 +117,28 @@ bool Lobby::CheckForNewClient(){
     Interface* new_client = new_clients.front();
     new_clients.pop();
     std::string name = new_client->GetSprdName();
-    clients.push_back(*new_client); 
+    clients.push_back(new_client);
     //Check if the spreadsheet is active 
     if(spreadsheets.count(name)<1){
-
       //Check if the spreadsheet is saved
       std::set<std::string>::iterator it = sheet_list.find(name);
       if(it == sheet_list.end()){
+        std::cout << "no spread named: " << name << std::endl;
         Spreadsheet new_sheet(name);  //not active, not saved
         spreadsheets.insert(std::pair<std::string,Spreadsheet>(name,new_sheet));
+    	std::cout << "created and added" << std::endl;
       }
       else {
-        Spreadsheet new_sheet = BuildSheetFromFile(name); //not active, but saved
+        std::cout << "loading spread: " << name << std::endl;
+        Spreadsheet new_sheet (name, name + ".txt"); //not active, but saved
         spreadsheets.insert(std::pair<std::string,Spreadsheet>(name,new_sheet));
       }
     }
     std::string full_state = spreadsheets[name].GetFullState();
-	new_client->StartClientThread(); 
+	new_client->StartClientThread();
+	std::cout << "Started client's thread" << std::endl;
     new_client->PushMessage(LOBBY, full_state);
+	std::cout << "Pushed Full State" << std::endl;
   } 
   return idle;
 }
@@ -161,10 +167,10 @@ void Lobby::SendChangeMessage(std::string message, std::string sheet){
   change += message;
   char end = (char) 3;
   change += end;
-  std::vector<Interface>::iterator it = clients.begin();
+  std::vector<Interface*>::iterator it = clients.begin();
     for(; it != clients.end(); ++it){
-      if(it->GetSprdName() == sheet){
-        it->PushMessage(LOBBY, change);
+      if((*it)->GetSprdName() == sheet){
+        (*it)->PushMessage(LOBBY, change);
       }
     } 
 }
@@ -180,10 +186,10 @@ void Lobby::SendFocusMessage(std::string cell, std::string sheet, int id){
   focus += id; 
   char end = (char) 3;
   focus += end;
-  std::vector<Interface>::iterator it = clients.begin();
+  std::vector<Interface*>::iterator it = clients.begin();
     for(; it != clients.end(); ++it){
-      if(it->GetSprdName() == sheet){
-        it->PushMessage(LOBBY, focus);
+      if((*it)->GetSprdName() == sheet){
+        (*it)->PushMessage(LOBBY, focus);
       }
     } 
 }
@@ -197,12 +203,12 @@ void Lobby::SendUnfocusMessage(std::string sheet, int id)
   std::string msg = "unfocus ";
   msg += id;
   msg += ((char)3);
-  std::vector<Interface>::iterator it = clients.begin();
+  std::vector<Interface*>::iterator it = clients.begin();
   for(; it != clients.end(); ++it)
   {
-    if(it->GetSprdName() == sheet)
+    if((*it)->GetSprdName() == sheet)
     {
-      it->PushMessage(LOBBY, msg);
+      (*it)->PushMessage(LOBBY, msg);
     }
   }
 }
@@ -252,12 +258,12 @@ void Lobby::HandleMessage(std::string message, std::string sheet, int id){
  */
 bool Lobby::CheckForMessages(){
   int messagesHandled = 0;
-  std::vector<Interface>::iterator it = clients.begin();
+  std::vector<Interface*>::iterator it = clients.begin();
   for(; it != clients.end(); ++it){
     //Pop next message off Interface incoming message queue
-    std::string message = it->PullMessage(LOBBY);
-    std::string sheet = it->GetSprdName();
-    int client_id = it->GetClientSocketID();
+    std::string message = (*it)->PullMessage(LOBBY);
+    std::string sheet = (*it)->GetSprdName();
+    int client_id = (*it)->GetClientSocketID();
     if(message == ""){
       continue;
     }
