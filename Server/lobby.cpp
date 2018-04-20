@@ -327,11 +327,8 @@ void Lobby::MainLoop()
 	// 1. Check for new clients in the new client queue
 	//      - If they exist push a full state message into their interface
 	//      - Add them to client list
-	     
-	bool idle;
 	while(running){
-	  idle = CheckForNewClient();
-	  if(idle){
+	  if(!CheckForNewClient() && !CheckForMessages()){
 	    int ten_ms = 10000;
 	    usleep(ten_ms); 
 	  }
