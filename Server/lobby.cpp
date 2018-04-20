@@ -1,3 +1,4 @@
+
 #include "lobby.h"
 #include "spreadsheet.h"
 #include "network_controller.h"
@@ -72,7 +73,7 @@ std::set<std::string> Lobby::GetSheetList(){
 /*
  * Add an Interface to the new_client queue.
  */
-void Lobby::AddNewClient(Interface interface){
+void Lobby::AddNewClient(Interface* interface){
   pthread_mutex_lock(&new_client_mutex);
   this->new_clients.push(interface);
   pthread_mutex_unlock(&new_client_mutex);
@@ -100,16 +101,6 @@ std::string Lobby::BuildConnectAccepted(){
 
 }
 
-std::string Lobby::BuildFocus()
-{
-  std::string message = "focus ";
-}
-
-std::string Lobby::BuildUnfocus()
-{
-  std::string message = "unfocus ";
-}
-
 /*
  * Checks for and handles a new client if the new client
  * list is non-empty.
@@ -121,11 +112,10 @@ bool Lobby::CheckForNewClient(){
   bool idle = true;
   if(new_clients.size() > 0){
     idle = false;
-    Interface new_client = new_clients.front();
+    Interface* new_client = new_clients.front();
     new_clients.pop();
-    std::string name = new_client.GetSprdName();
-    clients.push_back(new_client);
-    
+    std::string name = new_client->GetSprdName();
+    clients.push_back(*new_client); 
     //Check if the spreadsheet is active 
     if(spreadsheets.count(name)<1){
 
@@ -141,8 +131,8 @@ bool Lobby::CheckForNewClient(){
       }
     }
     std::string full_state = spreadsheets[name].GetFullState();
-    new_client.StartClientThread(); 
-    new_client.PushMessage(LOBBY, full_state);
+	new_client->StartClientThread(); 
+    new_client->PushMessage(LOBBY, full_state);
   } 
   return idle;
 }
@@ -199,6 +189,25 @@ void Lobby::SendFocusMessage(std::string cell, std::string sheet, int id){
 }
 
 /*
+ * Send an unfocus message with the specified client name to the clients of the specified
+ * spreadsheet.
+ */
+void Lobby::SendUnfocusMessage(std::string sheet, int id)
+{
+  std::string msg = "unfocus ";
+  msg += id;
+  msg += ((char)3);
+  std::vector<Interface>::iterator it = clients.begin();
+  for(; it != clients.end(); ++it)
+  {
+    if(it->GetSprdName() == sheet)
+    {
+      it->PushMessage(LOBBY, msg);
+    }
+  }
+}
+
+/*
  * Processes a single message from a client.
  */
 
@@ -230,6 +239,9 @@ void Lobby::HandleMessage(std::string message, std::string sheet, int id){
   }
   else if(command == "focus"){
     SendFocusMessage(message, sheet, id);
+  }
+  else if(command == "unfocus"){
+    SendUnfocusMessage(sheet, id);
   }
 
 }

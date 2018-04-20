@@ -42,7 +42,9 @@ void Interface::PushMessage(int access_id, std::string message)
 	if (access_id == LOBBY)
 	{
 		pthread_mutex_lock(&out_msg_mutex);
+		std::cout << "Interface: pushing " << message << std::endl;
 		outbound_messages.push(message);
+		std::cout << "PUSHED" << std::endl;
 		pthread_mutex_unlock(&out_msg_mutex);
 	}
 	else if (access_id == CLIENT)
@@ -55,13 +57,11 @@ void Interface::PushMessage(int access_id, std::string message)
 
 std::string Interface::PullMessage(int access_id)
 {
-	std::string message;
+	std::string message = "";
 	if (access_id == LOBBY)
 	{
 		pthread_mutex_lock(&in_msg_mutex);
-		if (inbound_messages.empty())
-			message = "";
-		else
+		if (!inbound_messages.empty())
 		{
 			message = inbound_messages.front();
 			inbound_messages.pop();
@@ -71,15 +71,16 @@ std::string Interface::PullMessage(int access_id)
 	else if (access_id == CLIENT)
 	{	
 		pthread_mutex_lock(&out_msg_mutex);
-		if (outbound_messages.empty())
-			message = "";
-		else
+		while (!outbound_messages.empty())
 		{
 			message = outbound_messages.front();
+			std::cout << "Interface: " <<std::endl;
 			outbound_messages.pop();
+			std::cout << "after pot: " << message.length() << std::endl;
 		}
 		pthread_mutex_unlock(&out_msg_mutex);
 	}
+	return message;
 }
 
 bool Interface::IsActive()
