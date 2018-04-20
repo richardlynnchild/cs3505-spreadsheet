@@ -42,9 +42,7 @@ void Interface::PushMessage(int access_id, std::string message)
 	if (access_id == LOBBY)
 	{
 		pthread_mutex_lock(&out_msg_mutex);
-		std::cout << "Interface: pushing " << message << std::endl;
 		outbound_messages.push(message);
-		std::cout << "PUSHED" << std::endl;
 		pthread_mutex_unlock(&out_msg_mutex);
 	}
 	else if (access_id == CLIENT)
@@ -71,12 +69,10 @@ std::string Interface::PullMessage(int access_id)
 	else if (access_id == CLIENT)
 	{	
 		pthread_mutex_lock(&out_msg_mutex);
-		while (!outbound_messages.empty())
+		if (!outbound_messages.empty())
 		{
 			message = outbound_messages.front();
-			std::cout << "Interface: " <<std::endl;
 			outbound_messages.pop();
-			std::cout << "after pot: " << message.length() << std::endl;
 		}
 		pthread_mutex_unlock(&out_msg_mutex);
 	}
