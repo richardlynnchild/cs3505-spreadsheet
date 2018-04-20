@@ -28,14 +28,13 @@ class Lobby {
     std::string ParseSheetList();
     void UpdateSheetList(std::string name);
     void OpenSpreadsheet(std::string filename);
-    std::string BuildFocus();
-    std::string BuildUnfocus();
 
     bool CheckForMessages();
     void HandleMessage(std::string message,std::string sheet, int id);
     std::vector<std::string> SplitString(std::string str, char delim);
     void SendChangeMessage(std::string message, std::string sheet);
     void SendFocusMessage(std::string cell, std::string sheet, int id);
+    void SendUnfocusMessage(std::string sheet, int id);
     static void* StartMainThread(void* ptr);
     void MainLoop();
     Spreadsheet BuildSheetFromFile(std::string name);

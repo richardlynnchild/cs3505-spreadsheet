@@ -1,3 +1,4 @@
+
 #include "lobby.h"
 #include "spreadsheet.h"
 #include "network_controller.h"
@@ -100,16 +101,6 @@ std::string Lobby::BuildConnectAccepted(){
 
 }
 
-std::string Lobby::BuildFocus()
-{
-  std::string message = "focus ";
-}
-
-std::string Lobby::BuildUnfocus()
-{
-  std::string message = "unfocus ";
-}
-
 /*
  * Checks for and handles a new client if the new client
  * list is non-empty.
@@ -199,6 +190,25 @@ void Lobby::SendFocusMessage(std::string cell, std::string sheet, int id){
 }
 
 /*
+ * Send an unfocus message with the specified client name to the clients of the specified
+ * spreadsheet.
+ */
+void Lobby::SendUnfocusMessage(std::string sheet, int id)
+{
+  std::string msg = "unfocus ";
+  focus += id;
+  focus += ((char)3);
+  std::vector<Interface>::iterator it = clients.begin();
+  for(; it != clients.end(); ++it)
+  {
+    if(it->GetSprdName() == sheet)
+    {
+      it->PushMessage(LOBBY, msg);
+    }
+  }
+}
+
+/*
  * Processes a single message from a client.
  */
 
@@ -230,6 +240,9 @@ void Lobby::HandleMessage(std::string message, std::string sheet, int id){
   }
   else if(command == "focus"){
     SendFocusMessage(message, sheet, id);
+  }
+  else if(command == "unfocus"){
+    SendUnfocusMessage(sheet, id);
   }
 
 }
