@@ -375,12 +375,15 @@ namespace SpreadsheetGUI
                 else
                 {
                     state.callMe = ProcessMessage;
+                    int cell_start_index = complete_message.IndexOf(' ') + 1;
+                    int cell_message_length = complete_message.Length - cell_start_index;
+                    string cell_message = complete_message.Substring(cell_start_index, cell_message_length);
                     string[] cells = complete_message.Split('\n');
 
                     //split the cell name and value then set the cell.
-                    foreach (string cell in cells)
+                    for (int i = 0; i < cell_message_length-1; i++)
                     {
-                        string[] cellAndval = cell.Split(':');
+                        string[] cellAndval = cells[i].Split(':');
                         string cellName = cellAndval[0];
                         string cellVal = cellAndval[1];
 
@@ -389,7 +392,12 @@ namespace SpreadsheetGUI
                         SetCell(colRow[1], colRow[0], cellVal);
                     }
 
-                    FilePanel.Visible = false;
+                    MethodInvoker FMInvoker = new MethodInvoker(() =>
+                    {
+                        FilePanel.Visible = false;
+                    });
+
+                    this.Invoke(FMInvoker);
                 }
             }
 
