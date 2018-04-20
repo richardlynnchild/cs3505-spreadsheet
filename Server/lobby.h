@@ -35,6 +35,7 @@ class Lobby {
     void SendChangeMessage(std::string message, std::string sheet);
     void SendFocusMessage(std::string cell, std::string sheet, int id);
     void SendUnfocusMessage(std::string sheet, int id);
+    void SendPingResponse(int id);
     static void* StartMainThread(void* ptr);
     void MainLoop();
     Spreadsheet BuildSheetFromFile(std::string name);

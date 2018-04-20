@@ -213,6 +213,19 @@ void Lobby::SendUnfocusMessage(std::string sheet, int id)
   }
 }
 
+void Lobby::SendPingResponse(int id)
+{
+  std::string msg = "ping_response " + ((char)3);
+  std::vector<Interface>::iterator it = clients.begin();
+  for(; it!= clients.end(); ++it)
+  {
+    if(it->GetClientSocketID() == id)
+    {
+      it->PushMessage(LOBBY, msg);
+    }
+  }
+}
+
 /*
  * Processes a single message from a client.
  */
@@ -248,6 +261,9 @@ void Lobby::HandleMessage(std::string message, std::string sheet, int id){
   }
   else if(command == "unfocus"){
     SendUnfocusMessage(sheet, id);
+  }
+  else if(command == "ping"){
+    SendPingResponse(id);
   }
 
 }
