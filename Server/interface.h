@@ -33,8 +33,8 @@ public:
     std::string GetMessage();
     std::string GetSprdName();
     int GetClientSocketID();
-	bool IsActive();
-
+    bool IsActive();
+    int PingMiss;
     bool StartClientThread();
     void StopClientThread();
 };
