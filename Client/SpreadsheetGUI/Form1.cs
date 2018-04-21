@@ -746,8 +746,9 @@ namespace SpreadsheetGUI
                 message = state.builder.ToString();
             }
 
-            //remove the first 17 ("connect_accepted ") characters from the string.
-            message = message.Substring(17);
+            //remove the first 17 ("connect_accepted \n") characters from the string.
+            //And don't take the last two terminating characters at the end of the message.
+            message = message.Substring(18, message.Length - 20);
 
             MethodInvoker FMInvoker = new MethodInvoker(() =>
             {
