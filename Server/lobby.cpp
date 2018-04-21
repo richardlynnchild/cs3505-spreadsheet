@@ -311,7 +311,9 @@ void Lobby::LobbyPing()
 {
   while(true)
   {
-    std::string msg = "ping " + ((char)3);
+    std::string msg = "ping ";
+    char end = (char) 3;
+    msg += end;
     std::vector<Interface*>::iterator it = clients.begin();
     for(; it!= clients.end(); ++it)
     {
