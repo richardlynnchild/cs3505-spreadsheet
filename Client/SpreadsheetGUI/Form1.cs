@@ -363,7 +363,14 @@ namespace SpreadsheetGUI
 
             lock (state) { message = state.builder.ToString(); }
 
-            complete_message += message;
+            state.builder.Clear();
+
+            complete_message = message;
+
+            MethodInvoker FMInvoker = new MethodInvoker(() =>
+            {
+                FilePanel.Visible = false;
+            });
 
             if (message.Contains(((char)3).ToString()))
             {
@@ -372,18 +379,26 @@ namespace SpreadsheetGUI
                     MessageBox.Show("Could not open/create spreadsheet!");
                     Open_FileMenu.Enabled = true;
                 }
-                else
+                else if (complete_message.Length == 12)
                 {
                     state.callMe = ProcessMessage;
-                    int cell_start_index = complete_message.IndexOf(' ') + 1;
-                    int cell_message_length = complete_message.Length - cell_start_index;
-                    string cell_message = complete_message.Substring(cell_start_index, cell_message_length);
+                    this.Invoke(FMInvoker);
+                    //if the message contains no cells, its length will be 12
+                    //its a bit janky but it works
+                    //nothing to do
+                }
+                else
+                {
+                    //remove "full_state " and the terminating character
+                    complete_message = complete_message.Substring(10, complete_message.Length - 11);
+
+                    state.callMe = ProcessMessage;
                     string[] cells = complete_message.Split('\n');
 
                     //split the cell name and value then set the cell.
-                    for (int i = 0; i < cell_message_length-1; i++)
+                    foreach (string cell in cells)
                     {
-                        string[] cellAndval = cells[i].Split(':');
+                        string[] cellAndval = cell.Split(':');
                         string cellName = cellAndval[0];
                         string cellVal = cellAndval[1];
 
@@ -391,11 +406,6 @@ namespace SpreadsheetGUI
 
                         SetCell(colRow[1], colRow[0], cellVal);
                     }
-
-                    MethodInvoker FMInvoker = new MethodInvoker(() =>
-                    {
-                        FilePanel.Visible = false;
-                    });
 
                     this.Invoke(FMInvoker);
                 }
