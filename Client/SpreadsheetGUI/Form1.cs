@@ -19,7 +19,6 @@ namespace SpreadsheetGUI
         private string previousSelection;
         private System.Timers.Timer pingTimer;
         private System.Timers.Timer serverTimer;
-        private string complete_message;
         private SocketState serverSock;
         public Form1()
         {
@@ -359,13 +358,11 @@ namespace SpreadsheetGUI
         /// <param name="state"></param>
         private void HandleFullState(SocketState state)
         {
+            state.callMe = ProcessMessage;
+
             string message;
-
             lock (state) { message = state.builder.ToString(); }
-
             state.builder.Clear();
-
-            complete_message = message;
 
             MethodInvoker FMInvoker = new MethodInvoker(() =>
             {
@@ -374,26 +371,26 @@ namespace SpreadsheetGUI
 
             if (message.Contains(((char)3).ToString()))
             {
-                if (complete_message.Length < 20 && complete_message.Contains("file_load_error"))
+                if (message.Length < 20 && message.Contains("file_load_error"))
                 {
                     MessageBox.Show("Could not open/create spreadsheet!");
                     Open_FileMenu.Enabled = true;
+                    state.callMe = HandleFullState;
                 }
-                else if (complete_message.Length == 12)
+                else if (message.Length == 12)
                 {
-                    state.callMe = ProcessMessage;
-                    this.Invoke(FMInvoker);
                     //if the message contains no cells, its length will be 12
-                    //its a bit janky but it works
-                    //nothing to do
+                    state.callMe = ProcessMessage;
+                    pingTimer.Start();
+                    serverTimer.Start();
+                    this.Invoke(FMInvoker);
                 }
                 else
                 {
                     //remove "full_state " and the terminating character
-                    complete_message = complete_message.Substring(10, complete_message.Length - 11);
+                    message = message.Substring(10, message.Length - 11);
 
-                    state.callMe = ProcessMessage;
-                    string[] cells = complete_message.Split('\n');
+                    string[] cells = message.Split('\n');
 
                     //split the cell name and value then set the cell.
                     foreach (string cell in cells)
@@ -407,12 +404,12 @@ namespace SpreadsheetGUI
                         SetCell(colRow[1], colRow[0], cellVal);
                     }
 
+                    pingTimer.Start();
+                    serverTimer.Start();
                     this.Invoke(FMInvoker);
                 }
             }
 
-            pingTimer.Start();
-            serverTimer.Start();
 
             Network.GetData(state);
         }
