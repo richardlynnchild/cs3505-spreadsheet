@@ -249,11 +249,11 @@ void Lobby::HandleMessage(std::string message, std::string sheet, int id){
     SendChangeMessage(message,sheet); 
   }
   else if(command == "disconnect"){
-    std::vector<*Interface>::iterator it = clients.begin();
+    std::vector<Interface*>::iterator it = clients.begin();
     for(; it != clients.end(); ++it){
       if(id == (*it)->GetClientSocketID()){
         (*it)->StopClientThread();
-        clients.remove(*it);  
+        clients.erase(it);  
       }    
     }    
   }
