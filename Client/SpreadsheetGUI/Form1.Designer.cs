@@ -74,7 +74,6 @@
             this.FileTextSelect = new System.Windows.Forms.TextBox();
             this.FileList = new System.Windows.Forms.ListView();
             this.NameColHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.DateColHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.undo_button = new System.Windows.Forms.Button();
             this.ColumnExit = new System.Windows.Forms.Button();
             this.RowExit = new System.Windows.Forms.Button();
@@ -467,8 +466,7 @@
             // FileList
             // 
             this.FileList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.NameColHeader,
-            this.DateColHeader});
+            this.NameColHeader});
             this.FileList.Location = new System.Drawing.Point(20, 80);
             this.FileList.Name = "FileList";
             this.FileList.Size = new System.Drawing.Size(802, 432);
@@ -481,20 +479,15 @@
             this.NameColHeader.Text = "Name";
             this.NameColHeader.Width = 480;
             // 
-            // DateColHeader
-            // 
-            this.DateColHeader.Text = "Date";
-            this.DateColHeader.Width = 320;
-            // 
             // undo_button
             // 
             this.undo_button.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.undo_button.Image = global::SpreadsheetGUI.Properties.Resources.undo1;
             this.undo_button.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.undo_button.Location = new System.Drawing.Point(168, 4);
+            this.undo_button.Location = new System.Drawing.Point(168, 0);
             this.undo_button.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.undo_button.Name = "undo_button";
-            this.undo_button.Size = new System.Drawing.Size(112, 45);
+            this.undo_button.Size = new System.Drawing.Size(112, 49);
             this.undo_button.TabIndex = 30;
             this.undo_button.Text = "Undo";
             this.undo_button.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -574,10 +567,10 @@
             // revert_button
             // 
             this.revert_button.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.revert_button.Location = new System.Drawing.Point(288, 4);
+            this.revert_button.Location = new System.Drawing.Point(288, 0);
             this.revert_button.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.revert_button.Name = "revert_button";
-            this.revert_button.Size = new System.Drawing.Size(106, 45);
+            this.revert_button.Size = new System.Drawing.Size(112, 49);
             this.revert_button.TabIndex = 31;
             this.revert_button.Text = "Revert";
             this.revert_button.UseVisualStyleBackColor = true;
@@ -707,7 +700,6 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label FileMenuLabel;
         private System.Windows.Forms.ColumnHeader NameColHeader;
-        private System.Windows.Forms.ColumnHeader DateColHeader;
         private System.Windows.Forms.PictureBox MovementBox;
         private System.Windows.Forms.Button undo_button;
         private System.Windows.Forms.Button revert_button;
