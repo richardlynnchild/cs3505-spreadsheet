@@ -53,13 +53,6 @@ void Lobby::InitSheetList()
 }
 
 /*
- * Returns the sheet list of this Lobby
- */
-std::set<std::string> Lobby::GetSheetList(){
-  return this->sheet_list;
-}
-
-/*
  * Add an Interface to the new_client queue.
  */
 void Lobby::AddNewClient(Interface* interface){
@@ -210,6 +203,18 @@ void Lobby::SendPingResponse(int id)
   }
 }
 
+void Lobby::ResetPingMiss(int id)
+{
+  std::vector<Interface*>::iterator it = clients.begin();
+  for(; it!= clients.end(); ++it)
+  {
+    if((*it)->GetClientSocketID() == id)
+    {
+      (*it)->PingMiss == 0;
+    }
+  }
+}
+
 /*
  * Processes a single message from a client.
  */
@@ -249,6 +254,9 @@ void Lobby::HandleMessage(std::string message, std::string sheet, int id){
   else if(command == "ping"){
     SendPingResponse(id);
   }
+  else if(command == "ping_response"){
+    ResetPingMiss(id);
+  }
 
 }
 
@@ -276,6 +284,24 @@ bool Lobby::CheckForMessages(){
   return messagesHandled > 0;
 }
 
+void Lobby::LobbyPing()
+{
+  while(true)
+  {
+    std::string msg = "ping " + ((char)3);
+    std::vector<Interface*>::iterator it = clients.begin();
+    for(; it!= clients.end(); ++it)
+    {
+      (*it)->PushMessage(LOBBY, msg);
+      (*it)->PingMiss++;
+      if((*it)->PingMiss >= 6)
+      {
+	(*it)->StopClientThread();
+      }
+    }
+    sleep(10);
+  }
+}
 
 bool Lobby::IsRunning()
 {
@@ -286,14 +312,22 @@ void Lobby::Start(){
 
 	bool listening = false;
 	bool loop_running = false;
+	bool pinging = false;
+
 	// Start a new thread that continuosly listens and accepts new connections 
 	pthread_t listen_thread;
 	if (pthread_create(&listen_thread, NULL, NetworkController::ListenForClients, this))
 		 std::cerr << "error creating thread for client listener" << std::endl;
 	else
 		listening = true;
+
 	// Start timer thread for pinging clients
-	
+	pthread_t ping_thread;
+	if (pthread_create(&ping_thread, NULL, PingLoop, this))
+		 std::cerr << "error creating thread for pinging" << std::endl;
+	else
+		pinging = true;
+
 	pthread_t main_thread;	
 	if (pthread_create(&main_thread, NULL, StartMainThread, this))
 		 std::cerr << "error creating main lobby thread" << std::endl;
@@ -311,11 +345,8 @@ void Lobby::MainLoop()
 	// 1. Check for new clients in the new client queue
 	//      - If they exist push a full state message into their interface
 	//      - Add them to client list
-	     
-	bool idle;
 	while(running){
-	  idle = CheckForNewClient();
-	  if(idle){
+	  if(!CheckForNewClient() && !CheckForMessages()){
 	    int ten_ms = 10000;
 	    usleep(ten_ms); 
 	  }
@@ -338,11 +369,8 @@ void* Lobby::StartMainThread(void* ptr)
 
 void* Lobby::PingLoop(void* ptr)
 {
-  // loop:
-  // 
-  // 1. Iterate through clients and push ping message
-  // 2. Wait 10 seconds
-  // 3. pingMiss++ for each client 
+  Lobby* lobby_ptr = (Lobby*) ptr;
+  lobby_ptr->LobbyPing();
 }
 
 void Lobby::Shutdown(){

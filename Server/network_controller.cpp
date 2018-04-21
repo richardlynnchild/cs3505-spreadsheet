@@ -182,24 +182,34 @@ void* NetworkController::ClientCommunicate(void* ptr)
 
 	std::cout << "ClientCommunicate: Pre-loop" << std::endl;
 	bool recv_idle, send_idle;
+	bool forced_disconnect = false;
 	while(interface->IsActive())
 	{
 		recv_idle = true;
 		send_idle = true;
 
 		// Receive messages from client
-		bytes_received = recv(socket_id, &rcv_buf[rcv_buf_next], 
-								rcv_buf_size-rcv_buf_next, 0);
-		if (bytes_received > 0)
+		if (TestSocket(socket_id))
 		{
-			rcv_buf_next += bytes_received;
-			recv_idle = false;
-		}
+			bytes_received = recv(socket_id, &rcv_buf[rcv_buf_next], 
+								rcv_buf_size-rcv_buf_next, 0);
+			if (bytes_received > 0)
+			{
+				rcv_buf_next += bytes_received;
+				recv_idle = false;
+			}
 
-		// Push through interface if message is complete
-		rcv_str = GetMessage(&rcv_buf[0], rcv_buf_next);
-		if (rcv_str != "")
-			interface->PushMessage(CLIENT, rcv_str);
+			// Push through interface if message is complete
+			rcv_str = GetMessage(&rcv_buf[0], rcv_buf_next);
+			if (rcv_str != "")
+				interface->PushMessage(CLIENT, rcv_str);
+		}
+		else
+		{
+			interface->StopClientThread();
+			forced_disconnect = true;
+			break;
+		}
 
 		// Check for outgoing messages
 		if (send_msg_size - send_buf_next <= 0)
@@ -233,10 +243,19 @@ void* NetworkController::ClientCommunicate(void* ptr)
 		// Send any data in buffer
 		if (send_msg_size - send_buf_next > 0)
 		{
-			bytes_sent = send(socket_id, &(send_buf[send_buf_next]),
+			if (TestSocket(socket_id))
+			{
+				bytes_sent = send(socket_id, &(send_buf[send_buf_next]),
 								send_msg_size-send_buf_next, 0);
-			if (bytes_sent > 0)
-				send_buf_next += bytes_sent;
+				if (bytes_sent > 0)
+					send_buf_next += bytes_sent;
+			}
+			else
+			{
+				interface->StopClientThread();
+				forced_disconnect = true;
+				break;
+			}
 		}
 
 		// Sleep when things get boring
@@ -244,7 +263,9 @@ void* NetworkController::ClientCommunicate(void* ptr)
 			usleep(10000);
 	}
 
-	SendDisconnect(socket_id);
+	if (!forced_disconnect)
+		SendDisconnect(socket_id);
+
 	delete interface;
 	close(socket_id);
 }
@@ -315,4 +336,27 @@ void NetworkController::SetSocketTimeout(int socket_id)
 	if (setsockopt(socket_id, SOL_SOCKET, SO_SNDTIMEO, (char*)&socket_timeout,
 						sizeof(socket_timeout)) < 0)
 		std::cerr << "Failed to set socket send timeout" << std::endl;
+}
+
+bool NetworkController::TestSocket(int socket_id)
+{
+	int opt_status = 0;
+	int error_code = 0;
+	socklen_t code_length = sizeof(error_code);
+	opt_status = getsockopt(socket_id, SOL_SOCKET, SO_ERROR, &error_code, &code_length);
+
+	if (opt_status != 0)
+	{
+		std::cout << "socket " << socket_id << std::endl;
+		std::cout << strerror(opt_status) << std::endl;
+		return false;
+	}
+
+	if (error_code != 0)
+	{
+		std::cout << "socket " << socket_id << std::endl;
+		std::cout << strerror(error_code) << std::endl;
+		return false;
+	}
+	return true;
 }
