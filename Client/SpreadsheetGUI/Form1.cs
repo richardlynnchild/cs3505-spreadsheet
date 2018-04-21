@@ -83,7 +83,7 @@ namespace SpreadsheetGUI
 
             //set the contents of the formula box and set focus to it.
             FormulaBox.Text = ss1.GetCellContents(cellName).ToString();
-
+            this.ActiveControl = FormulaBox;
         }
 
 
@@ -261,7 +261,7 @@ namespace SpreadsheetGUI
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void UndoButton_Click(object sender, EventArgs e)
+        private void undo_button_MouseClick(object sender, MouseEventArgs e)
         {
             if (connected)
             {
@@ -274,7 +274,8 @@ namespace SpreadsheetGUI
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void RevertButton_Click(object sender, EventArgs e)
+
+        private void revert_button_MouseClick(object sender, MouseEventArgs e)
         {
             if (connected)
             {
@@ -502,7 +503,7 @@ namespace SpreadsheetGUI
                     }
 
 
-                    state.builder.Remove(0, msg.Length);
+                    state.builder.Remove(0, message.Length);
                 }
             }
 
@@ -805,7 +806,7 @@ namespace SpreadsheetGUI
 
         #region Helper Methods
 
-        private void DisconnectButton_Click(object sender, EventArgs e)
+        private void DisconnectButton_MouseClick(object sender, MouseEventArgs e)
         {
             if (connected)
                 Disconnect();
@@ -873,9 +874,11 @@ namespace SpreadsheetGUI
                 if (FormulaBox.Text.Length > 0)
                     FormulaBox.SelectionStart = FormulaBox.Text.Length;
 
-                //once networking is back up...
+                //unfocus from the current cell
                 string unfocusMessage = "unfocus " + ((char)3);
                 SendMessage(unfocusMessage);
+
+                //tell server to edit the cell's contents
                 string cellName = GetCellName(col, row);
                 string editMsg = "edit " + cellName + ":" + contents + ((char)3);
                 SendMessage(editMsg);
@@ -1063,6 +1066,9 @@ namespace SpreadsheetGUI
             SpreadsheetApplicationContext.getAppContext().RunForm(new Form1());
         }
 
+
         #endregion
+
+
     }
 }
