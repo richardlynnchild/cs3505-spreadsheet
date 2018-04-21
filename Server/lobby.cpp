@@ -94,13 +94,14 @@ std::string Lobby::BuildConnectAccepted(){
  */
 bool Lobby::CheckForNewClient(){
   bool idle = true;
+  
+  //Check if there is a client waiting to connect
   if(new_clients.size() > 0){
     idle = false;
     Interface* new_client = new_clients.front();
     new_clients.pop();
     std::string name = new_client->GetSprdName();
-    clients.push_back(new_client);
-    //Check if the spreadsheet is active 
+    //Check if the desired spreadsheet is active 
     if(spreadsheets.count(name)<1){
       //Check if the spreadsheet is saved
       std::set<std::string>::iterator it = sheet_list.find(name);
@@ -114,8 +115,13 @@ bool Lobby::CheckForNewClient(){
       }
     }
     std::string full_state = spreadsheets[name].GetFullState();
-	new_client->StartClientThread();
+    new_client->StartClientThread();
     new_client->PushMessage(LOBBY, full_state);
+    
+    //Add the client to the active client list
+    //Should be done after 'full_state' message
+    //is sent
+    clients.push_back(new_client);
   } 
   return idle;
 }
@@ -243,7 +249,13 @@ void Lobby::HandleMessage(std::string message, std::string sheet, int id){
     SendChangeMessage(message,sheet); 
   }
   else if(command == "disconnect"){
-     
+    std::vector<*Interface>::iterator it = clients.begin();
+    for(; it != clients.end(); ++it){
+      if(id == (*it)->GetClientSocketID()){
+        (*it)->StopClientThread();
+        clients.remove(*it);  
+      }    
+    }    
   }
   else if(command == "focus"){
     SendFocusMessage(message, sheet, id);
