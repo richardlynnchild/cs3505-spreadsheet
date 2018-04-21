@@ -22,7 +22,6 @@ class Lobby {
     std::map<std::string, Spreadsheet> spreadsheets;
     std::set<std::string> sheet_list;
 	void InitSheetList();
-    static void* PingLoop(void* ptr);
     bool CheckForNewClient();
     void InitNewClient(int id);
     std::string ParseSheetList();
@@ -37,20 +36,19 @@ class Lobby {
     void SendUnfocusMessage(std::string sheet, int id);
     void SendPingResponse(int id);
     void ResetPingMiss(int id);
-    static void* StartMainThread(void* ptr);
     void MainLoop();
-    Spreadsheet BuildSheetFromFile(std::string name);
-
+    void LobbyPing();
+	
+    static void* StartMainThread(void* ptr);
+    static void* PingLoop(void* ptr);
 
   public:
     Lobby();
     void Start();
     void Shutdown();
     std::string BuildConnectAccepted();
-    std::set<std::string> GetSheetList();
     bool IsRunning();
     void AddNewClient(Interface* interface);
-    void LobbyPing();
 
 };
 

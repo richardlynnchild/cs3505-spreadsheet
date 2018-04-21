@@ -53,24 +53,6 @@ void Lobby::InitSheetList()
 }
 
 /*
- * Return a spreadsheet object that has been built from the
- * file on disk.
- */
-
-Spreadsheet Lobby::BuildSheetFromFile(std::string name){
-
-
-}
-
-
-/*
- * Returns the sheet list of this Lobby
- */
-std::set<std::string> Lobby::GetSheetList(){
-  return this->sheet_list;
-}
-
-/*
  * Add an Interface to the new_client queue.
  */
 void Lobby::AddNewClient(Interface* interface){
@@ -123,22 +105,17 @@ bool Lobby::CheckForNewClient(){
       //Check if the spreadsheet is saved
       std::set<std::string>::iterator it = sheet_list.find(name);
       if(it == sheet_list.end()){
-        std::cout << "no spread named: " << name << std::endl;
         Spreadsheet new_sheet(name);  //not active, not saved
         spreadsheets.insert(std::pair<std::string,Spreadsheet>(name,new_sheet));
-    	std::cout << "created and added" << std::endl;
       }
       else {
-        std::cout << "loading spread: " << name << std::endl;
         Spreadsheet new_sheet (name, name + ".txt"); //not active, but saved
         spreadsheets.insert(std::pair<std::string,Spreadsheet>(name,new_sheet));
       }
     }
     std::string full_state = spreadsheets[name].GetFullState();
 	new_client->StartClientThread();
-	std::cout << "Started client's thread" << std::endl;
     new_client->PushMessage(LOBBY, full_state);
-	std::cout << "Pushed Full State" << std::endl;
   } 
   return idle;
 }
