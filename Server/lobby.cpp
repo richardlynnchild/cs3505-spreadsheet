@@ -162,13 +162,15 @@ void Lobby::SendChangeMessage(std::string message, std::string sheet){
  * Send a focus message with the specified cell name
  * to the clients of the specified spreadsheet.
  */
-void Lobby::SendFocusMessage(std::string cell, std::string sheet, int id){
-  std::string focus = "focus ";
-  focus += cell;
-  focus += ":";
-  focus += id; 
-  char end = (char) 3;
-  focus += end;
+void Lobby::SendFocusMessage(std::string msg, std::string sheet, int id){
+  std::vector<std::string> tokens = SplitString(msg, ' ');
+  std::vector<std::string> smaller = SplitString(tokens[1], ((char)3));
+  std::string cell = smaller[0];
+  std::stringstream ss;
+  ss << id;
+  std::string usr_id = ss.str();
+  std::string focus = "focus "+ cell + ":" + usr_id + ((char)3);
+  std::cout<<"Client id " << id << std::endl;
   std::vector<Interface*>::iterator it = clients.begin();
     for(; it != clients.end(); ++it){
       if((*it)->GetSprdName() == sheet){
@@ -183,9 +185,10 @@ void Lobby::SendFocusMessage(std::string cell, std::string sheet, int id){
  */
 void Lobby::SendUnfocusMessage(std::string sheet, int id)
 {
-  std::string msg = "unfocus ";
-  msg += id;
-  msg += ((char)3);
+  std::stringstream ss;
+  ss << id;
+  std::string usr_id = ss.str();
+  std::string msg = "unfocus "+ usr_id + ((char)3);
   std::vector<Interface*>::iterator it = clients.begin();
   for(; it != clients.end(); ++it)
   {
@@ -226,11 +229,12 @@ void Lobby::ResetPingMiss(int id)
  */
 
 void Lobby::HandleMessage(std::string message, std::string sheet, int id){
-  
+  std::cout<<"Received message" <<std::endl;
   //Split the message and get the command
   char delim = ' ';
   std::vector<std::string> tokens = SplitString(message, delim);
   std::string command = tokens[0];
+  std::cout<<"message: "<< command <<std::endl;
 
   if(command == "edit"){
     char delim = ':';
@@ -249,16 +253,17 @@ void Lobby::HandleMessage(std::string message, std::string sheet, int id){
     SendChangeMessage(message,sheet); 
   }
   else if(command == "disconnect"){
-    std::vector<*Interface>::iterator it = clients.begin();
+    std::vector<Interface*>::iterator it = clients.begin();
     for(; it != clients.end(); ++it){
       if(id == (*it)->GetClientSocketID()){
         (*it)->StopClientThread();
-        clients.remove(*it);  
+        clients.erase(it);  
       }    
     }    
   }
   else if(command == "focus"){
     SendFocusMessage(message, sheet, id);
+    std::cout<< "focus sent" << std::endl;
   }
   else if(command == "unfocus"){
     SendUnfocusMessage(sheet, id);
@@ -336,12 +341,13 @@ void Lobby::Start(){
 		listening = true;
 
 	// Start timer thread for pinging clients
+	/*
 	pthread_t ping_thread;
 	if (pthread_create(&ping_thread, NULL, PingLoop, this))
 		 std::cerr << "error creating thread for pinging" << std::endl;
 	else
 		pinging = true;
-
+	*/
 	pthread_t main_thread;	
 	if (pthread_create(&main_thread, NULL, StartMainThread, this))
 		 std::cerr << "error creating main lobby thread" << std::endl;
@@ -364,12 +370,15 @@ void Lobby::MainLoop()
 	    int ten_ms = 10000;
 	    usleep(ten_ms); 
 	  }
+	  
+	  CheckForMessages();
 	} 
 	// 2. For each client, process incoming messages in a Round Robin fashion
 	//      - Get message
 	//      - Update spreadsheet object
 	//      - Push change command to all client interfaces
-	// 
+	
+
 	// 3. Check to see if program should be shutdown
 	//
 	//
