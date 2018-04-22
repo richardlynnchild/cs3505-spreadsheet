@@ -199,7 +199,9 @@ void Lobby::SendUnfocusMessage(std::string sheet, int id)
 
 void Lobby::SendPingResponse(int id)
 {
-  std::string msg = "ping_response " + ((char)3);
+  std::string msg = "ping_response ";
+  char ext = (char)3;
+  msg += ext;
   std::vector<Interface*>::iterator it = clients.begin();
   for(; it!= clients.end(); ++it)
   {

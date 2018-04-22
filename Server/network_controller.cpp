@@ -247,13 +247,11 @@ void* NetworkController::ClientCommunicate(void* ptr)
 		{
 			if (TestSocket(socket_id))
 			{
-				for (int i = send_buf_next; i < send_msg_size; i++)
-					std::cout << send_buf[i];
-				std::cout << std::endl;
 
 				bytes_sent = send(socket_id, &(send_buf[send_buf_next]),
 								send_msg_size-send_buf_next, 0);
 
+				std::cout << "Sent to client " << socket_id << std::endl;
 				for (int i = send_buf_next; i < bytes_sent; i++)
 					std::cout << send_buf[i];
 				std::cout << std::endl;
