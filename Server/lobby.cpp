@@ -305,7 +305,8 @@ bool Lobby::CheckForMessages(){
 
 void Lobby::LobbyPing()
 {
-  while(true)
+  int seconds;
+  while(running)
   {
     std::string msg = "ping ";
     char end = (char) 3;
@@ -319,7 +320,8 @@ void Lobby::LobbyPing()
 	(*it)->StopClientThread();
       }
     }
-    sleep(10);
+    if (seconds = sleep(10))
+      std::cout << "Slept for " << (10-seconds) << " seconds" << std::endl;
   }
 }
 
