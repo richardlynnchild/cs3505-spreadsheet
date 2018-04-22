@@ -423,7 +423,7 @@ namespace SpreadsheetGUI
                         string cellVal = cellAndval[1];
 
                         //cellName = cellName.Trim(' ');
-                        //cellVal = cellVal.Trim(' ');
+                        cellVal = cellVal.Trim(' ');
 
                         int[] colRow = GetCellPosition(cellName);
 
@@ -1018,30 +1018,33 @@ namespace SpreadsheetGUI
         /// </summary>
         private void SetCell(int row, int col, string cellVal)
         {
-            try
+            lock (ss1)
             {
-                string cellName = GetCellName(col, row);
-                ss1.SetContentsOfCell(cellName, cellVal);
-
-                //if the result is a formula error display a formula error message, otherwise set the cell with the result.
-                if (ss1.GetCellValue(cellName).GetType() == typeof(FormulaError))
-                    spreadsheetPanel1.SetValue(col, row, "Formula Error!");
-
-                else
+                try
                 {
-                    spreadsheetPanel1.SetValue(col, row, ss1.GetCellValue(cellName).ToString());
-                    UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
+                    string cellName = GetCellName(col, row);
+                    ss1.SetContentsOfCell(cellName, cellVal);
+
+                    //if the result is a formula error display a formula error message, otherwise set the cell with the result.
+                    if (ss1.GetCellValue(cellName).GetType() == typeof(FormulaError))
+                        spreadsheetPanel1.SetValue(col, row, "Formula Error!");
+
+                    else
+                    {
+                        spreadsheetPanel1.SetValue(col, row, ss1.GetCellValue(cellName).ToString());
+                        UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
+                    }
                 }
-            }
 
-            catch (CircularException)
-            {
-                spreadsheetPanel1.SetValue(col, row, "Ciruclar Dependency!");
-            }
+                catch (CircularException)
+                {
+                    spreadsheetPanel1.SetValue(col, row, "Ciruclar Dependency!");
+                }
 
-            catch (FormulaFormatException)
-            {
-                spreadsheetPanel1.SetValue(col, row, "Invalid Formula!");
+                catch (FormulaFormatException)
+                {
+                    spreadsheetPanel1.SetValue(col, row, "Invalid Formula!");
+                }
             }
         }
 
@@ -1052,23 +1055,26 @@ namespace SpreadsheetGUI
         /// <param name="cellsToChange"></param>
         private void UpdateCells(ISet<string> cellsToChange)
         {
-            foreach (string cellName in cellsToChange)
+            lock (ss1)
             {
-                //get the numeric row, col position of the cell
-                int col = Convert.ToChar(cellName.Substring(0, 1)) - 65;
-                int row = Convert.ToInt16(cellName.Substring(1)) - 1;
+                foreach (string cellName in cellsToChange)
+                {
+                    //get the numeric row, col position of the cell
+                    int col = Convert.ToChar(cellName.Substring(0, 1)) - 65;
+                    int row = Convert.ToInt16(cellName.Substring(1)) - 1;
 
-                //update the cell state in the spreadsheet
-                ss1.UpdateCell(cellName);
+                    //update the cell state in the spreadsheet
+                    ss1.UpdateCell(cellName);
 
-                //update the GUI
-                if (ss1.GetCellValue(cellName).GetType() != typeof(FormulaError))
-                    spreadsheetPanel1.SetValue(col, row, ss1.GetCellValue(cellName).ToString());
-                else
-                    spreadsheetPanel1.SetValue(col, row, "Formula Error!");
+                    //update the GUI
+                    if (ss1.GetCellValue(cellName).GetType() != typeof(FormulaError))
+                        spreadsheetPanel1.SetValue(col, row, ss1.GetCellValue(cellName).ToString());
+                    else
+                        spreadsheetPanel1.SetValue(col, row, "Formula Error!");
 
-                //update all dependent cells
-                UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
+                    //update all dependent cells
+                    UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
+                }
             }
         }
 
