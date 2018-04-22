@@ -335,11 +335,13 @@ void Lobby::Start(){
 
 	// Start a new thread that continuosly listens and accepts new connections 
 	pthread_t listen_thread;
-	if (pthread_create(&listen_thread, NULL, NetworkController::ListenForClients, this))
+	if (pthread_create(&listen_thread, NULL, NetworkController::ListenForClients, this)){
 		 std::cerr << "error creating thread for client listener" << std::endl;
-	else
-		listening = true;
-
+        }
+	else{
+	  listening = true;
+          pthread_detach(&listen_thread);
+        }
 	// Start timer thread for pinging clients
 	/*
 	pthread_t ping_thread;
@@ -349,11 +351,13 @@ void Lobby::Start(){
 		pinging = true;
 	*/
 	pthread_t main_thread;	
-	if (pthread_create(&main_thread, NULL, StartMainThread, this))
+	if (pthread_create(&main_thread, NULL, StartMainThread, this)){
 		 std::cerr << "error creating main lobby thread" << std::endl;
-	else
-		loop_running = true;
-
+        }
+	else{
+	  loop_running = true;
+          pthread_detach(&main_thread);
+        }
 	running = (listening && loop_running);
 }
 
@@ -405,7 +409,7 @@ void Lobby::Shutdown(){
   std::string msg = "disconnect ";
   char end = (char)3;
   msg += end;
-  std::vector<*Interface>::iterator c_it = clients.begin();
+  std::vector<Interface*>::iterator c_it = clients.begin();
   for(; c_it != clients.end(); ++c_it){
     (*c_it)->PushMessage(LOBBY,msg);
   }
