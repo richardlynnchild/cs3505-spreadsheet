@@ -388,5 +388,37 @@ void* Lobby::PingLoop(void* ptr)
 }
 
 void Lobby::Shutdown(){
-  	running = false;
+  //stop the lobby main loop
+  running = false;
+
+  //send a disconnect message
+  //to each client
+  std::string msg = "disconnect ";
+  char end = (char)3;
+  msg += end;
+  std::vector<*Interface>::iterator c_it = clients.begin();
+  for(; c_it != clients.end(); ++c_it){
+    (*c_it)->PushMessage(LOBBY,msg);
+  }
+
+  //save each spreadsheet object to disk
+  std::map<std::string, Spreadsheet>::iterator s_it = spreadsheets.begin();
+  for(; s_it != spreadsheets.end(); ++s_it){
+    std::string filename = s_it->first;
+    filename += ".txt";
+    s_it->second.WriteSpreadsheet(filename);
+  } 
+  
+  //stop each interface
+  c_it = clients.begin();
+  for(; c_it != clients.end(); ++c_it){
+    (*c_it)->StopClientThread();
+  }
+
 }
+
+
+
+
+
+
