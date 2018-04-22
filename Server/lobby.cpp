@@ -201,7 +201,9 @@ void Lobby::SendUnfocusMessage(std::string sheet, int id)
 
 void Lobby::SendPingResponse(int id)
 {
-  std::string msg = "ping_response " + ((char)3);
+  std::string msg = "ping_response ";
+  char end = (char) 3;
+  msg += end;
   std::vector<Interface*>::iterator it = clients.begin();
   for(; it!= clients.end(); ++it)
   {
@@ -345,13 +347,13 @@ void Lobby::Start(){
           pthread_detach(listen_thread);
         }
 	// Start timer thread for pinging clients
-	/*
+	
 	pthread_t ping_thread;
 	if (pthread_create(&ping_thread, NULL, PingLoop, this))
 		 std::cerr << "error creating thread for pinging" << std::endl;
 	else
 		pinging = true;
-	*/
+	
 	pthread_t main_thread;	
 	if (pthread_create(&main_thread, NULL, StartMainThread, this)){
 		 std::cerr << "error creating main lobby thread" << std::endl;
@@ -430,9 +432,6 @@ void Lobby::Shutdown(){
   }
 
 }
-
-
-
 
 
 
