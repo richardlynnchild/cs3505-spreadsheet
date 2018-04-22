@@ -18,7 +18,8 @@ namespace SpreadsheetGUI
         private Dictionary<string, string> clientFocus;
         private string previousSelection;
         private System.Timers.Timer pingTimer;
-        private System.Timers.Timer serverTimer;
+        private int pingMisses;
+        //private System.Timers.Timer serverTimer;
         private SocketState serverSock;
         public Form1()
         {
@@ -58,10 +59,11 @@ namespace SpreadsheetGUI
             this.previousSelection = GetCellName(0, 0);
 
 
-            serverTimer = new System.Timers.Timer();
-            serverTimer.Interval = 60000; //60 s?
-            serverTimer.Elapsed += DisconnectDetector;
+            //serverTimer = new System.Timers.Timer();
+            //serverTimer.Interval = 60000; //60 s?
+            //serverTimer.Elapsed += DisconnectDetector;
 
+            pingMisses = -1;
             pingTimer = new System.Timers.Timer();
             pingTimer.Interval = 10000;
             pingTimer.Elapsed += SendPing;
@@ -339,17 +341,22 @@ namespace SpreadsheetGUI
             connected = false;
             previousSelection = "A1";
 
-            FilePanel.Visible = false;
-            FileList.Items.Clear();
+            MethodInvoker FMInvoker = new MethodInvoker(() =>
+            {
+                FilePanel.Visible = false;
+                FileList.Items.Clear();
 
-            serverSock = null;
-            theServer = null;
-            ServerTextBox.Enabled = true;
-            ConnectButton.Enabled = true;
+                serverSock = null;
+                theServer = null;
+                ServerTextBox.Enabled = true;
+                ConnectButton.Enabled = true;
 
-            spreadsheetPanel1.Clear();
+                spreadsheetPanel1.Clear();
 
-            MessageBox.Show("Disconnected Successfully");
+                MessageBox.Show("Disconnected Successfully");
+            });
+
+            this.Invoke(FMInvoker);
         }
 
         /// <summary>
@@ -391,6 +398,9 @@ namespace SpreadsheetGUI
 
         private void SendPing(object sender, EventArgs e)
         {
+            pingMisses++;
+            if (pingMisses >= 6)
+                Disconnect();
             string pingMsg = "ping " + ((char)3);
             SendMessage(pingMsg);
         }
@@ -468,7 +478,7 @@ namespace SpreadsheetGUI
                     }
                     //TO DO put back (also on server)
                     pingTimer.Start();
-                    serverTimer.Start();
+                    //serverTimer.Start();
                     this.Invoke(FMInvoker);
                 }
             }
@@ -482,11 +492,12 @@ namespace SpreadsheetGUI
         private void ProcessMessage(SocketState state)
         {
             string message;
-
+            
             lock (state)
             {
                 message = state.builder.ToString();
                 string[] messages = message.Split((char)3);
+
 
                 foreach (string msg in messages)
                 {
@@ -509,17 +520,23 @@ namespace SpreadsheetGUI
                             break;
 
                         case "ping":
-                            if (msg == "ping ")
-                            {
-                                SendMessage("ping_response " + ((char)3));
-                            }
+                            //if (msg == "ping ")
+                            //{
+                            SendMessage("ping_response " + ((char)3));
+                            //}
+                            break;
 
-                            else if (msg == "ping_response ")
-                            {
+                            //else if (msg == "ping_response ")
+                            //{
                                 //timer reset -- not sure this is right
-                                serverTimer.Stop();
-                                serverTimer.Start();
-                            }
+                                //serverTimer.Stop();
+                                //serverTimer.Start();
+                                //pingMisses = 0;
+                            //}
+                            //break;
+
+                        case "ping_response":
+                            pingMisses = 0;
                             break;
                         case "disconnect":
                             HandleDisconnect();
@@ -550,7 +567,7 @@ namespace SpreadsheetGUI
                     }
 
 
-                    state.builder.Remove(0, message.Length);
+                    state.builder.Remove(0, msg.Length + ((char)3).ToString().Length);
                 }
             }
             Network.GetData(state);
