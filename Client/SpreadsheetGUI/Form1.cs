@@ -321,7 +321,7 @@ namespace SpreadsheetGUI
                 spreadsheetPanel1.GetSelection(out int col, out int row);
                 string cellName = GetCellName(col, row);
 
-                SendMessage("revert " + CellName + (char)3);
+                SendMessage("revert " + cellName + (char)3);
             }
         }
 
@@ -504,70 +504,78 @@ namespace SpreadsheetGUI
                 {
                     if (msg == "")
                         break;
+              
                     string[] msg2 = msg.Split(' ');
                     string command = msg2[0];
-                    switch (command)
+                    if(command == "change")
                     {
-                        case "change":
-                            //get cell name and contents from message
-                            char[] delimiters = new char[] { ' ', ':' };
-                            string[] msg_parts = msg.Split(delimiters);
-                            string cell_name = msg_parts[1];
-                            string contents = msg_parts[2];
+                        //get cell name and contents from message
+                        char[] delimiters = new char[] { ' ', ':' };
+                        string[] msg_parts = msg.Split(delimiters);
+                        string cell_name = msg_parts[1];
+                        string contents = msg_parts[2];
 
-                            //set the contents of the cell
-                            GetCellPosition(cell_name, out int row, out int col);
-                            SetCell(row, col, contents);
-                            break;
-
-                        case "ping":
-                            //if (msg == "ping ")
-                            //{
-                            SendMessage("ping_response " + ((char)3));
-                            //}
-                            break;
-
-                            //else if (msg == "ping_response ")
-                            //{
-                                //timer reset -- not sure this is right
-                                //serverTimer.Stop();
-                                //serverTimer.Start();
-                                //pingMisses = 0;
-                            //}
-                            //break;
-
-                        case "ping_response":
-                            pingMisses = 0;
-                            break;
-                        case "disconnect":
-                            HandleDisconnect();
-                            break;
-                        case "unfocus":
-                            char[] delimiters2 = new char[] { ' ' };
-                            string[] msg_parts2 = msg.Split(delimiters2);
-                            string user_id = msg_parts2[1];
-
-                            if (clientFocus.ContainsKey(user_id))
-                            {
-                                cell_name = clientFocus[user_id];
-                                GetCellPosition(cell_name, out row, out col);
-                                spreadsheetPanel1.SetUnfocus(cell_name, row, col);
-                            }
-                            break;
-                        case "focus":
-                            char[] delimiters3 = new char[] { ' ', ':' };
-                            string[] msg_parts3 = msg.Split(delimiters3);
-                            cell_name = msg_parts3[1];
-                            user_id = msg_parts3[2];
-
-                            clientFocus[user_id] = cell_name;
-
-                            GetCellPosition(cell_name, out row, out col);
-                            spreadsheetPanel1.SetFocus(cell_name, row, col);
-                            break;
+                        //set the contents of the cell
+                        GetCellPosition(cell_name, out int row, out int col);
+                        SetCell(row, col, contents);
                     }
+                    else if(command == "ping")
+                    {
+                        //if (msg == "ping ")
+                        //{
+                        SendMessage("ping_response " + ((char)3));
+                        //}
 
+                        //else if (msg == "ping_response ")
+                        //{
+                        //timer reset -- not sure this is right
+                        //serverTimer.Stop();
+                        //serverTimer.Start();
+                        //pingMisses = 0;
+                        //}
+                        //break;
 
+                    }
+                    else if(command == "ping_response")
+                    {
+                        pingMisses = 0;
+                    }
+                    else if(command == "disconnect")
+                    {
+                        HandleDisconnect();
+
+                    }
+                    else if(command == "unfocus")
+                    {
+                        char[] delimiters2 = new char[] { ' ' };
+                        string[] msg_parts2 = msg.Split(delimiters2);
+                        string user_id = msg_parts2[1];
+
+                        if (clientFocus.ContainsKey(user_id))
+                        {
+                            string cell_name = clientFocus[user_id];
+                            GetCellPosition(cell_name, out int row, out int col);
+                            spreadsheetPanel1.SetUnfocus(cell_name, row, col);
+                        }
+                    }
+                    else if(command == "focus")
+                    {
+                        char[] delimiters3 = new char[] { ' ', ':' };
+                        string[] msg_parts3 = msg.Split(delimiters3);
+                        string cell_name = msg_parts3[1];
+                        string user_id = msg_parts3[2];
+
+                        clientFocus[user_id] = cell_name;
+
+                        GetCellPosition(cell_name, out int row, out int col);
+                        spreadsheetPanel1.SetFocus(cell_name, row, col);
+                    }
+                    else
+                    {
+                        //command is not a full command, so leave it in the state.builder.
+                        break;
+                        //then still go and get data
+                    }
                     state.builder.Remove(0, msg.Length + ((char)3).ToString().Length);
                 }
             }
