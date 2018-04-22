@@ -56,11 +56,9 @@ void Lobby::InitSheetList()
  * Add an Interface to the new_client queue.
  */
 void Lobby::AddNewClient(Interface* interface){
-  std::cout << "Called AddNewClient" << std::endl;
   pthread_mutex_lock(&new_client_mutex);
   this->new_clients.push(interface);
   pthread_mutex_unlock(&new_client_mutex);
-  std::cout << "End AddNewClient" << std::endl;
 }
 
 
@@ -110,7 +108,7 @@ bool Lobby::CheckForNewClient(){
         spreadsheets.insert(std::pair<std::string,Spreadsheet>(name,new_sheet));
       }
       else {
-        Spreadsheet new_sheet (name, name + ".txt"); //not active, but saved
+        Spreadsheet new_sheet (name, name); //not active, but saved
         spreadsheets.insert(std::pair<std::string,Spreadsheet>(name,new_sheet));
       }
     }
@@ -201,7 +199,9 @@ void Lobby::SendUnfocusMessage(std::string sheet, int id)
 
 void Lobby::SendPingResponse(int id)
 {
-  std::string msg = "ping_response " + ((char)3);
+  std::string msg = "ping_response ";
+  char end = (char) 3;
+  msg += end;
   std::vector<Interface*>::iterator it = clients.begin();
   for(; it!= clients.end(); ++it)
   {
@@ -219,7 +219,7 @@ void Lobby::ResetPingMiss(int id)
   {
     if((*it)->GetClientSocketID() == id)
     {
-      (*it)->PingMiss == 0;
+      (*it)->PingReset();
     }
   }
 }
@@ -244,6 +244,8 @@ void Lobby::HandleMessage(std::string message, std::string sheet, int id){
   }
   else if(command == "undo"){
     std::pair<std::string,std::string> cell = spreadsheets[sheet].Undo();
+    if(cell.first == "NULL")
+      return;
     std::string message = cell.first;
     message += cell.second;
     SendChangeMessage(message,sheet); 
@@ -312,8 +314,7 @@ void Lobby::LobbyPing()
     for(; it!= clients.end(); ++it)
     {
       (*it)->PushMessage(LOBBY, msg);
-      (*it)->PingMiss++;
-      if((*it)->PingMiss >= 6)
+      if((*it)->PingMiss())
       {
 	(*it)->StopClientThread();
       }
@@ -340,23 +341,23 @@ void Lobby::Start(){
         }
 	else{
 	  listening = true;
-          pthread_detach(&listen_thread);
+          pthread_detach(listen_thread);
         }
 	// Start timer thread for pinging clients
-	/*
+	
 	pthread_t ping_thread;
 	if (pthread_create(&ping_thread, NULL, PingLoop, this))
 		 std::cerr << "error creating thread for pinging" << std::endl;
 	else
 		pinging = true;
-	*/
+	
 	pthread_t main_thread;	
 	if (pthread_create(&main_thread, NULL, StartMainThread, this)){
 		 std::cerr << "error creating main lobby thread" << std::endl;
         }
 	else{
 	  loop_running = true;
-          pthread_detach(&main_thread);
+          pthread_detach(main_thread);
         }
 	running = (listening && loop_running);
 }
@@ -370,9 +371,10 @@ void Lobby::MainLoop()
 	//      - If they exist push a full state message into their interface
 	//      - Add them to client list
 	while(running){
-	  if(!CheckForNewClient() && !CheckForMessages()){
-	    int ten_ms = 10000;
-	    usleep(ten_ms); 
+	  if(!CheckForNewClient())	
+	    if (!CheckForMessages()){
+	      int ten_ms = 10000;
+	      usleep(ten_ms); 
 	  }
 	  
 	  CheckForMessages();
@@ -418,7 +420,6 @@ void Lobby::Shutdown(){
   std::map<std::string, Spreadsheet>::iterator s_it = spreadsheets.begin();
   for(; s_it != spreadsheets.end(); ++s_it){
     std::string filename = s_it->first;
-    filename += ".txt";
     s_it->second.WriteSpreadsheet(filename);
   } 
   
@@ -429,9 +430,6 @@ void Lobby::Shutdown(){
   }
 
 }
-
-
-
 
 
 

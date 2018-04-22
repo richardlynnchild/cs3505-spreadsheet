@@ -1,0 +1,46 @@
+A1    1
+A10    =A9 +1
+A11   hello
+A12 savemystuff
+A2    =A1 +1
+A3    =A2 +1
+A4    =A3 +1
+A5    =A4 +1
+A6    =A5 +1
+A7    =A6 +1
+A8    =A7 +1
+A9    =A8 +1
+B1    Data1
+B10   Dat
+B11   =1+1
+B2    Data2
+B3    Data3
+B4    Data4
+B5    Data5
+B6    Data6
+B7    Data7
+B8    Data8
+B9    Data9
+C1    1
+C10    29
+C11   =A1+A2
+C2    100
+C3    1000
+C4    7
+C5    11
+C6    13
+C7    17
+C8    19
+C9    23
+D1    more Data
+D10    = 9/7
+D11  spacedoesntwork
+D2    less dat
+D3    = C9 + D2
+D4    =D4
+D5    812083489020987
+D6    use this data
+D7    dont use this data
+D8    =D6+1
+D9    =1+1
+***FILE_END***

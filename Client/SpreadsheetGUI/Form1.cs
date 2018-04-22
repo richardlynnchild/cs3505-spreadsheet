@@ -57,7 +57,7 @@ namespace SpreadsheetGUI
             this.spreadsheetPanel1.SetSelection(0, 0);
             this.previousSelection = GetCellName(0, 0);
 
-            
+
             serverTimer = new System.Timers.Timer();
             serverTimer.Interval = 60000; //60 s?
             serverTimer.Elapsed += DisconnectDetector;
@@ -65,7 +65,7 @@ namespace SpreadsheetGUI
             pingTimer = new System.Timers.Timer();
             pingTimer.Interval = 10000;
             pingTimer.Elapsed += SendPing;
-            
+
         }
 
         #region Spreadsheet Control
@@ -81,9 +81,21 @@ namespace SpreadsheetGUI
             sender.GetSelection(out int col, out int row);
             string cellName = GetCellName(col, row);
 
+            int[] loc = GetCellPosition(this.previousSelection);
+            int myCol = loc[0];
+            int myRow = loc[1];
+            //spreadsheetPanel1.SetUnfocus(this.previousSelection, myRow, myCol);
+            string unfocusMessage = "unfocus " + ((char)3);
+            SendMessage(unfocusMessage);
+
+            //string focusMessage = "focus " + cellName + ((char)3);
+            //SendMessage(focusMessage);
+
             //set the contents of the formula box and set focus to it.
             FormulaBox.Text = ss1.GetCellContents(cellName).ToString();
             this.ActiveControl = FormulaBox;
+
+
         }
 
 
@@ -94,7 +106,7 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void ProcessKeyStroke(object sender, KeyEventArgs e)
         {
-            if ( ! ServerTextBox.Focused && ! FilePanel.Visible &&  connected)
+            if (!ServerTextBox.Focused && !FilePanel.Visible && connected)
             {
                 if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.Oemplus)
                     OperatorKey("+");
@@ -106,6 +118,31 @@ namespace SpreadsheetGUI
                     OperatorKey("/");
                 else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.D8)
                     OperatorKey("*");
+                //pretty much none of the keys below actually send to the value of the cell, but they can be entered
+                else if (e.KeyData == Keys.Space)
+                    OperatorKey(" ");
+                else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.OemQuestion)
+                    OperatorKey("?");
+                else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.OemSemicolon)
+                    OperatorKey(":");
+                else if (e.KeyData == Keys.OemSemicolon)
+                    OperatorKey(";");
+                else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.D3)
+                    OperatorKey("#");
+                else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.D1)
+                    OperatorKey("!");
+                else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.D2)
+                    OperatorKey("@");
+                else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.D4)
+                    OperatorKey("$");
+                else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.D5)
+                    OperatorKey("%");
+                else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.D7)
+                    OperatorKey("&");
+                else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.D9)
+                    OperatorKey("(");
+                else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.D0)
+                    OperatorKey(")");
 
                 //they are no longer editing
                 if (e.KeyData == Keys.Enter)
@@ -141,7 +178,7 @@ namespace SpreadsheetGUI
                     }
                 }
             }
-            else if (! connected && ! ServerTextBox.Focused)
+            else if (!connected && !ServerTextBox.Focused)
             {
                 MessageBox.Show("Please connect to a server before editing a spreadsheet");
                 ServerTextBox.Focus();
@@ -302,6 +339,9 @@ namespace SpreadsheetGUI
             connected = false;
             previousSelection = "A1";
 
+            FilePanel.Visible = false;
+            FileList.Items.Clear();
+
             serverSock = null;
             theServer = null;
             ServerTextBox.Enabled = true;
@@ -321,10 +361,11 @@ namespace SpreadsheetGUI
         {
             Open_FileMenu.Enabled = false;
             string message = "load " + FileTextSelect.Text + (char)3;
+            FileList.Items.Clear();
             Network.Send(theServer, message);
             Network.GetData(serverSock);
         }
- 
+
         /// <summary>
         /// Sends a string message to the server.
         /// </summary>
@@ -385,48 +426,52 @@ namespace SpreadsheetGUI
                     MessageBox.Show("Could not open/create spreadsheet!");
                     Open_FileMenu.Enabled = true;
                     state.callMe = HandleFullState;
-                }
-                else if(message.Contains("ping " + ((char)3)))
-                {
-                    message.Remove(message.IndexOf("ping " + ((char)3)));
-                    //message.Split("ping " + ((char)3).ToString());
-                }
-                else if (message.Length == 12)
-                {
-                    //if the message contains no cells, its length will be 12
-                    state.callMe = ProcessMessage;
-                    //why the heck are we starting these timers twice??
                     //TO DO
-                    //pingTimer.Start();
-                    //serverTimer.Start();
-                    this.Invoke(FMInvoker);
+                    //does file_load_error need to call getData still? or can we return?
+                    //assumption is opening up the file menu again does sendspreadsheetselection and get data
+                    return;
                 }
-                else
+                if (message.Contains("ping " + ((char)3)))
                 {
-                    //remove "full_state " and the terminating character
-                    message = message.Substring(10, message.Length - 11);
-
-                    string[] cells = message.Split('\n');
-
-                    //split the cell name and value then set the cell.
-                    foreach (string cell in cells)
+                    //we can *probably* discard the pings that are in this message, the server
+                    //will send more before we time out
+                    message.Remove(message.IndexOf("ping " + ((char)3)));
+                }
+                if (message.Contains("full_state "))
+                {
+                    //empty full state message ("full_state char3") is 12
+                    if(message.Length > 12)
                     {
-                        string[] cellAndval = cell.Split(':');
-                        string cellName = cellAndval[0];
-                        string cellVal = cellAndval[1];
+                        //full_state A6:3\nB4:2\n((char3))
+                        //remove "full_state " and the terminating character
+                        message = message.Substring(10, message.Length - 11);
 
-                        int[] colRow = GetCellPosition(cellName);
+                        string[] cells = message.Split('\n');
 
-                        SetCell(colRow[1], colRow[0], cellVal);
+                        //split the cell name and value then set the cell.
+                        foreach (string cell in cells)
+                        {
+                            if (cell == "")
+                                continue;
+                            string[] cellAndval = cell.Split(':');
+                            string cellName = cellAndval[0];
+                            string cellVal = cellAndval[1];
+
+                            //cellName = cellName.Trim(' ');
+                            cellVal = cellVal.Trim(' ');
+
+                            int[] colRow = GetCellPosition(cellName);
+
+                            SetCell(colRow[1], colRow[0], cellVal);
+                        }
+
                     }
                     //TO DO put back (also on server)
-                    //pingTimer.Start();
-                    //serverTimer.Start();
+                    pingTimer.Start();
+                    serverTimer.Start();
                     this.Invoke(FMInvoker);
                 }
             }
-
-
             Network.GetData(state);
         }
 
@@ -447,14 +492,14 @@ namespace SpreadsheetGUI
                 foreach (string msg in messages)
                 {
                     if (msg == "")
-                        return;
+                        break;
                     string[] msg2 = msg.Split(' ');
                     string command = msg2[0];
                     switch (command)
                     {
                         case "change":
                             //get cell name and contents from message
-                            char[] delimiters = new char[] { ' ', ':'};
+                            char[] delimiters = new char[] { ' ', ':' };
                             string[] msg_parts = msg.Split(delimiters);
                             string cell_name = msg_parts[1];
                             string contents = msg_parts[2];
@@ -465,12 +510,12 @@ namespace SpreadsheetGUI
                             break;
 
                         case "ping":
-                            if(msg == "ping ")
+                            if (msg == "ping ")
                             {
                                 SendMessage("ping_response " + ((char)3));
                             }
 
-                            else if(msg == "ping_response ")
+                            else if (msg == "ping_response ")
                             {
                                 //timer reset -- not sure this is right
                                 serverTimer.Stop();
@@ -481,17 +526,19 @@ namespace SpreadsheetGUI
                             HandleDisconnect();
                             break;
                         case "unfocus":
-                            char[] delimiters2 = new char[] { ' '};
+                            char[] delimiters2 = new char[] { ' ' };
                             string[] msg_parts2 = msg.Split(delimiters2);
                             string user_id = msg_parts2[1];
 
-                            cell_name = clientFocus[user_id];
-
-                            GetCellPosition(cell_name, out row, out col);
-                            spreadsheetPanel1.SetUnfocus(cell_name, row, col);
+                            if (clientFocus.ContainsKey(user_id))
+                            {
+                                cell_name = clientFocus[user_id];
+                                GetCellPosition(cell_name, out row, out col);
+                                spreadsheetPanel1.SetUnfocus(cell_name, row, col);
+                            }
                             break;
                         case "focus":
-                            char[] delimiters3 = new char[] { ' ', ':'};
+                            char[] delimiters3 = new char[] { ' ', ':' };
                             string[] msg_parts3 = msg.Split(delimiters3);
                             cell_name = msg_parts3[1];
                             user_id = msg_parts3[2];
@@ -507,8 +554,6 @@ namespace SpreadsheetGUI
                     state.builder.Remove(0, message.Length);
                 }
             }
-
-
             Network.GetData(state);
         }
 
@@ -940,9 +985,10 @@ namespace SpreadsheetGUI
         /// <returns>int[row, col]</returns>
         private int[] GetCellPosition(string cellName)
         {
+            cellName = cellName.Trim();
             int[] colRow = new int[2];
             colRow[0] = (int)cellName[0] - 65;
-            colRow[1] = int.Parse(cellName[1].ToString()) - 1;
+            colRow[1] = int.Parse(cellName.Substring(1).ToString()) - 1;
 
             return colRow;
         }
@@ -984,7 +1030,7 @@ namespace SpreadsheetGUI
 
 
         /// <summary>
-        /// Sets the specified cell to 
+        /// Sets the specified cell back to its original value.
         /// </summary>
         /// <param name="cellName"></param>
         private void ResetCell(string cellName)
@@ -1026,12 +1072,12 @@ namespace SpreadsheetGUI
 
             catch (CircularException)
             {
-                spreadsheetPanel1.SetValue(col, row, "Ciruclar Dependency!");
+                spreadsheetPanel1.SetValue(col, row, "Formula Error!");
             }
 
             catch (FormulaFormatException)
             {
-                spreadsheetPanel1.SetValue(col, row, "Invalid Formula!");
+                spreadsheetPanel1.SetValue(col, row, "Formula Error!");
             }
         }
 
