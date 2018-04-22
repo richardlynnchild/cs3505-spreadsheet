@@ -426,54 +426,52 @@ namespace SpreadsheetGUI
                     MessageBox.Show("Could not open/create spreadsheet!");
                     Open_FileMenu.Enabled = true;
                     state.callMe = HandleFullState;
-                }
-                else if (message.Contains("ping " + ((char)3)))
-                {
-                    message.Remove(message.IndexOf("ping " + ((char)3)));
-                    //message.Split("ping " + ((char)3).ToString());
-                }
-                else if (message.Length == 12)
-                {
-                    //if the message contains no cells, its length will be 12
-                    state.callMe = ProcessMessage;
-                    //why the heck are we starting these timers twice??
-                    //WE AREN'T
                     //TO DO
-                    //pingTimer.Start();
-                    //serverTimer.Start();
-                    this.Invoke(FMInvoker);
+                    //does file_load_error need to call getData still? or can we return?
+                    //assumption is opening up the file menu again does sendspreadsheetselection and get data
+                    return;
                 }
-                else
+                if (message.Contains("ping " + ((char)3)))
                 {
-                    //remove "full_state " and the terminating character
-                    message = message.Substring(10, message.Length - 11);
-
-                    string[] cells = message.Split('\n');
-
-                    //split the cell name and value then set the cell.
-                    foreach (string cell in cells)
+                    //we can *probably* discard the pings that are in this message, the server
+                    //will send more before we time out
+                    message.Remove(message.IndexOf("ping " + ((char)3)));
+                }
+                if (message.Contains("full_state "))
+                {
+                    //empty full state message ("full_state char3") is 12
+                    if(message.Length > 12)
                     {
-                        if (cell == "")
-                            continue;
-                        string[] cellAndval = cell.Split(':');
-                        string cellName = cellAndval[0];
-                        string cellVal = cellAndval[1];
+                        //full_state A6:3\nB4:2\n((char3))
+                        //remove "full_state " and the terminating character
+                        message = message.Substring(10, message.Length - 11);
 
-                        //cellName = cellName.Trim(' ');
-                        cellVal = cellVal.Trim(' ');
+                        string[] cells = message.Split('\n');
 
-                        int[] colRow = GetCellPosition(cellName);
+                        //split the cell name and value then set the cell.
+                        foreach (string cell in cells)
+                        {
+                            if (cell == "")
+                                continue;
+                            string[] cellAndval = cell.Split(':');
+                            string cellName = cellAndval[0];
+                            string cellVal = cellAndval[1];
 
-                        SetCell(colRow[1], colRow[0], cellVal);
+                            //cellName = cellName.Trim(' ');
+                            cellVal = cellVal.Trim(' ');
+
+                            int[] colRow = GetCellPosition(cellName);
+
+                            SetCell(colRow[1], colRow[0], cellVal);
+                        }
+
                     }
                     //TO DO put back (also on server)
-                    //pingTimer.Start();
-                    //serverTimer.Start();
+                    pingTimer.Start();
+                    serverTimer.Start();
                     this.Invoke(FMInvoker);
                 }
             }
-
-
             Network.GetData(state);
         }
 
@@ -1073,12 +1071,12 @@ namespace SpreadsheetGUI
 
             catch (CircularException)
             {
-                spreadsheetPanel1.SetValue(col, row, "Ciruclar Dependency!");
+                spreadsheetPanel1.SetValue(col, row, "Formula Error!");
             }
 
             catch (FormulaFormatException)
             {
-                spreadsheetPanel1.SetValue(col, row, "Invalid Formula!");
+                spreadsheetPanel1.SetValue(col, row, "Formula Error!");
             }
         }
 
