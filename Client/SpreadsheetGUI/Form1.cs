@@ -340,7 +340,7 @@ namespace SpreadsheetGUI
         private void SendRegisterMessage(SocketState state)
         {
             state.callMe = ActivateFileMenu;
-            string message = "register" + (char)3;
+            string message = "register " + (char)3;
             Network.Send(state.sock, message);
 
             Network.GetData(state);
@@ -376,14 +376,14 @@ namespace SpreadsheetGUI
                 {
                     state.callMe = ProcessMessage;
                     int cell_start_index = complete_message.IndexOf(' ') + 1;
-                    int cell_message_length = complete_message.Length - cell_start_index;
+                    int cell_message_length = complete_message.Length - (cell_start_index+1);
                     string cell_message = complete_message.Substring(cell_start_index, cell_message_length);
-                    string[] cells = complete_message.Split('\n');
+                    string[] cells = cell_message.Split('\n');
 
                     //split the cell name and value then set the cell.
-                    for (int i = 0; i < cell_message_length-1; i++)
+                    foreach (string cell in cells)
                     {
-                        string[] cellAndval = cells[i].Split(':');
+                        string[] cellAndval = cell.Split(':');
                         string cellName = cellAndval[0];
                         string cellVal = cellAndval[1];
 
