@@ -437,11 +437,12 @@ namespace SpreadsheetGUI
         private void ProcessMessage(SocketState state)
         {
             string message;
-
+            
             lock (state)
             {
                 message = state.builder.ToString();
                 string[] messages = message.Split((char)3);
+
 
                 foreach (string msg in messages)
                 {
