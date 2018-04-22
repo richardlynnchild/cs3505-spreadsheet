@@ -469,7 +469,7 @@ namespace SpreadsheetGUI
                             string cellVal = cellAndval[1];
 
                             //cellName = cellName.Trim(' ');
-                            cellVal = cellVal.Trim(' ');
+                            cellVal = cellVal.TrimStart(' ');
 
                             int[] colRow = GetCellPosition(cellName);
 
@@ -511,7 +511,7 @@ namespace SpreadsheetGUI
                     {
                         //get cell name and contents from message
                         char[] delimiters = new char[] { ' ', ':' };
-                        string[] msg_parts = msg.Split(delimiters);
+                        string[] msg_parts = msg.Split(delimiters, 2);
                         string cell_name = msg_parts[1];
                         string contents = msg_parts[2];
 
