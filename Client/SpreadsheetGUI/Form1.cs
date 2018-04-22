@@ -57,7 +57,7 @@ namespace SpreadsheetGUI
             this.spreadsheetPanel1.SetSelection(0, 0);
             this.previousSelection = GetCellName(0, 0);
 
-            
+
             serverTimer = new System.Timers.Timer();
             serverTimer.Interval = 60000; //60 s?
             serverTimer.Elapsed += DisconnectDetector;
@@ -65,7 +65,7 @@ namespace SpreadsheetGUI
             pingTimer = new System.Timers.Timer();
             pingTimer.Interval = 10000;
             pingTimer.Elapsed += SendPing;
-            
+
         }
 
         #region Spreadsheet Control
@@ -94,7 +94,7 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void ProcessKeyStroke(object sender, KeyEventArgs e)
         {
-            if ( ! ServerTextBox.Focused && ! FilePanel.Visible &&  connected)
+            if (!ServerTextBox.Focused && !FilePanel.Visible && connected)
             {
                 if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.Oemplus)
                     OperatorKey("+");
@@ -141,7 +141,7 @@ namespace SpreadsheetGUI
                     }
                 }
             }
-            else if (! connected && ! ServerTextBox.Focused)
+            else if (!connected && !ServerTextBox.Focused)
             {
                 MessageBox.Show("Please connect to a server before editing a spreadsheet");
                 ServerTextBox.Focus();
@@ -328,7 +328,7 @@ namespace SpreadsheetGUI
             Network.Send(theServer, message);
             Network.GetData(serverSock);
         }
- 
+
         /// <summary>
         /// Sends a string message to the server.
         /// </summary>
@@ -390,7 +390,7 @@ namespace SpreadsheetGUI
                     Open_FileMenu.Enabled = true;
                     state.callMe = HandleFullState;
                 }
-                else if(message.Contains("ping " + ((char)3)))
+                else if (message.Contains("ping " + ((char)3)))
                 {
                     message.Remove(message.IndexOf("ping " + ((char)3)));
                     //message.Split("ping " + ((char)3).ToString());
@@ -423,7 +423,7 @@ namespace SpreadsheetGUI
                         string cellVal = cellAndval[1];
 
                         //cellName = cellName.Trim(' ');
-                        //cellVal = cellVal.Trim(' ');
+                        cellVal = cellVal.Trim(' ');
 
                         int[] colRow = GetCellPosition(cellName);
 
@@ -463,7 +463,7 @@ namespace SpreadsheetGUI
                     {
                         case "change":
                             //get cell name and contents from message
-                            char[] delimiters = new char[] { ' ', ':'};
+                            char[] delimiters = new char[] { ' ', ':' };
                             string[] msg_parts = msg.Split(delimiters);
                             string cell_name = msg_parts[1];
                             string contents = msg_parts[2];
@@ -474,12 +474,12 @@ namespace SpreadsheetGUI
                             break;
 
                         case "ping":
-                            if(msg == "ping ")
+                            if (msg == "ping ")
                             {
                                 SendMessage("ping_response " + ((char)3));
                             }
 
-                            else if(msg == "ping_response ")
+                            else if (msg == "ping_response ")
                             {
                                 //timer reset -- not sure this is right
                                 serverTimer.Stop();
@@ -490,7 +490,7 @@ namespace SpreadsheetGUI
                             HandleDisconnect();
                             break;
                         case "unfocus":
-                            char[] delimiters2 = new char[] { ' '};
+                            char[] delimiters2 = new char[] { ' ' };
                             string[] msg_parts2 = msg.Split(delimiters2);
                             string user_id = msg_parts2[1];
 
@@ -500,7 +500,7 @@ namespace SpreadsheetGUI
                             spreadsheetPanel1.SetUnfocus(cell_name, row, col);
                             break;
                         case "focus":
-                            char[] delimiters3 = new char[] { ' ', ':'};
+                            char[] delimiters3 = new char[] { ' ', ':' };
                             string[] msg_parts3 = msg.Split(delimiters3);
                             cell_name = msg_parts3[1];
                             user_id = msg_parts3[2];
@@ -950,7 +950,7 @@ namespace SpreadsheetGUI
             cellName = cellName.Trim();
             int[] colRow = new int[2];
             colRow[0] = (int)cellName[0] - 65;
-            colRow[1] = int.Parse(cellName[1].ToString()) - 1;
+            colRow[1] = int.Parse(cellName.Substring(1).ToString()) - 1;
 
             return colRow;
         }
@@ -992,7 +992,7 @@ namespace SpreadsheetGUI
 
 
         /// <summary>
-        /// Sets the specified cell to 
+        /// Sets the specified cell back to its original value.
         /// </summary>
         /// <param name="cellName"></param>
         private void ResetCell(string cellName)
