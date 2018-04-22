@@ -180,7 +180,6 @@ void* NetworkController::ClientCommunicate(void* ptr)
 	int bytes_sent = 0;
 	std::string snd_str = "";
 
-	std::cout << "ClientCommunicate: Pre-loop" << std::endl;
 	bool recv_idle, send_idle;
 	bool forced_disconnect = false;
 	while(interface->IsActive())
@@ -217,18 +216,21 @@ void* NetworkController::ClientCommunicate(void* ptr)
 			send_msg_size = 0;
 			send_buf_next = 0;
 			if (snd_str == "")
+			{
 				snd_str = interface->PullMessage(CLIENT);
+			}
 
 			if (snd_str != "")
 			{
-				std::cout << snd_str << std::endl;
-				std::cout << snd_str.length() << std::endl;
 				if (snd_str.length() > send_buf_size-1)
 				{
+					std::cout << "msg long!" << std::endl;
 					std::string sub_str = snd_str.substr(0, send_buf_size-1);
+					std::cout << "trimmed msg: " << sub_str << std::endl;
 					send_msg_size = sub_str.length();
 					std::strcpy(send_buf, sub_str.c_str());
 					snd_str = snd_str.substr(send_buf_size-1);
+					std::cout << "rest of msg: " << snd_str << std::endl;
 				}
 				else
 				{
@@ -245,8 +247,18 @@ void* NetworkController::ClientCommunicate(void* ptr)
 		{
 			if (TestSocket(socket_id))
 			{
+				for (int i = send_buf_next; i < send_msg_size; i++)
+					std::cout << send_buf[i];
+				std::cout << std::endl;
+
 				bytes_sent = send(socket_id, &(send_buf[send_buf_next]),
 								send_msg_size-send_buf_next, 0);
+
+				for (int i = send_buf_next; i < bytes_sent; i++)
+					std::cout << send_buf[i];
+				std::cout << std::endl;
+				std::cout << std::endl;
+
 				if (bytes_sent > 0)
 					send_buf_next += bytes_sent;
 			}

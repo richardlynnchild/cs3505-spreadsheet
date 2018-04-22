@@ -12,6 +12,7 @@ Interface::Interface(int socket_id, std::string sprd_name)
     client_socket_id = socket_id;
     spreadsheet_name = sprd_name;
     thread_active = false;
+	ping_miss = 0;
 
 	// Output is just for debugging
     int error;
@@ -42,6 +43,7 @@ void Interface::PushMessage(int access_id, std::string message)
 	if (access_id == LOBBY)
 	{
 		pthread_mutex_lock(&out_msg_mutex);
+		std::cout << "Pushing to Interface: " << message << std::endl;
 		outbound_messages.push(message);
 		pthread_mutex_unlock(&out_msg_mutex);
 	}
@@ -82,6 +84,19 @@ std::string Interface::PullMessage(int access_id)
 bool Interface::IsActive()
 {
 	return thread_active;
+}
+
+bool Interface::PingMiss()
+{
+	ping_miss++;
+	if (ping_miss >= 6)
+		return true;
+	return false;
+}
+
+void Interface::PingReset()
+{
+	ping_miss = 0;
 }
 
 bool Interface::StartClientThread()
