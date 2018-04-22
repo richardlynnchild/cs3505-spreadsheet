@@ -2,8 +2,8 @@ test1
 test2
 test3
 test4
-richard.txt
-richard_2.txt
-richard_3.txt
-richard_4.txt
-richard_5.txt
+richard
+richard_2
+richard_3
+richard_4
+richard_5
