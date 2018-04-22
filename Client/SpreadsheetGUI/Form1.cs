@@ -118,6 +118,31 @@ namespace SpreadsheetGUI
                     OperatorKey("/");
                 else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.D8)
                     OperatorKey("*");
+                //pretty much none of the keys below actually send to the value of the cell, but they can be entered
+                else if (e.KeyData == Keys.Space)
+                    OperatorKey(" ");
+                else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.OemQuestion)
+                    OperatorKey("?");
+                else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.OemSemicolon)
+                    OperatorKey(":");
+                else if (e.KeyData == Keys.OemSemicolon)
+                    OperatorKey(";");
+                else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.D3)
+                    OperatorKey("#");
+                else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.D1)
+                    OperatorKey("!");
+                else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.D2)
+                    OperatorKey("@");
+                else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.D4)
+                    OperatorKey("$");
+                else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.D5)
+                    OperatorKey("%");
+                else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.D7)
+                    OperatorKey("&");
+                else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.D9)
+                    OperatorKey("(");
+                else if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.D0)
+                    OperatorKey(")");
 
                 //they are no longer editing
                 if (e.KeyData == Keys.Enter)
