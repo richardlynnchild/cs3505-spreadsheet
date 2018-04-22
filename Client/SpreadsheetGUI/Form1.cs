@@ -396,6 +396,7 @@ namespace SpreadsheetGUI
                     //if the message contains no cells, its length will be 12
                     state.callMe = ProcessMessage;
                     //why the heck are we starting these timers twice??
+                    //WE AREN'T
                     //TO DO
                     //pingTimer.Start();
                     //serverTimer.Start();
@@ -411,9 +412,14 @@ namespace SpreadsheetGUI
                     //split the cell name and value then set the cell.
                     foreach (string cell in cells)
                     {
+                        if (cell == "")
+                            continue;
                         string[] cellAndval = cell.Split(':');
                         string cellName = cellAndval[0];
                         string cellVal = cellAndval[1];
+
+                        //cellName = cellName.Trim(' ');
+                        //cellVal = cellVal.Trim(' ');
 
                         int[] colRow = GetCellPosition(cellName);
 
@@ -487,7 +493,7 @@ namespace SpreadsheetGUI
                             cell_name = clientFocus[user_id];
 
                             GetCellPosition(cell_name, out row, out col);
-                            spreadsheetPanel1.SetUnfocus(row, col);
+                            spreadsheetPanel1.SetUnfocus(cell_name, row, col);
                             break;
                         case "focus":
                             char[] delimiters3 = new char[] { ' ', ':'};
@@ -498,7 +504,7 @@ namespace SpreadsheetGUI
                             clientFocus[user_id] = cell_name;
 
                             GetCellPosition(cell_name, out row, out col);
-                            spreadsheetPanel1.SetFocus(row, col);
+                            spreadsheetPanel1.SetFocus(cell_name, row, col);
                             break;
                     }
 
@@ -939,6 +945,7 @@ namespace SpreadsheetGUI
         /// <returns>int[row, col]</returns>
         private int[] GetCellPosition(string cellName)
         {
+            cellName = cellName.Trim();
             int[] colRow = new int[2];
             colRow[0] = (int)cellName[0] - 65;
             colRow[1] = int.Parse(cellName[1].ToString()) - 1;
