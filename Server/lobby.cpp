@@ -335,11 +335,13 @@ void Lobby::Start(){
 
 	// Start a new thread that continuosly listens and accepts new connections 
 	pthread_t listen_thread;
-	if (pthread_create(&listen_thread, NULL, NetworkController::ListenForClients, this))
+	if (pthread_create(&listen_thread, NULL, NetworkController::ListenForClients, this)){
 		 std::cerr << "error creating thread for client listener" << std::endl;
-	else
-		listening = true;
-
+        }
+	else{
+	  listening = true;
+          pthread_detach(&listen_thread);
+        }
 	// Start timer thread for pinging clients
 	/*
 	pthread_t ping_thread;
@@ -349,11 +351,13 @@ void Lobby::Start(){
 		pinging = true;
 	*/
 	pthread_t main_thread;	
-	if (pthread_create(&main_thread, NULL, StartMainThread, this))
+	if (pthread_create(&main_thread, NULL, StartMainThread, this)){
 		 std::cerr << "error creating main lobby thread" << std::endl;
-	else
-		loop_running = true;
-
+        }
+	else{
+	  loop_running = true;
+          pthread_detach(&main_thread);
+        }
 	running = (listening && loop_running);
 }
 
@@ -397,5 +401,37 @@ void* Lobby::PingLoop(void* ptr)
 }
 
 void Lobby::Shutdown(){
-  	running = false;
+  //stop the lobby main loop
+  running = false;
+
+  //send a disconnect message
+  //to each client
+  std::string msg = "disconnect ";
+  char end = (char)3;
+  msg += end;
+  std::vector<Interface*>::iterator c_it = clients.begin();
+  for(; c_it != clients.end(); ++c_it){
+    (*c_it)->PushMessage(LOBBY,msg);
+  }
+
+  //save each spreadsheet object to disk
+  std::map<std::string, Spreadsheet>::iterator s_it = spreadsheets.begin();
+  for(; s_it != spreadsheets.end(); ++s_it){
+    std::string filename = s_it->first;
+    filename += ".txt";
+    s_it->second.WriteSpreadsheet(filename);
+  } 
+  
+  //stop each interface
+  c_it = clients.begin();
+  for(; c_it != clients.end(); ++c_it){
+    (*c_it)->StopClientThread();
+  }
+
 }
+
+
+
+
+
+

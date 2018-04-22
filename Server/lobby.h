@@ -18,10 +18,10 @@ class Lobby {
 
     bool running;
     std::vector<Interface*> clients;
-	std::queue<Interface*> new_clients;
+    std::queue<Interface*> new_clients;
     std::map<std::string, Spreadsheet> spreadsheets;
     std::set<std::string> sheet_list;
-	void InitSheetList();
+    void InitSheetList();
     bool CheckForNewClient();
     void InitNewClient(int id);
     std::string ParseSheetList();
