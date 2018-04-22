@@ -43,12 +43,14 @@ void Interface::PushMessage(int access_id, std::string message)
 	{
 		pthread_mutex_lock(&out_msg_mutex);
 		outbound_messages.push(message);
+		std::cout<<"Lobby pushing message "<< message <<std::endl;
 		pthread_mutex_unlock(&out_msg_mutex);
 	}
 	else if (access_id == CLIENT)
 	{	
 		pthread_mutex_lock(&in_msg_mutex);
 		inbound_messages.push(message);
+		std::cout<<"Client pushing message "<< message <<std::endl;
 		pthread_mutex_unlock(&in_msg_mutex);
 	}
 }

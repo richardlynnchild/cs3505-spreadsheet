@@ -1,5 +1,8 @@
 all: lobby.o interface.o spreadsheet.o network_controller.o
-	g++ -g listen_test.cpp lobby.o interface.o spreadsheet.o network_controller.o -pthread -o listenTest.o
+	g++ -g main.cpp lobby.o interface.o spreadsheet.o network_controller.o -pthread -o main
+
+listen_all: lobby.o interface.o spreadsheet.o network_controller.o
+	g++ -g listen_test.cpp lobby.o interface.o spreadsheet.o network_controller.o -pthread -o main
 
 lobby.o:
 	g++ -c lobby.cpp -pthread
