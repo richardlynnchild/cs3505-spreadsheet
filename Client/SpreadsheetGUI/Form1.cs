@@ -550,7 +550,7 @@ namespace SpreadsheetGUI
                     }
 
 
-                    state.builder.Remove(0, message.Length);
+                    state.builder.Remove(0, msg.Length + ((char)3).ToString().Length);
                 }
             }
             Network.GetData(state);
