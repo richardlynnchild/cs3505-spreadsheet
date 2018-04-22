@@ -302,6 +302,9 @@ namespace SpreadsheetGUI
             connected = false;
             previousSelection = "A1";
 
+            FilePanel.Visible = false;
+            FileList.Items.Clear();
+
             serverSock = null;
             theServer = null;
             ServerTextBox.Enabled = true;
@@ -321,6 +324,7 @@ namespace SpreadsheetGUI
         {
             Open_FileMenu.Enabled = false;
             string message = "load " + FileTextSelect.Text + (char)3;
+            FileList.Items.Clear();
             Network.Send(theServer, message);
             Network.GetData(serverSock);
         }
