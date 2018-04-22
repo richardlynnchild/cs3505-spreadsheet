@@ -36,6 +36,7 @@ bool FileContains(std::string filename, std::string query)
 {
   std::ifstream file;
   std::string line;
+
   file.open(filename.c_str());
 
   if ( ! file)
@@ -119,11 +120,14 @@ bool Spreadsheet::ReadSpreadsheet(std::string filename)
   std::ifstream file;
   std::vector<std::string> cell_name_val;
 
+  filename = filename + ".sprd";
+
   file.open(filename.c_str());
 
   if ( ! file)
   {
     std::cout << "File could not be opened. Does it exit, or ts it currently being written too or read from?" << std::endl;
+    std::cout << "Filename: " << filename << std::endl;
     return false;
   }
 
@@ -148,7 +152,9 @@ bool Spreadsheet::WriteSpreadsheet(std::string filename)
 {
   std::ofstream file;
 
-  file.open(filename.c_str());
+  std::string full_filename = filename + ".sprd";
+
+  file.open(full_filename.c_str());
 
   if ( ! file)
   {

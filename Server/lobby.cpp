@@ -110,7 +110,7 @@ bool Lobby::CheckForNewClient(){
         spreadsheets.insert(std::pair<std::string,Spreadsheet>(name,new_sheet));
       }
       else {
-        Spreadsheet new_sheet (name, name + ".txt"); //not active, but saved
+        Spreadsheet new_sheet (name, name); //not active, but saved
         spreadsheets.insert(std::pair<std::string,Spreadsheet>(name,new_sheet));
       }
     }
@@ -420,7 +420,6 @@ void Lobby::Shutdown(){
   std::map<std::string, Spreadsheet>::iterator s_it = spreadsheets.begin();
   for(; s_it != spreadsheets.end(); ++s_it){
     std::string filename = s_it->first;
-    filename += ".txt";
     s_it->second.WriteSpreadsheet(filename);
   } 
   
