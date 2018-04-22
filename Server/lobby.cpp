@@ -247,6 +247,7 @@ void Lobby::HandleMessage(std::string message, std::string sheet, int id){
     if(cell.first == "NULL")
       return;
     std::string message = cell.first;
+    message += ":";
     message += cell.second;
     SendChangeMessage(message,sheet); 
   }
