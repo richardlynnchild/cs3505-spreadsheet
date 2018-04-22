@@ -456,7 +456,7 @@ namespace SpreadsheetGUI
                 foreach (string msg in messages)
                 {
                     if (msg == "")
-                        return;
+                        break;
                     string[] msg2 = msg.Split(' ');
                     string command = msg2[0];
                     switch (command)
@@ -516,8 +516,6 @@ namespace SpreadsheetGUI
                     state.builder.Remove(0, message.Length);
                 }
             }
-
-
             Network.GetData(state);
         }
 
