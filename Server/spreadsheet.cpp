@@ -268,6 +268,8 @@ std::pair<std::string, std::string> Spreadsheet::Undo()
   
 std::string Spreadsheet::Revert(std::string cell_name)
 {
+  if(revert_stacks[cell_name].count<1){
+    return "NULL";  
   undo_stack.push(std::pair<std::string,std::string>(cell_name,spreadsheet_state[cell_name]));
   std::string ret = revert_stacks[cell_name].top();
   revert_stacks[cell_name].pop();
