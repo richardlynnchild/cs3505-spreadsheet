@@ -56,11 +56,9 @@ void Lobby::InitSheetList()
  * Add an Interface to the new_client queue.
  */
 void Lobby::AddNewClient(Interface* interface){
-  std::cout << "Called AddNewClient" << std::endl;
   pthread_mutex_lock(&new_client_mutex);
   this->new_clients.push(interface);
   pthread_mutex_unlock(&new_client_mutex);
-  std::cout << "End AddNewClient" << std::endl;
 }
 
 
@@ -221,7 +219,7 @@ void Lobby::ResetPingMiss(int id)
   {
     if((*it)->GetClientSocketID() == id)
     {
-      (*it)->PingMiss == 0;
+      (*it)->PingReset();
     }
   }
 }
@@ -316,8 +314,7 @@ void Lobby::LobbyPing()
     for(; it!= clients.end(); ++it)
     {
       (*it)->PushMessage(LOBBY, msg);
-      (*it)->PingMiss++;
-      if((*it)->PingMiss >= 6)
+      if((*it)->PingMiss())
       {
 	(*it)->StopClientThread();
       }
@@ -374,9 +371,10 @@ void Lobby::MainLoop()
 	//      - If they exist push a full state message into their interface
 	//      - Add them to client list
 	while(running){
-	  if(!CheckForNewClient() && !CheckForMessages()){
-	    int ten_ms = 10000;
-	    usleep(ten_ms); 
+	  if(!CheckForNewClient())	
+	    if (!CheckForMessages()){
+	      int ten_ms = 10000;
+	      usleep(ten_ms); 
 	  }
 	  
 	  CheckForMessages();

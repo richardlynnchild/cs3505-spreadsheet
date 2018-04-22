@@ -492,11 +492,12 @@ namespace SpreadsheetGUI
         private void ProcessMessage(SocketState state)
         {
             string message;
-
+            
             lock (state)
             {
                 message = state.builder.ToString();
                 string[] messages = message.Split((char)3);
+
 
                 foreach (string msg in messages)
                 {
@@ -566,7 +567,7 @@ namespace SpreadsheetGUI
                     }
 
 
-                    state.builder.Remove(0, message.Length);
+                    state.builder.Remove(0, msg.Length + ((char)3).ToString().Length);
                 }
             }
             Network.GetData(state);

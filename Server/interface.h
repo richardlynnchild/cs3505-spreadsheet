@@ -23,6 +23,7 @@ private:
 
     //interface and client networking socket
     int client_socket_id;
+    int ping_miss;
 
 public:
 
@@ -33,8 +34,9 @@ public:
     std::string GetMessage();
     std::string GetSprdName();
     int GetClientSocketID();
+	bool PingMiss();
+	void PingReset();
     bool IsActive();
-    int PingMiss;
     bool StartClientThread();
     void StopClientThread();
 };
