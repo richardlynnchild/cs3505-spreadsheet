@@ -57,7 +57,7 @@ namespace SpreadsheetGUI
             this.spreadsheetPanel1.SetSelection(0, 0);
             this.previousSelection = GetCellName(0, 0);
 
-            
+
             serverTimer = new System.Timers.Timer();
             serverTimer.Interval = 60000; //60 s?
             serverTimer.Elapsed += DisconnectDetector;
@@ -65,7 +65,7 @@ namespace SpreadsheetGUI
             pingTimer = new System.Timers.Timer();
             pingTimer.Interval = 10000;
             pingTimer.Elapsed += SendPing;
-            
+
         }
 
         #region Spreadsheet Control
@@ -94,7 +94,7 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void ProcessKeyStroke(object sender, KeyEventArgs e)
         {
-            if ( ! ServerTextBox.Focused && ! FilePanel.Visible &&  connected)
+            if (!ServerTextBox.Focused && !FilePanel.Visible && connected)
             {
                 if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.Oemplus)
                     OperatorKey("+");
@@ -141,7 +141,7 @@ namespace SpreadsheetGUI
                     }
                 }
             }
-            else if (! connected && ! ServerTextBox.Focused)
+            else if (!connected && !ServerTextBox.Focused)
             {
                 MessageBox.Show("Please connect to a server before editing a spreadsheet");
                 ServerTextBox.Focus();
@@ -328,7 +328,7 @@ namespace SpreadsheetGUI
             Network.Send(theServer, message);
             Network.GetData(serverSock);
         }
- 
+
         /// <summary>
         /// Sends a string message to the server.
         /// </summary>
@@ -390,7 +390,7 @@ namespace SpreadsheetGUI
                     Open_FileMenu.Enabled = true;
                     state.callMe = HandleFullState;
                 }
-                else if(message.Contains("ping " + ((char)3)))
+                else if (message.Contains("ping " + ((char)3)))
                 {
                     message.Remove(message.IndexOf("ping " + ((char)3)));
                     //message.Split("ping " + ((char)3).ToString());
@@ -463,7 +463,7 @@ namespace SpreadsheetGUI
                     {
                         case "change":
                             //get cell name and contents from message
-                            char[] delimiters = new char[] { ' ', ':'};
+                            char[] delimiters = new char[] { ' ', ':' };
                             string[] msg_parts = msg.Split(delimiters);
                             string cell_name = msg_parts[1];
                             string contents = msg_parts[2];
@@ -474,12 +474,12 @@ namespace SpreadsheetGUI
                             break;
 
                         case "ping":
-                            if(msg == "ping ")
+                            if (msg == "ping ")
                             {
                                 SendMessage("ping_response " + ((char)3));
                             }
 
-                            else if(msg == "ping_response ")
+                            else if (msg == "ping_response ")
                             {
                                 //timer reset -- not sure this is right
                                 serverTimer.Stop();
@@ -490,7 +490,7 @@ namespace SpreadsheetGUI
                             HandleDisconnect();
                             break;
                         case "unfocus":
-                            char[] delimiters2 = new char[] { ' '};
+                            char[] delimiters2 = new char[] { ' ' };
                             string[] msg_parts2 = msg.Split(delimiters2);
                             string user_id = msg_parts2[1];
 
@@ -500,7 +500,7 @@ namespace SpreadsheetGUI
                             spreadsheetPanel1.SetUnfocus(cell_name, row, col);
                             break;
                         case "focus":
-                            char[] delimiters3 = new char[] { ' ', ':'};
+                            char[] delimiters3 = new char[] { ' ', ':' };
                             string[] msg_parts3 = msg.Split(delimiters3);
                             cell_name = msg_parts3[1];
                             user_id = msg_parts3[2];
@@ -952,7 +952,7 @@ namespace SpreadsheetGUI
             cellName = cellName.Trim();
             int[] colRow = new int[2];
             colRow[0] = (int)cellName[0] - 65;
-            colRow[1] = int.Parse(cellName[1].ToString()) - 1;
+            colRow[1] = int.Parse(cellName.Substring(1).ToString()) - 1;
 
             return colRow;
         }
@@ -994,7 +994,7 @@ namespace SpreadsheetGUI
 
 
         /// <summary>
-        /// Sets the specified cell to 
+        /// Sets the specified cell back to its original value.
         /// </summary>
         /// <param name="cellName"></param>
         private void ResetCell(string cellName)
@@ -1018,33 +1018,30 @@ namespace SpreadsheetGUI
         /// </summary>
         private void SetCell(int row, int col, string cellVal)
         {
-            lock (ss1)
+            try
             {
-                try
+                string cellName = GetCellName(col, row);
+                ss1.SetContentsOfCell(cellName, cellVal);
+
+                //if the result is a formula error display a formula error message, otherwise set the cell with the result.
+                if (ss1.GetCellValue(cellName).GetType() == typeof(FormulaError))
+                    spreadsheetPanel1.SetValue(col, row, "Formula Error!");
+
+                else
                 {
-                    string cellName = GetCellName(col, row);
-                    ss1.SetContentsOfCell(cellName, cellVal);
-
-                    //if the result is a formula error display a formula error message, otherwise set the cell with the result.
-                    if (ss1.GetCellValue(cellName).GetType() == typeof(FormulaError))
-                        spreadsheetPanel1.SetValue(col, row, "Formula Error!");
-
-                    else
-                    {
-                        spreadsheetPanel1.SetValue(col, row, ss1.GetCellValue(cellName).ToString());
-                        UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
-                    }
+                    spreadsheetPanel1.SetValue(col, row, ss1.GetCellValue(cellName).ToString());
+                    UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
                 }
+            }
 
-                catch (CircularException)
-                {
-                    spreadsheetPanel1.SetValue(col, row, "Ciruclar Dependency!");
-                }
+            catch (CircularException)
+            {
+                spreadsheetPanel1.SetValue(col, row, "Ciruclar Dependency!");
+            }
 
-                catch (FormulaFormatException)
-                {
-                    spreadsheetPanel1.SetValue(col, row, "Invalid Formula!");
-                }
+            catch (FormulaFormatException)
+            {
+                spreadsheetPanel1.SetValue(col, row, "Invalid Formula!");
             }
         }
 
@@ -1055,26 +1052,23 @@ namespace SpreadsheetGUI
         /// <param name="cellsToChange"></param>
         private void UpdateCells(ISet<string> cellsToChange)
         {
-            lock (ss1)
+            foreach (string cellName in cellsToChange)
             {
-                foreach (string cellName in cellsToChange)
-                {
-                    //get the numeric row, col position of the cell
-                    int col = Convert.ToChar(cellName.Substring(0, 1)) - 65;
-                    int row = Convert.ToInt16(cellName.Substring(1)) - 1;
+                //get the numeric row, col position of the cell
+                int col = Convert.ToChar(cellName.Substring(0, 1)) - 65;
+                int row = Convert.ToInt16(cellName.Substring(1)) - 1;
 
-                    //update the cell state in the spreadsheet
-                    ss1.UpdateCell(cellName);
+                //update the cell state in the spreadsheet
+                ss1.UpdateCell(cellName);
 
-                    //update the GUI
-                    if (ss1.GetCellValue(cellName).GetType() != typeof(FormulaError))
-                        spreadsheetPanel1.SetValue(col, row, ss1.GetCellValue(cellName).ToString());
-                    else
-                        spreadsheetPanel1.SetValue(col, row, "Formula Error!");
+                //update the GUI
+                if (ss1.GetCellValue(cellName).GetType() != typeof(FormulaError))
+                    spreadsheetPanel1.SetValue(col, row, ss1.GetCellValue(cellName).ToString());
+                else
+                    spreadsheetPanel1.SetValue(col, row, "Formula Error!");
 
-                    //update all dependent cells
-                    UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
-                }
+                //update all dependent cells
+                UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
             }
         }
 
