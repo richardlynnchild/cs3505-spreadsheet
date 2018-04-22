@@ -17,11 +17,11 @@ class Lobby {
 	pthread_mutex_t new_client_mutex;
 
     bool running;
-    std::vector<Interface> clients;
+    std::vector<Interface*> clients;
+    std::queue<Interface*> new_clients;
     std::map<std::string, Spreadsheet> spreadsheets;
     std::set<std::string> sheet_list;
-	void InitSheetList();
-    static void* PingLoop(void* ptr);
+    void InitSheetList();
     bool CheckForNewClient();
     void InitNewClient(int id);
     std::string ParseSheetList();
@@ -34,17 +34,19 @@ class Lobby {
     void SendChangeMessage(std::string message, std::string sheet);
     void SendFocusMessage(std::string cell, std::string sheet, int id);
     void SendUnfocusMessage(std::string sheet, int id);
-    static void* StartMainThread(void* ptr);
+    void SendPingResponse(int id);
+    void ResetPingMiss(int id);
     void MainLoop();
-    Spreadsheet BuildSheetFromFile(std::string name);
-
+    void LobbyPing();
+	
+    static void* StartMainThread(void* ptr);
+    static void* PingLoop(void* ptr);
 
   public:
     Lobby();
     void Start();
     void Shutdown();
     std::string BuildConnectAccepted();
-    std::set<std::string> GetSheetList();
     bool IsRunning();
     void AddNewClient(Interface* interface);
 

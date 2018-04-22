@@ -53,30 +53,14 @@ void Lobby::InitSheetList()
 }
 
 /*
- * Return a spreadsheet object that has been built from the
- * file on disk.
- */
-
-Spreadsheet Lobby::BuildSheetFromFile(std::string name){
-
-
-}
-
-
-/*
- * Returns the sheet list of this Lobby
- */
-std::set<std::string> Lobby::GetSheetList(){
-  return this->sheet_list;
-}
-
-/*
  * Add an Interface to the new_client queue.
  */
 void Lobby::AddNewClient(Interface* interface){
+  std::cout << "Called AddNewClient" << std::endl;
   pthread_mutex_lock(&new_client_mutex);
   this->new_clients.push(interface);
   pthread_mutex_unlock(&new_client_mutex);
+  std::cout << "End AddNewClient" << std::endl;
 }
 
 
@@ -110,15 +94,15 @@ std::string Lobby::BuildConnectAccepted(){
  */
 bool Lobby::CheckForNewClient(){
   bool idle = true;
+  
+  //Check if there is a client waiting to connect
   if(new_clients.size() > 0){
     idle = false;
     Interface* new_client = new_clients.front();
     new_clients.pop();
     std::string name = new_client->GetSprdName();
-    clients.push_back(*new_client); 
-    //Check if the spreadsheet is active 
+    //Check if the desired spreadsheet is active 
     if(spreadsheets.count(name)<1){
-
       //Check if the spreadsheet is saved
       std::set<std::string>::iterator it = sheet_list.find(name);
       if(it == sheet_list.end()){
@@ -126,13 +110,18 @@ bool Lobby::CheckForNewClient(){
         spreadsheets.insert(std::pair<std::string,Spreadsheet>(name,new_sheet));
       }
       else {
-        Spreadsheet new_sheet = BuildSheetFromFile(name); //not active, but saved
+        Spreadsheet new_sheet (name, name + ".txt"); //not active, but saved
         spreadsheets.insert(std::pair<std::string,Spreadsheet>(name,new_sheet));
       }
     }
     std::string full_state = spreadsheets[name].GetFullState();
-	new_client->StartClientThread(); 
+    new_client->StartClientThread();
     new_client->PushMessage(LOBBY, full_state);
+    
+    //Add the client to the active client list
+    //Should be done after 'full_state' message
+    //is sent
+    clients.push_back(new_client);
   } 
   return idle;
 }
@@ -161,10 +150,10 @@ void Lobby::SendChangeMessage(std::string message, std::string sheet){
   change += message;
   char end = (char) 3;
   change += end;
-  std::vector<Interface>::iterator it = clients.begin();
+  std::vector<Interface*>::iterator it = clients.begin();
     for(; it != clients.end(); ++it){
-      if(it->GetSprdName() == sheet){
-        it->PushMessage(LOBBY, change);
+      if((*it)->GetSprdName() == sheet){
+        (*it)->PushMessage(LOBBY, change);
       }
     } 
 }
@@ -173,17 +162,19 @@ void Lobby::SendChangeMessage(std::string message, std::string sheet){
  * Send a focus message with the specified cell name
  * to the clients of the specified spreadsheet.
  */
-void Lobby::SendFocusMessage(std::string cell, std::string sheet, int id){
-  std::string focus = "focus ";
-  focus += cell;
-  focus += ":";
-  focus += id; 
-  char end = (char) 3;
-  focus += end;
-  std::vector<Interface>::iterator it = clients.begin();
+void Lobby::SendFocusMessage(std::string msg, std::string sheet, int id){
+  std::vector<std::string> tokens = SplitString(msg, ' ');
+  std::vector<std::string> smaller = SplitString(tokens[1], ((char)3));
+  std::string cell = smaller[0];
+  std::stringstream ss;
+  ss << id;
+  std::string usr_id = ss.str();
+  std::string focus = "focus "+ cell + ":" + usr_id + ((char)3);
+  std::cout<<"Client id " << id << std::endl;
+  std::vector<Interface*>::iterator it = clients.begin();
     for(; it != clients.end(); ++it){
-      if(it->GetSprdName() == sheet){
-        it->PushMessage(LOBBY, focus);
+      if((*it)->GetSprdName() == sheet){
+        (*it)->PushMessage(LOBBY, focus);
       }
     } 
 }
@@ -194,15 +185,41 @@ void Lobby::SendFocusMessage(std::string cell, std::string sheet, int id){
  */
 void Lobby::SendUnfocusMessage(std::string sheet, int id)
 {
-  std::string msg = "unfocus ";
-  msg += id;
-  msg += ((char)3);
-  std::vector<Interface>::iterator it = clients.begin();
+  std::stringstream ss;
+  ss << id;
+  std::string usr_id = ss.str();
+  std::string msg = "unfocus "+ usr_id + ((char)3);
+  std::vector<Interface*>::iterator it = clients.begin();
   for(; it != clients.end(); ++it)
   {
-    if(it->GetSprdName() == sheet)
+    if((*it)->GetSprdName() == sheet)
     {
-      it->PushMessage(LOBBY, msg);
+      (*it)->PushMessage(LOBBY, msg);
+    }
+  }
+}
+
+void Lobby::SendPingResponse(int id)
+{
+  std::string msg = "ping_response " + ((char)3);
+  std::vector<Interface*>::iterator it = clients.begin();
+  for(; it!= clients.end(); ++it)
+  {
+    if((*it)->GetClientSocketID() == id)
+    {
+      (*it)->PushMessage(LOBBY, msg);
+    }
+  }
+}
+
+void Lobby::ResetPingMiss(int id)
+{
+  std::vector<Interface*>::iterator it = clients.begin();
+  for(; it!= clients.end(); ++it)
+  {
+    if((*it)->GetClientSocketID() == id)
+    {
+      (*it)->PingMiss == 0;
     }
   }
 }
@@ -212,11 +229,12 @@ void Lobby::SendUnfocusMessage(std::string sheet, int id)
  */
 
 void Lobby::HandleMessage(std::string message, std::string sheet, int id){
-  
+  std::cout<<"Received message" <<std::endl;
   //Split the message and get the command
   char delim = ' ';
   std::vector<std::string> tokens = SplitString(message, delim);
   std::string command = tokens[0];
+  std::cout<<"message: "<< command <<std::endl;
 
   if(command == "edit"){
     char delim = ':';
@@ -235,13 +253,26 @@ void Lobby::HandleMessage(std::string message, std::string sheet, int id){
     SendChangeMessage(message,sheet); 
   }
   else if(command == "disconnect"){
-     
+    std::vector<Interface*>::iterator it = clients.begin();
+    for(; it != clients.end(); ++it){
+      if(id == (*it)->GetClientSocketID()){
+        (*it)->StopClientThread();
+        clients.erase(it);  
+      }    
+    }    
   }
   else if(command == "focus"){
     SendFocusMessage(message, sheet, id);
+    std::cout<< "focus sent" << std::endl;
   }
   else if(command == "unfocus"){
     SendUnfocusMessage(sheet, id);
+  }
+  else if(command == "ping"){
+    SendPingResponse(id);
+  }
+  else if(command == "ping_response"){
+    ResetPingMiss(id);
   }
 
 }
@@ -252,12 +283,12 @@ void Lobby::HandleMessage(std::string message, std::string sheet, int id){
  */
 bool Lobby::CheckForMessages(){
   int messagesHandled = 0;
-  std::vector<Interface>::iterator it = clients.begin();
+  std::vector<Interface*>::iterator it = clients.begin();
   for(; it != clients.end(); ++it){
     //Pop next message off Interface incoming message queue
-    std::string message = it->PullMessage(LOBBY);
-    std::string sheet = it->GetSprdName();
-    int client_id = it->GetClientSocketID();
+    std::string message = (*it)->PullMessage(LOBBY);
+    std::string sheet = (*it)->GetSprdName();
+    int client_id = (*it)->GetClientSocketID();
     if(message == ""){
       continue;
     }
@@ -270,6 +301,26 @@ bool Lobby::CheckForMessages(){
   return messagesHandled > 0;
 }
 
+void Lobby::LobbyPing()
+{
+  while(true)
+  {
+    std::string msg = "ping ";
+    char end = (char) 3;
+    msg += end;
+    std::vector<Interface*>::iterator it = clients.begin();
+    for(; it!= clients.end(); ++it)
+    {
+      (*it)->PushMessage(LOBBY, msg);
+      (*it)->PingMiss++;
+      if((*it)->PingMiss >= 6)
+      {
+	(*it)->StopClientThread();
+      }
+    }
+    sleep(10);
+  }
+}
 
 bool Lobby::IsRunning()
 {
@@ -280,20 +331,33 @@ void Lobby::Start(){
 
 	bool listening = false;
 	bool loop_running = false;
+	bool pinging = false;
+
 	// Start a new thread that continuosly listens and accepts new connections 
 	pthread_t listen_thread;
-	if (pthread_create(&listen_thread, NULL, NetworkController::ListenForClients, this))
+	if (pthread_create(&listen_thread, NULL, NetworkController::ListenForClients, this)){
 		 std::cerr << "error creating thread for client listener" << std::endl;
-	else
-		listening = true;
+        }
+	else{
+	  listening = true;
+          pthread_detach(&listen_thread);
+        }
 	// Start timer thread for pinging clients
-	
-	pthread_t main_thread;	
-	if (pthread_create(&main_thread, NULL, StartMainThread, this))
-		 std::cerr << "error creating main lobby thread" << std::endl;
+	/*
+	pthread_t ping_thread;
+	if (pthread_create(&ping_thread, NULL, PingLoop, this))
+		 std::cerr << "error creating thread for pinging" << std::endl;
 	else
-		loop_running = true;
-
+		pinging = true;
+	*/
+	pthread_t main_thread;	
+	if (pthread_create(&main_thread, NULL, StartMainThread, this)){
+		 std::cerr << "error creating main lobby thread" << std::endl;
+        }
+	else{
+	  loop_running = true;
+          pthread_detach(&main_thread);
+        }
 	running = (listening && loop_running);
 }
 
@@ -305,20 +369,20 @@ void Lobby::MainLoop()
 	// 1. Check for new clients in the new client queue
 	//      - If they exist push a full state message into their interface
 	//      - Add them to client list
-	     
-	bool idle;
 	while(running){
-	  idle = CheckForNewClient();
-	  if(idle){
+	  if(!CheckForNewClient() && !CheckForMessages()){
 	    int ten_ms = 10000;
 	    usleep(ten_ms); 
 	  }
+	  
+	  CheckForMessages();
 	} 
 	// 2. For each client, process incoming messages in a Round Robin fashion
 	//      - Get message
 	//      - Update spreadsheet object
 	//      - Push change command to all client interfaces
-	// 
+	
+
 	// 3. Check to see if program should be shutdown
 	//
 	//
@@ -332,13 +396,42 @@ void* Lobby::StartMainThread(void* ptr)
 
 void* Lobby::PingLoop(void* ptr)
 {
-  // loop:
-  // 
-  // 1. Iterate through clients and push ping message
-  // 2. Wait 10 seconds
-  // 3. pingMiss++ for each client 
+  Lobby* lobby_ptr = (Lobby*) ptr;
+  lobby_ptr->LobbyPing();
 }
 
 void Lobby::Shutdown(){
-  	running = false;
+  //stop the lobby main loop
+  running = false;
+
+  //send a disconnect message
+  //to each client
+  std::string msg = "disconnect ";
+  char end = (char)3;
+  msg += end;
+  std::vector<Interface*>::iterator c_it = clients.begin();
+  for(; c_it != clients.end(); ++c_it){
+    (*c_it)->PushMessage(LOBBY,msg);
+  }
+
+  //save each spreadsheet object to disk
+  std::map<std::string, Spreadsheet>::iterator s_it = spreadsheets.begin();
+  for(; s_it != spreadsheets.end(); ++s_it){
+    std::string filename = s_it->first;
+    filename += ".txt";
+    s_it->second.WriteSpreadsheet(filename);
+  } 
+  
+  //stop each interface
+  c_it = clients.begin();
+  for(; c_it != clients.end(); ++c_it){
+    (*c_it)->StopClientThread();
+  }
+
 }
+
+
+
+
+
+

@@ -19,7 +19,6 @@ namespace SpreadsheetGUI
         private string previousSelection;
         private System.Timers.Timer pingTimer;
         private System.Timers.Timer serverTimer;
-        private string complete_message;
         private SocketState serverSock;
         public Form1()
         {
@@ -58,6 +57,7 @@ namespace SpreadsheetGUI
             this.spreadsheetPanel1.SetSelection(0, 0);
             this.previousSelection = GetCellName(0, 0);
 
+            
             serverTimer = new System.Timers.Timer();
             serverTimer.Interval = 60000; //60 s?
             serverTimer.Elapsed += DisconnectDetector;
@@ -65,6 +65,7 @@ namespace SpreadsheetGUI
             pingTimer = new System.Timers.Timer();
             pingTimer.Interval = 10000;
             pingTimer.Elapsed += SendPing;
+            
         }
 
         #region Spreadsheet Control
@@ -82,7 +83,7 @@ namespace SpreadsheetGUI
 
             //set the contents of the formula box and set focus to it.
             FormulaBox.Text = ss1.GetCellContents(cellName).ToString();
-
+            this.ActiveControl = FormulaBox;
         }
 
 
@@ -260,7 +261,7 @@ namespace SpreadsheetGUI
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void UndoButton_Click(object sender, EventArgs e)
+        private void undo_button_MouseClick(object sender, MouseEventArgs e)
         {
             if (connected)
             {
@@ -273,7 +274,8 @@ namespace SpreadsheetGUI
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void RevertButton_Click(object sender, EventArgs e)
+
+        private void revert_button_MouseClick(object sender, MouseEventArgs e)
         {
             if (connected)
             {
@@ -359,23 +361,52 @@ namespace SpreadsheetGUI
         /// <param name="state"></param>
         private void HandleFullState(SocketState state)
         {
+            state.callMe = ProcessMessage;
+
             string message;
-
             lock (state) { message = state.builder.ToString(); }
+            state.builder.Clear();
+            //SOOOO many bugs in this area!
+            //goes into line 364 like 5 times and comes out with a different message every time
+            //starts the if(message.Contains) with the right message, by the time it gets to else if ping,
+            //the message was ""
 
-            complete_message += message;
+            //ALSO half the time the message is just full state (char)3, and half of the time it has anywhere
+            //from 1 to like 6 ping messages included still...
+            MethodInvoker FMInvoker = new MethodInvoker(() =>
+            {
+                FilePanel.Visible = false;
+            });
 
             if (message.Contains(((char)3).ToString()))
             {
-                if (complete_message.Length < 20 && complete_message.Contains("file_load_error"))
+                if (message.Length < 20 && message.Contains("file_load_error"))
                 {
                     MessageBox.Show("Could not open/create spreadsheet!");
                     Open_FileMenu.Enabled = true;
+                    state.callMe = HandleFullState;
+                }
+                else if(message.Contains("ping " + ((char)3)))
+                {
+                    message.Remove(message.IndexOf("ping " + ((char)3)));
+                    //message.Split("ping " + ((char)3).ToString());
+                }
+                else if (message.Length == 12)
+                {
+                    //if the message contains no cells, its length will be 12
+                    state.callMe = ProcessMessage;
+                    //why the heck are we starting these timers twice??
+                    //TO DO
+                    //pingTimer.Start();
+                    //serverTimer.Start();
+                    this.Invoke(FMInvoker);
                 }
                 else
                 {
-                    state.callMe = ProcessMessage;
-                    string[] cells = complete_message.Split('\n');
+                    //remove "full_state " and the terminating character
+                    message = message.Substring(10, message.Length - 11);
+
+                    string[] cells = message.Split('\n');
 
                     //split the cell name and value then set the cell.
                     foreach (string cell in cells)
@@ -388,13 +419,13 @@ namespace SpreadsheetGUI
 
                         SetCell(colRow[1], colRow[0], cellVal);
                     }
-
-                    FilePanel.Visible = false;
+                    //TO DO put back (also on server)
+                    //pingTimer.Start();
+                    //serverTimer.Start();
+                    this.Invoke(FMInvoker);
                 }
             }
 
-            pingTimer.Start();
-            serverTimer.Start();
 
             Network.GetData(state);
         }
@@ -414,9 +445,13 @@ namespace SpreadsheetGUI
 
                 foreach (string msg in messages)
                 {
-                    switch (msg.Substring(0,3))
+                    if (msg == "")
+                        return;
+                    string[] msg2 = msg.Split(' ');
+                    string command = msg2[0];
+                    switch (command)
                     {
-                        case "chan":
+                        case "change":
                             //get cell name and contents from message
                             char[] delimiters = new char[] { ' ', ':'};
                             string[] msg_parts = msg.Split(delimiters);
@@ -441,34 +476,34 @@ namespace SpreadsheetGUI
                                 serverTimer.Start();
                             }
                             break;
-                        case "disc":
+                        case "disconnect":
                             HandleDisconnect();
                             break;
-                        case "unfo":
+                        case "unfocus":
                             char[] delimiters2 = new char[] { ' '};
-                            string[] msg_parts2 = message.Split(delimiters2);
+                            string[] msg_parts2 = msg.Split(delimiters2);
                             string user_id = msg_parts2[1];
 
                             cell_name = clientFocus[user_id];
 
                             GetCellPosition(cell_name, out row, out col);
-                            spreadsheetPanel1.SetUnfocus(row, col);
+                            spreadsheetPanel1.SetUnfocus(cell_name, row, col);
                             break;
-                        case "focu":
+                        case "focus":
                             char[] delimiters3 = new char[] { ' ', ':'};
-                            string[] msg_parts3 = message.Split(delimiters3);
+                            string[] msg_parts3 = msg.Split(delimiters3);
                             cell_name = msg_parts3[1];
                             user_id = msg_parts3[2];
 
                             clientFocus[user_id] = cell_name;
 
                             GetCellPosition(cell_name, out row, out col);
-                            spreadsheetPanel1.SetFocus(row, col);
+                            spreadsheetPanel1.SetFocus(cell_name, row, col);
                             break;
                     }
 
 
-                    state.builder.Remove(0, msg.Length);
+                    state.builder.Remove(0, message.Length);
                 }
             }
 
@@ -738,8 +773,9 @@ namespace SpreadsheetGUI
                 message = state.builder.ToString();
             }
 
-            //remove the first 17 ("connect_accepted ") characters from the string.
-            message = message.Substring(17);
+            //remove the first 17 ("connect_accepted \n") characters from the string.
+            //And don't take the last two terminating characters at the end of the message.
+            message = message.Substring(18, message.Length - 20);
 
             MethodInvoker FMInvoker = new MethodInvoker(() =>
             {
@@ -770,7 +806,7 @@ namespace SpreadsheetGUI
 
         #region Helper Methods
 
-        private void DisconnectButton_Click(object sender, EventArgs e)
+        private void DisconnectButton_MouseClick(object sender, MouseEventArgs e)
         {
             if (connected)
                 Disconnect();
@@ -838,9 +874,11 @@ namespace SpreadsheetGUI
                 if (FormulaBox.Text.Length > 0)
                     FormulaBox.SelectionStart = FormulaBox.Text.Length;
 
-                //once networking is back up...
+                //unfocus from the current cell
                 string unfocusMessage = "unfocus " + ((char)3);
                 SendMessage(unfocusMessage);
+
+                //tell server to edit the cell's contents
                 string cellName = GetCellName(col, row);
                 string editMsg = "edit " + cellName + ":" + contents + ((char)3);
                 SendMessage(editMsg);
@@ -1028,6 +1066,9 @@ namespace SpreadsheetGUI
             SpreadsheetApplicationContext.getAppContext().RunForm(new Form1());
         }
 
+
         #endregion
+
+
     }
 }
