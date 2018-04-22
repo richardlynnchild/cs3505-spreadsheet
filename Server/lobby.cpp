@@ -247,11 +247,17 @@ void Lobby::HandleMessage(std::string message, std::string sheet, int id){
     if(cell.first == "NULL")
       return;
     std::string message = cell.first;
+    message += ":";
     message += cell.second;
     SendChangeMessage(message,sheet); 
   }
   else if(command == "revert"){
-    std::string message = spreadsheets[sheet].Revert(tokens[1]);
+    std::string message = tokens[1];
+    message += ":";
+    std::string revertedcell = spreadsheets[sheet].Revert(tokens[1]);
+    if(revertedcell == "NULL")
+      return;
+    message += revertedcell;
     SendChangeMessage(message,sheet); 
   }
   else if(command == "disconnect"){
