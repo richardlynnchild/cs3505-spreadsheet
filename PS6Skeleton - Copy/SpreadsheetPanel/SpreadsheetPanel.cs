@@ -525,18 +525,6 @@ namespace SS
                     Font f = (_selectedRow - _firstRow == y) ? boldFont : Font;
                     DrawRowLabel(e.Graphics, y, f);
                 }
-
-                // Highlight the selection, if it is visible
-                if (((_selectedCol - _firstColumn >= 0) && (_selectedRow - _firstRow >= 0)))
-                {
-                    e.Graphics.DrawRectangle(
-                        pen,
-                        new Rectangle(LABEL_COL_WIDTH + (_selectedCol - _firstColumn) * DATA_COL_WIDTH + 1,
-                                      LABEL_ROW_HEIGHT + (_selectedRow - _firstRow) * DATA_ROW_HEIGHT + 1,
-                                      DATA_COL_WIDTH - 2,
-                                      DATA_ROW_HEIGHT - 2));
-                }
-
                 
                 //set unfocus back to white
                 foreach(KeyValuePair<string, KeyValuePair<int, int>> cell in unfocused_cells)
@@ -571,7 +559,16 @@ namespace SS
                     }
                 }
 
-
+                // Highlight the selection, if it is visible
+                if (((_selectedCol - _firstColumn >= 0) && (_selectedRow - _firstRow >= 0)))
+                {
+                    e.Graphics.DrawRectangle(
+                        pen,
+                        new Rectangle(LABEL_COL_WIDTH + (_selectedCol - _firstColumn) * DATA_COL_WIDTH + 1,
+                                      LABEL_ROW_HEIGHT + (_selectedRow - _firstRow) * DATA_ROW_HEIGHT + 1,
+                                      DATA_COL_WIDTH - 2,
+                                      DATA_ROW_HEIGHT - 2));
+                }
 
                 // Draw the text
                 // drawing EXISTING text into the boxes
