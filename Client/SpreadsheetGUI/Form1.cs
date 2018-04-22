@@ -487,7 +487,7 @@ namespace SpreadsheetGUI
                             cell_name = clientFocus[user_id];
 
                             GetCellPosition(cell_name, out row, out col);
-                            spreadsheetPanel1.SetUnfocus(row, col);
+                            spreadsheetPanel1.SetUnfocus(cell_name, row, col);
                             break;
                         case "focus":
                             char[] delimiters3 = new char[] { ' ', ':'};
@@ -498,7 +498,7 @@ namespace SpreadsheetGUI
                             clientFocus[user_id] = cell_name;
 
                             GetCellPosition(cell_name, out row, out col);
-                            spreadsheetPanel1.SetFocus(row, col);
+                            spreadsheetPanel1.SetFocus(cell_name, row, col);
                             break;
                     }
 
