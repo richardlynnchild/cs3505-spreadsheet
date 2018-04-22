@@ -340,6 +340,7 @@ namespace SpreadsheetGUI
         {
             connected = false;
             previousSelection = "A1";
+            spreadsheetPanel1.SetSelection(0,0);
 
             MethodInvoker FMInvoker = new MethodInvoker(() =>
             {
