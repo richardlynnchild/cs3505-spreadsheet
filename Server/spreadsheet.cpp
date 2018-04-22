@@ -252,6 +252,9 @@ void Spreadsheet::EditSheet(std::string cell_name, std::string contents)
   
 std::pair<std::string, std::string> Spreadsheet::Undo()
 {
+  if(undo_stack.size() == 0){
+    return std::make_pair("NULL","NULL");
+  }
   std::pair<std::string, std::string> ret = undo_stack.top();
   undo_stack.pop();
   return ret;

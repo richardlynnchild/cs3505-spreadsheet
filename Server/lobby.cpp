@@ -244,6 +244,8 @@ void Lobby::HandleMessage(std::string message, std::string sheet, int id){
   }
   else if(command == "undo"){
     std::pair<std::string,std::string> cell = spreadsheets[sheet].Undo();
+    if(cell.first == "NULL")
+      return;
     std::string message = cell.first;
     message += cell.second;
     SendChangeMessage(message,sheet); 
@@ -340,7 +342,7 @@ void Lobby::Start(){
         }
 	else{
 	  listening = true;
-          pthread_detach(&listen_thread);
+          pthread_detach(listen_thread);
         }
 	// Start timer thread for pinging clients
 	/*
@@ -356,7 +358,7 @@ void Lobby::Start(){
         }
 	else{
 	  loop_running = true;
-          pthread_detach(&main_thread);
+          pthread_detach(main_thread);
         }
 	running = (listening && loop_running);
 }
