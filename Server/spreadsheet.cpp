@@ -36,6 +36,7 @@ bool FileContains(std::string filename, std::string query)
 {
   std::ifstream file;
   std::string line;
+
   file.open(filename.c_str());
 
   if ( ! file)
@@ -119,11 +120,14 @@ bool Spreadsheet::ReadSpreadsheet(std::string filename)
   std::ifstream file;
   std::vector<std::string> cell_name_val;
 
+  filename = filename + ".sprd";
+
   file.open(filename.c_str());
 
   if ( ! file)
   {
     std::cout << "File could not be opened. Does it exit, or ts it currently being written too or read from?" << std::endl;
+    std::cout << "Filename: " << filename << std::endl;
     return false;
   }
 
@@ -148,7 +152,9 @@ bool Spreadsheet::WriteSpreadsheet(std::string filename)
 {
   std::ofstream file;
 
-  file.open(filename.c_str());
+  std::string full_filename = filename + ".sprd";
+
+  file.open(full_filename.c_str());
 
   if ( ! file)
   {
@@ -252,6 +258,9 @@ void Spreadsheet::EditSheet(std::string cell_name, std::string contents)
   
 std::pair<std::string, std::string> Spreadsheet::Undo()
 {
+  if(undo_stack.size() == 0){
+    return std::make_pair("NULL","NULL");
+  }
   std::pair<std::string, std::string> ret = undo_stack.top();
   undo_stack.pop();
   return ret;
