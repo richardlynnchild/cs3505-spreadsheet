@@ -81,9 +81,21 @@ namespace SpreadsheetGUI
             sender.GetSelection(out int col, out int row);
             string cellName = GetCellName(col, row);
 
+            int[] loc = GetCellPosition(this.previousSelection);
+            int myCol = loc[0];
+            int myRow = loc[1];
+            //spreadsheetPanel1.SetUnfocus(this.previousSelection, myRow, myCol);
+            string unfocusMessage = "unfocus " + ((char)3);
+            SendMessage(unfocusMessage);
+
+            //string focusMessage = "focus " + cellName + ((char)3);
+            //SendMessage(focusMessage);
+
             //set the contents of the formula box and set focus to it.
             FormulaBox.Text = ss1.GetCellContents(cellName).ToString();
             this.ActiveControl = FormulaBox;
+
+
         }
 
 
@@ -494,10 +506,12 @@ namespace SpreadsheetGUI
                             string[] msg_parts2 = msg.Split(delimiters2);
                             string user_id = msg_parts2[1];
 
-                            cell_name = clientFocus[user_id];
-
-                            GetCellPosition(cell_name, out row, out col);
-                            spreadsheetPanel1.SetUnfocus(cell_name, row, col);
+                            if (clientFocus.ContainsKey(user_id))
+                            {
+                                cell_name = clientFocus[user_id];
+                                GetCellPosition(cell_name, out row, out col);
+                                spreadsheetPanel1.SetUnfocus(cell_name, row, col);
+                            }
                             break;
                         case "focus":
                             char[] delimiters3 = new char[] { ' ', ':' };
