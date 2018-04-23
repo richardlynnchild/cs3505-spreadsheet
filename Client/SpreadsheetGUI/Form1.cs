@@ -919,7 +919,7 @@ namespace SpreadsheetGUI
             {
                 ShowFileMenu(message);
             });
-
+            Open_FileMenu.Enabled = true;
             this.Invoke(FMInvoker);
 
             state.builder.Clear();
