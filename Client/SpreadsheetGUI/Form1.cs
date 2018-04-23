@@ -22,11 +22,19 @@ namespace SpreadsheetGUI
         private int pingMisses;
         //private System.Timers.Timer serverTimer;
         private SocketState serverSock;
+
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public Form1()
         {
             SpreadsheetSetUp();
         }
 
+        /// <summary>
+        /// pre-connected constructor.
+        /// </summary>
+        /// <param name="address"></param>
         public Form1(string address)
         {
             SpreadsheetSetUp();
