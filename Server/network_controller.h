@@ -24,6 +24,9 @@ private:
 	static void SetSocketTimeout(int socket_id);
 	static bool TestSocket(int socket_id);
 	static void SendDisconnect(int socket_id);
+	static void ReplyPing(int socket_id);
+	static bool IsDisconnect(std::string msg);
+	static bool IsPing(std::string msg);
 
 public:
     

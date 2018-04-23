@@ -16,14 +16,14 @@ private:
     pthread_mutex_t in_msg_mutex;
     pthread_mutex_t out_msg_mutex;
 
-    bool thread_active;
+	pthread_t client_thread;
+    bool thread_active, thread_joined;
     std::string spreadsheet_name;
     std::queue<std::string> inbound_messages;
     std::queue<std::string> outbound_messages;
 
     //interface and client networking socket
     int client_socket_id;
-    int ping_miss;
 
 public:
 
@@ -34,9 +34,8 @@ public:
     std::string GetMessage();
     std::string GetSprdName();
     int GetClientSocketID();
-	bool PingMiss();
-	void PingReset();
     bool IsActive();
+	void MarkThreadClosed();
     bool StartClientThread();
     void StopClientThread();
 };
