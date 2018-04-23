@@ -6,6 +6,7 @@
 #include <errno.h>
 #include "interface.h"
 #include "network_controller.h"
+#include "spreadsheet.h"
 
 Interface::Interface(int socket_id, std::string sprd_name)
 {
@@ -36,6 +37,16 @@ int Interface::GetClientSocketID()
 std::string Interface::GetSprdName()
 {
     return spreadsheet_name;
+}
+
+Spreadsheet* Interface::GetSpreadPointer()
+{
+	return spread_ptr;
+}
+
+void Interface::SetSpreadPointer(Spreadsheet* ptr)
+{
+	spread_ptr = ptr;
 }
 
 void Interface::PushMessage(int access_id, std::string message)

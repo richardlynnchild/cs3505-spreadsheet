@@ -4,6 +4,7 @@
 #include <string>
 #include <queue>
 #include <pthread.h>
+#include "spreadsheet.h"
 
 #define LOBBY 0
 #define CLIENT 1
@@ -19,6 +20,7 @@ private:
 	pthread_t client_thread;
     bool thread_active, thread_joined;
     std::string spreadsheet_name;
+    Spreadsheet* spread_ptr;
     std::queue<std::string> inbound_messages;
     std::queue<std::string> outbound_messages;
 
@@ -33,6 +35,8 @@ public:
     std::string PullMessage(int access_id);
     std::string GetMessage();
     std::string GetSprdName();
+    Spreadsheet* GetSpreadPointer();
+    void SetSpreadPointer(Spreadsheet* ptr);
     int GetClientSocketID();
     bool IsActive();
 	void MarkThreadClosed();
