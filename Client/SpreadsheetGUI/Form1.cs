@@ -325,7 +325,7 @@ namespace SpreadsheetGUI
         {
             if (connected)
             {
-                SendMessage("disconnnect " + (char)3);
+                SendMessage("disconnect " + (char)3);
             }
         }
 
