@@ -100,23 +100,25 @@ namespace SpreadsheetGUI
         /// <param name="sender"></param>
         private void MakeWriteable(SpreadsheetPanel sender)
         {
-            sender.GetSelection(out int col, out int row);
-            string cellName = GetCellName(col, row);
+            if (connected)
+            {
+                sender.GetSelection(out int col, out int row);
+                string cellName = GetCellName(col, row);
 
-            int[] loc = GetCellPosition(this.previousSelection);
-            int myCol = loc[0];
-            int myRow = loc[1];
-            //spreadsheetPanel1.SetUnfocus(this.previousSelection, myRow, myCol);
-            string unfocusMessage = "unfocus " + ((char)3);
-            SendMessage(unfocusMessage);
+                int[] loc = GetCellPosition(this.previousSelection);
+                int myCol = loc[0];
+                int myRow = loc[1];
+                //spreadsheetPanel1.SetUnfocus(this.previousSelection, myRow, myCol);
+                string unfocusMessage = "unfocus " + ((char)3);
+                SendMessage(unfocusMessage);
 
-            //string focusMessage = "focus " + cellName + ((char)3);
-            //SendMessage(focusMessage);
+                //string focusMessage = "focus " + cellName + ((char)3);
+                //SendMessage(focusMessage);
 
-            //set the contents of the formula box and set focus to it.
-            FormulaBox.Text = ss1.GetCellContents(cellName).ToString();
-            this.ActiveControl = FormulaBox;
-
+                //set the contents of the formula box and set focus to it.
+                FormulaBox.Text = ss1.GetCellContents(cellName).ToString();
+                this.ActiveControl = FormulaBox;
+            }
 
         }
 
