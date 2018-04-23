@@ -421,6 +421,7 @@ namespace SpreadsheetGUI
                 ConnectButton.Enabled = true;
 
                 spreadsheetPanel1.Clear();
+                ss1 = new Spreadsheet();
 
                 MessageBox.Show("Disconnected Successfully");
             });
@@ -920,8 +921,9 @@ namespace SpreadsheetGUI
             MethodInvoker FMInvoker = new MethodInvoker(() =>
             {
                 ShowFileMenu(message);
+                Open_FileMenu.Enabled = true;
             });
-            Open_FileMenu.Enabled = true;
+            //Open_FileMenu.Enabled = true;
             this.Invoke(FMInvoker);
 
             state.builder.Clear();
