@@ -80,7 +80,6 @@ void Lobby::InitSheetList()
 	while(!in_file.eof() && !in_file.fail())
 	{
 	  getline(in_file, spreadsheet_name);
-	  std::cout << "Lobby constructor: adding " << spreadsheet_name << " to sheet_list" << std::endl;
 	  sheet_list.insert(spreadsheet_name);
 	}
 	
@@ -219,7 +218,6 @@ void Lobby::SendFocusMessage(std::string msg, std::string sheet, int id){
   ss << id;
   std::string usr_id = ss.str();
   std::string focus = "focus "+ cell + ":" + usr_id + ((char)3);
-  std::cout<<"Client id " << id << std::endl;
   std::vector<Interface*>::iterator it = clients.begin();
     for(; it != clients.end(); ++it){
       if((*it)->GetSprdName() == sheet){
@@ -274,12 +272,10 @@ void Lobby::SendUnfocusMessage(std::string sheet, int id)
 
 void Lobby::HandleMessage(std::string message, std::string sheet, int id){
   
-  std::cout<<"LOBBY: received" <<std::endl;
   //Split the message and get the command
   char delim = ' ';
   std::vector<std::string> tokens = SplitString(message, delim);
   std::string command = tokens[0];
-  std::cout<<"message: "<< command <<std::endl;
 
   if(command == "edit"){
     std::vector<std::string> cell = GetEditMsg(message);
@@ -316,7 +312,6 @@ void Lobby::HandleMessage(std::string message, std::string sheet, int id){
   //}
   else if(command == "focus"){
     SendFocusMessage(message, sheet, id);
-    std::cout<< "focus sent" << std::endl;
   }
   else if(command == "unfocus"){
     SendUnfocusMessage(sheet, id);
@@ -359,7 +354,6 @@ void Lobby::LobbyPing()
   std::string msg = "ping ";
   char end = (char) 3;
   msg += end;
-  int seconds;
   while(running)
   {   
     pthread_mutex_lock(&client_list_mutex);
@@ -368,11 +362,9 @@ void Lobby::LobbyPing()
     {
 	  int id = (*it)->GetClientSocketID();
       (*it)->PushMessage(LOBBY, msg);
-      std::cout << "LOBBY PING: " << id << std::endl;
     }
     pthread_mutex_unlock(&client_list_mutex);
-    if (seconds = sleep(10))
-      std::cout << "Slept for " << (10-seconds) << " seconds" << std::endl;
+    sleep(10);
   }
 }
 
@@ -474,7 +466,6 @@ void Lobby::CleanDeadClients()
 		interface->StopClientThread();
 		clients.erase(it);
 		delete interface;
-        std::cout << "LOBBY CLEANED" << std::endl;
 	}
 	pthread_mutex_unlock(&client_list_mutex);
 }

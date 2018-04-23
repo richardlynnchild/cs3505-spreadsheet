@@ -17,7 +17,6 @@
  */
 void* NetworkController::ListenForClients(void* ptr){
 
-	std::cout << "Bootstrapping listener..." << std::endl;
 	Lobby* ptr_lobby = (Lobby*) ptr; 
 	int listen_socket;
 	sockaddr_in address_info;
@@ -38,10 +37,6 @@ void* NetworkController::ListenForClients(void* ptr){
 	{
 		std::cerr << "failed to bind to localhost:" << PORT << std::endl;
 		ptr_lobby->Shutdown();
-	}
-	else
-	{
-		std::cout << "Listener bound to port: " << PORT << std::endl;
 	}
 	
 	if (listen(listen_socket, 10) < 0)
@@ -76,14 +71,11 @@ void* NetworkController::ListenForClients(void* ptr){
  */
 void* NetworkController::Handshake(void* ptr){
 
-	std::cout << "Handshake initiated" << std::endl;
 	struct socket_data* ptr_data = (socket_data*) ptr;
 	Lobby* ptr_obj = (*ptr_data).ptr_lobby;
 	int id = (*ptr_data).client_socket;
 	delete ptr_data;
 
-	std::cout << "The new client on socket # " << id << std::endl;
-	
 	int buf_size = 2048;
 	char buffer[buf_size];
 	int bytes_received = 0;
@@ -117,7 +109,6 @@ void* NetworkController::Handshake(void* ptr){
 std::string NetworkController::GetSpreadsheetChoice(int socket_id, Lobby* lobby_ptr)
 {	
     std::string sprd_list = lobby_ptr->BuildConnectAccepted();
-    std::cout << sprd_list << std::endl;
 
 	int send_buf_size = sprd_list.length();
     char* send_buf = new char [send_buf_size+1];
@@ -184,7 +175,6 @@ void* NetworkController::ClientCommunicate(void* ptr)
 	bool recv_idle, send_idle;
     bool connected = true;
 	bool forced_disconnect = false;
-	//std::cout << "187" << std::endl;
 	while(connected && ping_miss <= 6)
 	{
 		recv_idle = true;
@@ -193,34 +183,27 @@ void* NetworkController::ClientCommunicate(void* ptr)
 		// Receive messages from client
 		if (TestSocket(socket_id))
 		{
-	//std::cout << "196" << std::endl;
 			bytes_received = recv(socket_id, &rcv_buf[rcv_buf_next], 
 								rcv_buf_size-rcv_buf_next, 0);
-	//std::cout << "199" << std::endl;
 			if (bytes_received > 0)
 			{
 				rcv_buf_next += bytes_received;
 				recv_idle = false;
 			}
-			else if (bytes_received < 0)
-			{
-				std::cout << "receive" << bytes_received << std::endl;
-			}
 
-	//std::cout << "205" << std::endl;
 			// Push through interface if message is complete
 			rcv_str = GetMessage(&rcv_buf[0], rcv_buf_next);
 			if (rcv_str != "")
 			{
-				std::cout << "Received from client " << socket_id << std::endl;
-				std::cout << rcv_str << std::endl;
-				std::cout << std::endl;
-				if (rcv_str == "ping ")
+				if (rcv_str == "ping " || rcv_str == "ping")
 					ReplyPing(socket_id);
-				else if (rcv_str == "ping_response ")
+				else if (rcv_str == "ping_response " || rcv_str == "ping_response")
 					ping_miss = 0;
 				else if (rcv_str == "disconnect ")
+				{
+					connected = false;
 					break;
+				}
 				else
 					interface->PushMessage(CLIENT, rcv_str);
 			}
@@ -231,7 +214,6 @@ void* NetworkController::ClientCommunicate(void* ptr)
 			break;
 		}
 
-	//std::cout << "226" << std::endl;
 		// Check for outgoing messages
 		if (send_msg_size - send_buf_next <= 0)
 		{
@@ -250,13 +232,10 @@ void* NetworkController::ClientCommunicate(void* ptr)
 			{
 				if (snd_str.length() > send_buf_size-1)
 				{
-					std::cout << "msg long!" << std::endl;
 					std::string sub_str = snd_str.substr(0, send_buf_size-1);
-					std::cout << "trimmed msg: " << sub_str << std::endl;
 					send_msg_size = sub_str.length();
 					std::strcpy(send_buf, sub_str.c_str());
 					snd_str = snd_str.substr(send_buf_size-1);
-					std::cout << "rest of msg: " << snd_str << std::endl;
 				}
 				else
 				{
@@ -274,24 +253,13 @@ void* NetworkController::ClientCommunicate(void* ptr)
 			if (TestSocket(socket_id))
 			{
 
-	//std::cout << "269" << std::endl;
 				bytes_sent = send(socket_id, &(send_buf[send_buf_next]),
 								send_msg_size-send_buf_next, 0);
-
-				std::cout << "Sent to client " << socket_id << std::endl;
-				for (int i = send_buf_next; i < bytes_sent; i++)
-					std::cout << send_buf[i];
-				std::cout << std::endl;
-				std::cout << std::endl;
 
 				if (bytes_sent > 0)
 					send_buf_next += bytes_sent;
 
-				else if (bytes_sent < 0)
-				{
-					std::cout << "send" << bytes_sent << std::endl;
-				}
-			}
+			}	
 			else
 			{
 				forced_disconnect = true;
@@ -299,15 +267,11 @@ void* NetworkController::ClientCommunicate(void* ptr)
 			}
 		}
 
-	//std::cout << "289" << std::endl;
 		// Sleep when things get boring
 		if (recv_idle && send_idle && connected)
 			usleep(10000);
 	}
 
-	if (forced_disconnect)
-		std::cout << "Forced disconnect" << std::endl;
-	std::cout << "295" << std::endl;
 	close(socket_id);
 	interface->MarkThreadClosed();
 }
@@ -409,12 +373,6 @@ void NetworkController::ReplyPing(int socket_id)
 	char ext = (char)3;
 	msg[14] = ext;
 	int bytes = send(socket_id, &msg, 15, 0);
-
-	std::cout << "Sent to client " << socket_id << std::endl;
-	for (int i = 0; i < bytes; i++)
-		std::cout << msg[i];
-	std::cout << std::endl;
-	std::cout << std::endl;
 }
 
 bool NetworkController::IsPing(std::string msg)
