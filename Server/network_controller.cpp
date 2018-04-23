@@ -99,7 +99,7 @@ void* NetworkController::Handshake(void* ptr){
 	
 	} while(msg_str == "" && ptr_obj->IsRunning());	
 	
-	if (msg_str == "register")
+	if (msg_str == "register ")
 	{
 	  	std::string sprd_name = GetSpreadsheetChoice(id, ptr_obj);
 	  	if (sprd_name != "")
