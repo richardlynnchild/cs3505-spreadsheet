@@ -271,7 +271,6 @@ void Lobby::SendUnfocusMessage(std::string sheet, int id)
  */
 
 void Lobby::HandleMessage(std::string message, std::string sheet, int id){
-  
   //Split the message and get the command
   char delim = ' ';
   std::vector<std::string> tokens = SplitString(message, delim);
