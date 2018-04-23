@@ -14,6 +14,7 @@ namespace SpreadsheetGUI
     {
         public Spreadsheet ss1;
         private Socket theServer;
+        private string _address;
         private bool connected;
         private Dictionary<string, string> clientFocus;
         private string previousSelection;
@@ -21,13 +22,33 @@ namespace SpreadsheetGUI
         private int pingMisses;
         //private System.Timers.Timer serverTimer;
         private SocketState serverSock;
+
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         public Form1()
         {
-            //
-            //Set up for a new spreadsheet.
-            //
+            SpreadsheetSetUp();
+        }
 
-            ss1 = new Spreadsheet(validVar, s => s.ToUpper(), "ps6");
+        /// <summary>
+        /// pre-connected constructor.
+        /// </summary>
+        /// <param name="address"></param>
+        public Form1(string address)
+        {
+            SpreadsheetSetUp();
+            Connect(address);
+            ServerTextBox.Text = address;
+        }
+
+        /// <summary>
+        /// Sets the default options for a new spreadsheet.
+        /// </summary>
+        private void SpreadsheetSetUp()
+        {
+
+            ss1 = new Spreadsheet(validVar, s => s.ToUpper(), "cs3505");
 
             InitializeComponent();
             this.KeyPreview = true;
@@ -67,7 +88,6 @@ namespace SpreadsheetGUI
             pingTimer = new System.Timers.Timer();
             pingTimer.Interval = 10000;
             pingTimer.Elapsed += SendPing;
-
         }
 
         #region Spreadsheet Control
@@ -80,23 +100,25 @@ namespace SpreadsheetGUI
         /// <param name="sender"></param>
         private void MakeWriteable(SpreadsheetPanel sender)
         {
-            sender.GetSelection(out int col, out int row);
-            string cellName = GetCellName(col, row);
+            if (connected)
+            {
+                sender.GetSelection(out int col, out int row);
+                string cellName = GetCellName(col, row);
 
-            int[] loc = GetCellPosition(this.previousSelection);
-            int myCol = loc[0];
-            int myRow = loc[1];
-            //spreadsheetPanel1.SetUnfocus(this.previousSelection, myRow, myCol);
-            string unfocusMessage = "unfocus " + ((char)3);
-            SendMessage(unfocusMessage);
+                int[] loc = GetCellPosition(this.previousSelection);
+                int myCol = loc[0];
+                int myRow = loc[1];
+                //spreadsheetPanel1.SetUnfocus(this.previousSelection, myRow, myCol);
+                string unfocusMessage = "unfocus " + ((char)3);
+                SendMessage(unfocusMessage);
 
-            //string focusMessage = "focus " + cellName + ((char)3);
-            //SendMessage(focusMessage);
+                //string focusMessage = "focus " + cellName + ((char)3);
+                //SendMessage(focusMessage);
 
-            //set the contents of the formula box and set focus to it.
-            FormulaBox.Text = ss1.GetCellContents(cellName).ToString();
-            this.ActiveControl = FormulaBox;
-
+                //set the contents of the formula box and set focus to it.
+                FormulaBox.Text = ss1.GetCellContents(cellName).ToString();
+                this.ActiveControl = FormulaBox;
+            }
 
         }
 
@@ -236,22 +258,34 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void ConnectButton_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(ServerTextBox.Text))
-                MessageBox.Show("Please enter a server address.");
+            Connect(ServerTextBox.Text);
+        }
+
+        /// <summary>
+        /// Creates a new window, connected to a server based on whether or not the previous windows is connected.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void NewSpreadsheetButton_Click(object sender, EventArgs e)
+        {
+            if (connected)
+                SpreadsheetApplicationContext.getAppContext().RunForm(new Form1(_address));
             else
-            {
-                try
-                {
-                    theServer = Network.ConnectToServer(SendRegisterMessage, ServerTextBox.Text);
-                    ServerTextBox.Enabled = false;
-                    ConnectButton.Enabled = false;
-                    connected = true;
-                }
-                catch (ArgumentException)
-                {
-                    MessageBox.Show("invalid server name");
-                }
-            }
+                SpreadsheetApplicationContext.getAppContext().RunForm(new Form1());
+
+        }
+
+        /// <summary>
+        /// Handles DisconnectButton.clicked event.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DisconnectButton_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (connected)
+                Disconnect();
+            else
+                MessageBox.Show("Not yet connected");
         }
 
 
@@ -321,7 +355,7 @@ namespace SpreadsheetGUI
                 spreadsheetPanel1.GetSelection(out int col, out int row);
                 string cellName = GetCellName(col, row);
 
-                SendMessage("revert " + CellName + (char)3);
+                SendMessage("revert " + cellName + (char)3);
             }
         }
 
@@ -330,16 +364,49 @@ namespace SpreadsheetGUI
 
         #region Networking Control
 
+        /// <summary>
+        /// Sends a disconnect message to the server, and disconnects the client.
+        /// </summary>
         private void Disconnect()
         {
             Network.Send(theServer, "disconnect " + (char)3);
             HandleDisconnect();
         }
 
+        /// <summary>
+        /// Connects the client to the server at the given address.
+        /// </summary>
+        /// <param name="address"></param>
+        private void Connect(string address)
+        {
+            if (string.IsNullOrEmpty(address))
+                MessageBox.Show("Please enter a server address.");
+            else
+            {
+                try
+                {
+                    theServer = Network.ConnectToServer(SendRegisterMessage, address);
+                    ServerTextBox.Enabled = false;
+                    ConnectButton.Enabled = false;
+                    _address = address;
+                    connected = true;
+                }
+                catch (ArgumentException)
+                {
+                    MessageBox.Show("invalid server name");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handles primary logic for network disconnection.
+        /// </summary>
         private void HandleDisconnect()
         {
+            pingTimer.Stop();
             connected = false;
             previousSelection = "A1";
+            spreadsheetPanel1.SetSelection(0,0);
 
             MethodInvoker FMInvoker = new MethodInvoker(() =>
             {
@@ -360,7 +427,7 @@ namespace SpreadsheetGUI
         }
 
         /// <summary>
-        /// Sends the server the name of the spreadsheet the 
+        /// Sends the server the name of the spreadsheet the client selected.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -379,7 +446,8 @@ namespace SpreadsheetGUI
         /// <param name="msg"></param>
         private void SendMessage(string msg)
         {
-            Network.Send(theServer, msg);
+            if (connected)
+                Network.Send(theServer, msg);
         }
 
 
@@ -468,7 +536,7 @@ namespace SpreadsheetGUI
                             string cellVal = cellAndval[1];
 
                             //cellName = cellName.Trim(' ');
-                            cellVal = cellVal.Trim(' ');
+                            cellVal = cellVal.TrimStart(' ');
 
                             int[] colRow = GetCellPosition(cellName);
 
@@ -503,70 +571,78 @@ namespace SpreadsheetGUI
                 {
                     if (msg == "")
                         break;
+              
                     string[] msg2 = msg.Split(' ');
                     string command = msg2[0];
-                    switch (command)
+                    if(command == "change")
                     {
-                        case "change":
-                            //get cell name and contents from message
-                            char[] delimiters = new char[] { ' ', ':' };
-                            string[] msg_parts = msg.Split(delimiters);
-                            string cell_name = msg_parts[1];
-                            string contents = msg_parts[2];
+                        //get cell name and contents from message
+                        char[] delimiters = new char[] { ' ', ':' };
+                        string[] msg_parts = msg.Split(delimiters, 3);
+                        string cell_name = msg_parts[1];
+                        string contents = msg_parts[2];
 
-                            //set the contents of the cell
-                            GetCellPosition(cell_name, out int row, out int col);
-                            SetCell(row, col, contents);
-                            break;
-
-                        case "ping":
-                            //if (msg == "ping ")
-                            //{
-                            SendMessage("ping_response " + ((char)3));
-                            //}
-                            break;
-
-                            //else if (msg == "ping_response ")
-                            //{
-                                //timer reset -- not sure this is right
-                                //serverTimer.Stop();
-                                //serverTimer.Start();
-                                //pingMisses = 0;
-                            //}
-                            //break;
-
-                        case "ping_response":
-                            pingMisses = 0;
-                            break;
-                        case "disconnect":
-                            HandleDisconnect();
-                            break;
-                        case "unfocus":
-                            char[] delimiters2 = new char[] { ' ' };
-                            string[] msg_parts2 = msg.Split(delimiters2);
-                            string user_id = msg_parts2[1];
-
-                            if (clientFocus.ContainsKey(user_id))
-                            {
-                                cell_name = clientFocus[user_id];
-                                GetCellPosition(cell_name, out row, out col);
-                                spreadsheetPanel1.SetUnfocus(cell_name, row, col);
-                            }
-                            break;
-                        case "focus":
-                            char[] delimiters3 = new char[] { ' ', ':' };
-                            string[] msg_parts3 = msg.Split(delimiters3);
-                            cell_name = msg_parts3[1];
-                            user_id = msg_parts3[2];
-
-                            clientFocus[user_id] = cell_name;
-
-                            GetCellPosition(cell_name, out row, out col);
-                            spreadsheetPanel1.SetFocus(cell_name, row, col);
-                            break;
+                        //set the contents of the cell
+                        GetCellPosition(cell_name, out int row, out int col);
+                        SetCell(row, col, contents);
                     }
+                    else if(command == "ping")
+                    {
+                        //if (msg == "ping ")
+                        //{
+                        SendMessage("ping_response " + ((char)3));
+                        //}
 
+                        //else if (msg == "ping_response ")
+                        //{
+                        //timer reset -- not sure this is right
+                        //serverTimer.Stop();
+                        //serverTimer.Start();
+                        //pingMisses = 0;
+                        //}
+                        //break;
 
+                    }
+                    else if(command == "ping_response")
+                    {
+                        pingMisses = 0;
+                    }
+                    else if(command == "disconnect")
+                    {
+                        HandleDisconnect();
+
+                    }
+                    else if(command == "unfocus")
+                    {
+                        char[] delimiters2 = new char[] { ' ' };
+                        string[] msg_parts2 = msg.Split(delimiters2);
+                        string user_id = msg_parts2[1];
+
+                        if (clientFocus.ContainsKey(user_id))
+                        {
+                            string cell_name = clientFocus[user_id];
+                            GetCellPosition(cell_name, out int row, out int col);
+                            spreadsheetPanel1.SetUnfocus(cell_name, row, col);
+                        }
+                    }
+                    else if(command == "focus")
+                    {
+                        char[] delimiters3 = new char[] { ' ', ':' };
+                        string[] msg_parts3 = msg.Split(delimiters3);
+                        string cell_name = msg_parts3[1];
+                        string user_id = msg_parts3[2];
+
+                        clientFocus[user_id] = cell_name;
+
+                        GetCellPosition(cell_name, out int row, out int col);
+                        spreadsheetPanel1.SetFocus(cell_name, row, col);
+                    }
+                    else
+                    {
+                        //command is not a full command, so leave it in the state.builder.
+                        break;
+                        //then still go and get data
+                    }
                     state.builder.Remove(0, msg.Length + ((char)3).ToString().Length);
                 }
             }
@@ -868,14 +944,6 @@ namespace SpreadsheetGUI
 
         #region Helper Methods
 
-        private void DisconnectButton_MouseClick(object sender, MouseEventArgs e)
-        {
-            if (connected)
-                Disconnect();
-            else
-                MessageBox.Show("Not yet connected");
-        }
-
         /// <summary>
         /// Listener to detect when the ping loop expires. Calls HandleDisconnnect.
         /// </summary>
@@ -1122,11 +1190,6 @@ namespace SpreadsheetGUI
                 //update all dependent cells
                 UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
             }
-        }
-
-        private void NewSpreadsheetButton_Click(object sender, EventArgs e)
-        {
-            SpreadsheetApplicationContext.getAppContext().RunForm(new Form1());
         }
 
 
