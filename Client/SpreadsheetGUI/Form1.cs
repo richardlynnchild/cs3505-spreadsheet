@@ -458,7 +458,7 @@ namespace SpreadsheetGUI
         private void SendRegisterMessage(SocketState state)
         {
             state.callMe = ActivateFileMenu;
-            string message = "register" + (char)3;
+            string message = "register " + (char)3;
             Network.Send(state.sock, message);
 
             Network.GetData(state);
