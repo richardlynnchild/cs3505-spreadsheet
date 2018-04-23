@@ -2,10 +2,6 @@ test1
 test2
 test3
 test4
-richard
-richard_2
-richard_3
-richard_4
-richard_5
 ben_1
-richard_6
+richard_1
+richard_1
