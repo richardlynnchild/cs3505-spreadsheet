@@ -168,7 +168,6 @@ void Lobby::SendFocusMessage(std::string msg, std::string sheet, int id){
   ss << id;
   std::string usr_id = ss.str();
   std::string focus = "focus "+ cell + ":" + usr_id + ((char)3);
-  std::cout<<"Client id " << id << std::endl;
   std::vector<Interface*>::iterator it = clients.begin();
     for(; it != clients.end(); ++it){
       if((*it)->GetSprdName() == sheet){
@@ -229,12 +228,11 @@ void Lobby::ResetPingMiss(int id)
  */
 
 void Lobby::HandleMessage(std::string message, std::string sheet, int id){
-  std::cout<<"Received message" <<std::endl;
   //Split the message and get the command
   char delim = ' ';
   std::vector<std::string> tokens = SplitString(message, delim);
   std::string command = tokens[0];
-  std::cout<<"message: "<< command <<std::endl;
+  std::cout<<"Received: "<< command <<std::endl;
 
   if(command == "edit"){
     char delim = ':';
@@ -271,7 +269,6 @@ void Lobby::HandleMessage(std::string message, std::string sheet, int id){
   }
   else if(command == "focus"){
     SendFocusMessage(message, sheet, id);
-    std::cout<< "focus sent" << std::endl;
   }
   else if(command == "unfocus"){
     SendUnfocusMessage(sheet, id);
