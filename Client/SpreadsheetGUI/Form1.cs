@@ -259,6 +259,33 @@ namespace SpreadsheetGUI
             Connect(ServerTextBox.Text);
         }
 
+        /// <summary>
+        /// Creates a new window, connected to a server based on whether or not the previous windows is connected.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void NewSpreadsheetButton_Click(object sender, EventArgs e)
+        {
+            if (connected)
+                SpreadsheetApplicationContext.getAppContext().RunForm(new Form1(_address));
+            else
+                SpreadsheetApplicationContext.getAppContext().RunForm(new Form1());
+
+        }
+
+        /// <summary>
+        /// Handles DisconnectButton.clicked event.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DisconnectButton_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (connected)
+                Disconnect();
+            else
+                MessageBox.Show("Not yet connected");
+        }
+
 
         /// <summary>
         /// Sets the FileTextBox contents to the name of the selected spreadsheet.
@@ -913,14 +940,6 @@ namespace SpreadsheetGUI
 
         #region Helper Methods
 
-        private void DisconnectButton_MouseClick(object sender, MouseEventArgs e)
-        {
-            if (connected)
-                Disconnect();
-            else
-                MessageBox.Show("Not yet connected");
-        }
-
         /// <summary>
         /// Listener to detect when the ping loop expires. Calls HandleDisconnnect.
         /// </summary>
@@ -1167,15 +1186,6 @@ namespace SpreadsheetGUI
                 //update all dependent cells
                 UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
             }
-        }
-
-        private void NewSpreadsheetButton_Click(object sender, EventArgs e)
-        {
-            if (connected)
-                SpreadsheetApplicationContext.getAppContext().RunForm(new Form1(_address));
-            else
-                SpreadsheetApplicationContext.getAppContext().RunForm(new Form1());
-
         }
 
 
