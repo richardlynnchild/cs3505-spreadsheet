@@ -72,6 +72,8 @@ namespace SpreadsheetGUI
             this.ServerTextBox.Enter += ServerTextBoxEntered;
             this.ServerTextBox.LostFocus += ServerTextBoxLeft;
             this.FormulaBox.GotFocus += HandleFomrulaBoxFocus;
+            this.CellNameOutput.GotFocus += HandleCellNameFocus;
+            this.CellValueOutput.GotFocus += HandleCellValueFocus;
 
             this.Width = 800;
             this.Height = 600;
@@ -194,7 +196,19 @@ namespace SpreadsheetGUI
 
                     else if ((e.KeyData >= Keys.A && e.KeyData <= Keys.Z) || (e.KeyData >= Keys.D0 && e.KeyData <= Keys.D9) || (e.KeyData >= Keys.NumPad0 && e.KeyData <= Keys.NumPad9))
                     {
-                        StandardKey(e);
+                        if(e.Modifiers == Keys.Shift)
+                        {
+                            CapsKeys(e);
+                        }
+                        else
+                        {
+                            StandardKey(e);
+                        }
+                    }
+
+                    else if ((e.Modifiers == Keys.Shift) && (e.KeyData >= Keys.A && e.KeyData <= Keys.Z))
+                    {
+                        CapsKeys(e);
                     }
 
                     else
@@ -312,9 +326,29 @@ namespace SpreadsheetGUI
         /// </summary>
         /// <param name="hWnd"></param>
         /// <returns></returns>
-        public void HandleFomrulaBoxFocus(object sender, EventArgs e)
+        private void HandleFomrulaBoxFocus(object sender, EventArgs e)
         {
             HideCaret(FormulaBox.Handle);
+            spreadsheetPanel1.Focus();
+        }
+        /// <summary>
+        /// Hides the caret for the cellValueOutput box and returns focus to the spreadsheet panel.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HandleCellValueFocus(object sender, EventArgs e)
+        {
+            HideCaret(CellValueOutput.Handle);
+            spreadsheetPanel1.Focus();
+        }
+        /// <summary>
+        /// Hides teh caret for the cellName box and returns focus to the spreadsheet panel.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HandleCellNameFocus(object sender, EventArgs e)
+        {
+            HideCaret(CellNameOutput.Handle);
             spreadsheetPanel1.Focus();
         }
 
@@ -393,7 +427,7 @@ namespace SpreadsheetGUI
                     _address = address;
                     connected = true;
                 }
-                catch (ArgumentException)
+                catch
                 {
                     MessageBox.Show("invalid server name");
                 }
@@ -420,6 +454,7 @@ namespace SpreadsheetGUI
                 ServerTextBox.Enabled = true;
                 ConnectButton.Enabled = true;
 
+                ss1 = new Spreadsheet();
                 spreadsheetPanel1.Clear();
 
                 MessageBox.Show("Disconnected Successfully");
@@ -487,13 +522,7 @@ namespace SpreadsheetGUI
             string message;
             lock (state) { message = state.builder.ToString(); }
             state.builder.Clear();
-            //SOOOO many bugs in this area!
-            //goes into line 364 like 5 times and comes out with a different message every time
-            //starts the if(message.Contains) with the right message, by the time it gets to else if ping,
-            //the message was ""
 
-            //ALSO half the time the message is just full state (char)3, and half of the time it has anywhere
-            //from 1 to like 6 ping messages included still...
             MethodInvoker FMInvoker = new MethodInvoker(() =>
             {
                 FilePanel.Visible = false;
@@ -920,8 +949,9 @@ namespace SpreadsheetGUI
             MethodInvoker FMInvoker = new MethodInvoker(() =>
             {
                 ShowFileMenu(message);
+                Open_FileMenu.Enabled = true;
             });
-            Open_FileMenu.Enabled = true;
+            //Open_FileMenu.Enabled = true;
             this.Invoke(FMInvoker);
 
             state.builder.Clear();
@@ -987,6 +1017,16 @@ namespace SpreadsheetGUI
             spreadsheetPanel1.SetValue(col, row, newVal);
         }
 
+        private void CapsKeys(KeyEventArgs e)
+        {
+            spreadsheetPanel1.GetSelection(out int col, out int row);
+            KeysConverter kc = new KeysConverter();
+            string keyString = kc.ConvertToString(e.KeyData);
+            spreadsheetPanel1.GetValue(col, row, out string value);
+            string newVal = value + keyString;
+            spreadsheetPanel1.SetValue(col, row, newVal);
+        }
+
         /// <summary>
         /// Sets the value of a cell based on the text in the cell.
         /// </summary>
@@ -1044,6 +1084,7 @@ namespace SpreadsheetGUI
 
             string name = GetCellName(col, row);
 
+            CellNameOutput.Text = name;
             CellValueOutput.Text = value;
             string contents = ss1.GetCellContents(name).ToString();
 
@@ -1217,8 +1258,31 @@ namespace SpreadsheetGUI
         }
 
 
+
         #endregion
 
+        private void LabelName_Click(object sender, EventArgs e)
+        {
 
+        }
+
+        private void revert_button_MouseClick(object sender, EventArgs e)
+        {
+            if (connected)
+            {
+                spreadsheetPanel1.GetSelection(out int col, out int row);
+                string cellName = GetCellName(col, row);
+
+                SendMessage("revert " + cellName + (char)3);
+            }
+        }
+
+        private void undo_button_MouseClick(object sender, EventArgs e)
+        {
+            if (connected)
+            {
+                SendMessage("undo " + (char)3);
+            }
+        }
     }
 }
