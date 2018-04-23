@@ -420,8 +420,8 @@ namespace SpreadsheetGUI
                 ServerTextBox.Enabled = true;
                 ConnectButton.Enabled = true;
 
-                spreadsheetPanel1.Clear();
                 ss1 = new Spreadsheet();
+                spreadsheetPanel1.Clear();
 
                 MessageBox.Show("Disconnected Successfully");
             });
@@ -488,13 +488,7 @@ namespace SpreadsheetGUI
             string message;
             lock (state) { message = state.builder.ToString(); }
             state.builder.Clear();
-            //SOOOO many bugs in this area!
-            //goes into line 364 like 5 times and comes out with a different message every time
-            //starts the if(message.Contains) with the right message, by the time it gets to else if ping,
-            //the message was ""
 
-            //ALSO half the time the message is just full state (char)3, and half of the time it has anywhere
-            //from 1 to like 6 ping messages included still...
             MethodInvoker FMInvoker = new MethodInvoker(() =>
             {
                 FilePanel.Visible = false;
@@ -1046,6 +1040,7 @@ namespace SpreadsheetGUI
 
             string name = GetCellName(col, row);
 
+            CellNameOutput.Text = name;
             CellValueOutput.Text = value;
             string contents = ss1.GetCellContents(name).ToString();
 
