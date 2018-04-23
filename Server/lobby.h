@@ -14,17 +14,17 @@
 class Lobby {
   private:
 
-	pthread_mutex_t list_mutex;
-	pthread_mutex_t new_client_mutex;
+    pthread_mutex_t list_mutex;
+    pthread_mutex_t new_client_mutex;
     pthread_mutex_t client_list_mutex;
 
-	pthread_t listen_thread;
-	pthread_t ping_thread;
-	pthread_t main_thread;
+    pthread_t listen_thread;
+    pthread_t ping_thread;
+    pthread_t main_thread;
 	
     bool running;
     std::vector<Interface*> clients;
-	std::queue<std::vector<Interface*>::iterator> dead_clients;
+    std::queue<std::vector<Interface*>::iterator> dead_clients;
     std::queue<Interface*> new_clients;
     std::map<std::string, Spreadsheet*> spreadsheets;
     std::set<std::string> sheet_list;

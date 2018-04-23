@@ -29,7 +29,7 @@ std::vector<std::string> GenSplitString(std::string input, char delim)
     else
     {
       split_sections.push_back(section);
-      split_sections.push_back(input.substr(index));
+      split_sections.push_back(input.substr(index+1));
       break;
     }
     index++;
@@ -475,6 +475,8 @@ void Lobby::Shutdown(){
 
   pthread_join(ping_thread, NULL);
   pthread_join(main_thread, NULL);
+
+  std::cout << "Shutdown initiated..." << std::endl;
   //send a disconnect message
   //to each client
   std::vector<Interface*>::iterator c_it = clients.begin();
@@ -483,7 +485,6 @@ void Lobby::Shutdown(){
     interface->StopClientThread();
     delete interface;
   }
-
   //save each spreadsheet object to disk
   std::map<std::string, Spreadsheet*>::iterator s_it = spreadsheets.begin();
   for(; s_it != spreadsheets.end(); ++s_it){
