@@ -54,7 +54,8 @@ void* NetworkController::ListenForClients(void* ptr){
 			usleep(10000);
 
 		else
-		{
+		{       
+                        std::cout << "New client connected -> " << new_client_socket << std::endl;
 			pthread_t handshake_thread;
 			struct socket_data* sdata = new socket_data;
 			(*sdata).client_socket = new_client_socket;

@@ -126,6 +126,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\Undo-icon.png" />
+    <None Include="Resources\newspreadsheet.png" />
     <Content Include="Resources\Spreadsheet_Icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
