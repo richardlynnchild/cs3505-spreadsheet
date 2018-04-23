@@ -51,7 +51,7 @@ namespace SpreadsheetGUI
             //Set up for a new spreadsheet.
             //
 
-            ss1 = new Spreadsheet(validVar, s => s.ToUpper(), "ps6");
+            ss1 = new Spreadsheet(validVar, s => s.ToUpper(), "cs3505");
 
             InitializeComponent();
             this.KeyPreview = true;
