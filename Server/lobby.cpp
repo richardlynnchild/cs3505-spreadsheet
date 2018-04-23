@@ -22,6 +22,9 @@ Lobby::Lobby()
 	if (pthread_mutex_init(&new_client_mutex, NULL) != 0)
 	  std::cerr << "mutex init failure" << std::endl;
 
+	if (pthread_mutex_init(&client_list_mutex, NULL) != 0)
+		std::cerr << "mutex init failure" << std::endl;
+
 	InitSheetList();
 }
 
@@ -92,13 +95,21 @@ std::string Lobby::BuildConnectAccepted(){
  */
 bool Lobby::CheckForNewClient(){
   bool idle = true;
-  
+ 
+  Interface* new_client;
+  std::string name;
+ 
   //Check if there is a client waiting to connect
   if(new_clients.size() > 0){
+    pthread_mutex_lock(&new_client_mutex);
     idle = false;
-    Interface* new_client = new_clients.front();
+    new_client = new_clients.front();
     new_clients.pop();
-    std::string name = new_client->GetSprdName();
+    name = new_client->GetSprdName();
+    pthread_mutex_unlock(&new_client_mutex);
+  }
+
+  if (!idle) {
     //Check if the desired spreadsheet is active 
     if(spreadsheets.count(name)<1){
       //Check if the spreadsheet is saved
@@ -119,7 +130,9 @@ bool Lobby::CheckForNewClient(){
     //Add the client to the active client list
     //Should be done after 'full_state' message
     //is sent
+    pthread_mutex_lock(&client_list_mutex);
     clients.push_back(new_client);
+    pthread_mutex_unlock(&client_list_mutex);
   } 
   return idle;
 }
@@ -197,39 +210,33 @@ void Lobby::SendUnfocusMessage(std::string sheet, int id)
   }
 }
 
-void Lobby::SendPingResponse(int id)
-{
-  std::string msg = "ping_response ";
-  char end = (char) 3;
-  msg += end;
-  std::vector<Interface*>::iterator it = clients.begin();
-  for(; it!= clients.end(); ++it)
-  {
-    if((*it)->GetClientSocketID() == id)
-    {
-      (*it)->PushMessage(LOBBY, msg);
-    }
-  }
-}
+//void Lobby::SendPingResponse(Interface* client)
+//{
+//  std::string msg = "ping_response ";
+//  char end = (char) 3;
+//  msg += end;
+//  client->PushMessage(LOBBY, msg);
+//}
 
-void Lobby::ResetPingMiss(int id)
-{
-  std::vector<Interface*>::iterator it = clients.begin();
-  for(; it!= clients.end(); ++it)
-  {
-    if((*it)->GetClientSocketID() == id)
-    {
-      (*it)->PingReset();
-    }
-  }
-}
+//void Lobby::ResetPingMiss(int id)
+//{
+//  std::vector<Interface*>::iterator it = clients.begin();
+//  for(; it!= clients.end(); ++it)
+//  {
+//    if((*it)->GetClientSocketID() == id)
+//    {
+//      (*it)->PingReset();
+//    }
+//  }
+//}
 
 /*
  * Processes a single message from a client.
  */
 
 void Lobby::HandleMessage(std::string message, std::string sheet, int id){
-  std::cout<<"Received message" <<std::endl;
+  
+  std::cout<<"LOBBY: received" <<std::endl;
   //Split the message and get the command
   char delim = ' ';
   std::vector<std::string> tokens = SplitString(message, delim);
@@ -254,15 +261,15 @@ void Lobby::HandleMessage(std::string message, std::string sheet, int id){
     std::string message = spreadsheets[sheet].Revert(tokens[1]);
     SendChangeMessage(message,sheet); 
   }
-  else if(command == "disconnect"){
-    std::vector<Interface*>::iterator it = clients.begin();
-    for(; it != clients.end(); ++it){
-      if(id == (*it)->GetClientSocketID()){
-        (*it)->StopClientThread();
-        clients.erase(it);  
-      }    
-    }    
-  }
+  //else if(command == "disconnect"){
+  //  std::vector<Interface*>::iterator it = clients.begin();
+  //  for(; it != clients.end(); ++it){
+  //    if(id == (*it)->GetClientSocketID()){
+  //      (*it)->StopClientThread();
+  //      clients.erase(it);  
+  //    }    
+  //  }    
+  //}
   else if(command == "focus"){
     SendFocusMessage(message, sheet, id);
     std::cout<< "focus sent" << std::endl;
@@ -270,12 +277,12 @@ void Lobby::HandleMessage(std::string message, std::string sheet, int id){
   else if(command == "unfocus"){
     SendUnfocusMessage(sheet, id);
   }
-  else if(command == "ping"){
-    SendPingResponse(id);
-  }
-  else if(command == "ping_response"){
-    ResetPingMiss(id);
-  }
+  //else if(command == "ping"){
+  //  SendPingResponse(client);
+  //}
+  //else if(command == "ping_response"){
+  //  client->PingReset();
+  //}
 
 }
 
@@ -284,42 +291,42 @@ void Lobby::HandleMessage(std::string message, std::string sheet, int id){
  * if all the client message queues were empty
  */
 bool Lobby::CheckForMessages(){
-  int messagesHandled = 0;
+  int messages_handled = 0;
   std::vector<Interface*>::iterator it = clients.begin();
   for(; it != clients.end(); ++it){
     //Pop next message off Interface incoming message queue
     std::string message = (*it)->PullMessage(LOBBY);
     std::string sheet = (*it)->GetSprdName();
-    int client_id = (*it)->GetClientSocketID();
+    int id = (*it)->GetClientSocketID();
     if(message == ""){
-      continue;
+      if ((*it)->IsActive() == false)
+        dead_clients.push(it);
     }
     else {
-      HandleMessage(message, sheet, client_id);
-      messagesHandled++;
+      HandleMessage(message, sheet, id);
+      messages_handled++;
     }
-
   }
-  return messagesHandled > 0;
+  return messages_handled > 0;
 }
 
 void Lobby::LobbyPing()
 {
+  std::string msg = "ping ";
+  char end = (char) 3;
+  msg += end;
   int seconds;
   while(running)
-  {
-    std::string msg = "ping ";
-    char end = (char) 3;
-    msg += end;
+  {   
+    pthread_mutex_lock(&client_list_mutex);
     std::vector<Interface*>::iterator it = clients.begin();
     for(; it!= clients.end(); ++it)
     {
+	  int id = (*it)->GetClientSocketID();
       (*it)->PushMessage(LOBBY, msg);
-      if((*it)->PingMiss())
-      {
-	(*it)->StopClientThread();
-      }
+      std::cout << "LOBBY PING: " << id << std::endl;
     }
+    pthread_mutex_unlock(&client_list_mutex);
     if (seconds = sleep(10))
       std::cout << "Slept for " << (10-seconds) << " seconds" << std::endl;
   }
@@ -372,14 +379,16 @@ void Lobby::MainLoop()
 	// 1. Check for new clients in the new client queue
 	//      - If they exist push a full state message into their interface
 	//      - Add them to client list
+	bool new_clients, new_messages;
 	while(running){
-	  if(!CheckForNewClient())	
-	    if (!CheckForMessages()){
+	  new_clients = CheckForNewClient();
+	  new_messages = CheckForMessages();
+      CleanDeadClients();
+      if (!new_clients && !new_messages)
+      {
 	      int ten_ms = 10000;
 	      usleep(ten_ms); 
 	  }
-	  
-	  CheckForMessages();
 	} 
 	// 2. For each client, process incoming messages in a Round Robin fashion
 	//      - Get message
@@ -402,6 +411,28 @@ void* Lobby::PingLoop(void* ptr)
 {
   Lobby* lobby_ptr = (Lobby*) ptr;
   lobby_ptr->LobbyPing();
+}
+
+
+void Lobby::CleanDeadClients()
+{
+	if (dead_clients.empty())
+		return;
+
+	std::vector<Interface*>::iterator it;
+	Interface* interface;
+	pthread_mutex_lock(&client_list_mutex);
+	while (!dead_clients.empty())
+	{
+		it = dead_clients.front();
+		dead_clients.pop();
+		interface = *it;
+		interface->StopClientThread();
+		clients.erase(it);
+		delete interface;
+        std::cout << "LOBBY CLEANED" << std::endl;
+	}
+	pthread_mutex_unlock(&client_list_mutex);
 }
 
 void Lobby::Shutdown(){

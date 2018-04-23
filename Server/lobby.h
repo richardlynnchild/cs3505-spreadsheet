@@ -10,14 +10,17 @@
 #include "interface.h"
 #include <set>
 
+
 class Lobby {
   private:
 
 	pthread_mutex_t list_mutex;
 	pthread_mutex_t new_client_mutex;
+    pthread_mutex_t client_list_mutex;
 
     bool running;
     std::vector<Interface*> clients;
+	std::queue<std::vector<Interface*>::iterator> dead_clients;
     std::queue<Interface*> new_clients;
     std::map<std::string, Spreadsheet> spreadsheets;
     std::set<std::string> sheet_list;
@@ -29,13 +32,14 @@ class Lobby {
     void OpenSpreadsheet(std::string filename);
 
     bool CheckForMessages();
-    void HandleMessage(std::string message,std::string sheet, int id);
+    void HandleMessage(std::string message, std::string sheet, int id);
+	void CleanDeadClients();
     std::vector<std::string> SplitString(std::string str, char delim);
     void SendChangeMessage(std::string message, std::string sheet);
     void SendFocusMessage(std::string cell, std::string sheet, int id);
     void SendUnfocusMessage(std::string sheet, int id);
-    void SendPingResponse(int id);
-    void ResetPingMiss(int id);
+    //void SendPingResponse(int id);
+    //void ResetPingMiss(int id);
     void MainLoop();
     void LobbyPing();
 	

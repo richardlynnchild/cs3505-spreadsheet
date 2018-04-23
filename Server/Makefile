@@ -24,4 +24,4 @@ dummy_client:
 	g++ -o dummy_client dummy_client.cpp
 
 clean:
-	rm *.o ./a.out
+	rm *.o ./main

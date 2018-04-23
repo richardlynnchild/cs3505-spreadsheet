@@ -12,7 +12,7 @@ Interface::Interface(int socket_id, std::string sprd_name)
     client_socket_id = socket_id;
     spreadsheet_name = sprd_name;
     thread_active = false;
-	ping_miss = 0;
+	thread_joined = true;
 
 	// Output is just for debugging
     int error;
@@ -43,16 +43,13 @@ void Interface::PushMessage(int access_id, std::string message)
 	if (access_id == LOBBY)
 	{
 		pthread_mutex_lock(&out_msg_mutex);
-		std::cout << "Pushing to Interface: " << message << std::endl;
 		outbound_messages.push(message);
-		std::cout<<"Lobby pushing message "<< message <<std::endl;
 		pthread_mutex_unlock(&out_msg_mutex);
 	}
 	else if (access_id == CLIENT)
 	{	
 		pthread_mutex_lock(&in_msg_mutex);
 		inbound_messages.push(message);
-		std::cout<<"Client pushing message "<< message <<std::endl;
 		pthread_mutex_unlock(&in_msg_mutex);
 	}
 }
@@ -88,34 +85,40 @@ bool Interface::IsActive()
 	return thread_active;
 }
 
-bool Interface::PingMiss()
+void Interface::MarkThreadClosed()
 {
-	ping_miss++;
-	if (ping_miss >= 6)
-		return true;
-	return false;
-}
-
-void Interface::PingReset()
-{
-	ping_miss = 0;
+	thread_active = false;
 }
 
 bool Interface::StartClientThread()
 {
-	if (thread_active)
+	if (!thread_joined)
 		return false;
 
-	pthread_t client_thread;
 	if (pthread_create(&client_thread, NULL, NetworkController::ClientCommunicate, this))
 		std::cerr << "error creating thread for connected client" << std::endl;
     else
+	{
 		thread_active = true;
+		thread_joined = false;
+	}
 
 	return thread_active;
 }
 
 void Interface::StopClientThread()
 {
-    thread_active = false;
+	if (!thread_joined)
+	{
+		if (thread_active)
+		{
+			std::string disconnect = "disconnect ";
+			char end = (char)3;
+			disconnect += end;
+			PushMessage(LOBBY, disconnect);
+		}
+		if (pthread_join(client_thread, NULL))
+			std::cout << "stopping client thread error" << std::endl;
+		thread_joined = true;
+	}
 }

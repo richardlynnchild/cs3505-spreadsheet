@@ -165,6 +165,7 @@ void* NetworkController::ClientCommunicate(void* ptr)
 	Interface* interface = (Interface*) ptr;
 	int socket_id = interface->GetClientSocketID();
 	SetSocketTimeout(socket_id);
+	int ping_miss = -1;
 
 	int rcv_buf_size = 2048;
 	char rcv_buf[rcv_buf_size];
@@ -181,8 +182,10 @@ void* NetworkController::ClientCommunicate(void* ptr)
 	std::string snd_str = "";
 
 	bool recv_idle, send_idle;
+    bool connected = true;
 	bool forced_disconnect = false;
-	while(interface->IsActive())
+	//std::cout << "187" << std::endl;
+	while(connected && ping_miss <= 6)
 	{
 		recv_idle = true;
 		send_idle = true;
@@ -190,26 +193,45 @@ void* NetworkController::ClientCommunicate(void* ptr)
 		// Receive messages from client
 		if (TestSocket(socket_id))
 		{
+	//std::cout << "196" << std::endl;
 			bytes_received = recv(socket_id, &rcv_buf[rcv_buf_next], 
 								rcv_buf_size-rcv_buf_next, 0);
+	//std::cout << "199" << std::endl;
 			if (bytes_received > 0)
 			{
 				rcv_buf_next += bytes_received;
 				recv_idle = false;
 			}
+			else if (bytes_received < 0)
+			{
+				std::cout << "receive" << bytes_received << std::endl;
+			}
 
+	//std::cout << "205" << std::endl;
 			// Push through interface if message is complete
 			rcv_str = GetMessage(&rcv_buf[0], rcv_buf_next);
 			if (rcv_str != "")
-				interface->PushMessage(CLIENT, rcv_str);
+			{
+				std::cout << "Received from client " << socket_id << std::endl;
+				std::cout << rcv_str << std::endl;
+				std::cout << std::endl;
+				if (rcv_str == "ping ")
+					ReplyPing(socket_id);
+				else if (rcv_str == "ping_response ")
+					ping_miss = 0;
+				else if (rcv_str == "disconnect ")
+					break;
+				else
+					interface->PushMessage(CLIENT, rcv_str);
+			}
 		}
 		else
 		{
-			interface->StopClientThread();
 			forced_disconnect = true;
 			break;
 		}
 
+	//std::cout << "226" << std::endl;
 		// Check for outgoing messages
 		if (send_msg_size - send_buf_next <= 0)
 		{
@@ -218,6 +240,10 @@ void* NetworkController::ClientCommunicate(void* ptr)
 			if (snd_str == "")
 			{
 				snd_str = interface->PullMessage(CLIENT);
+				if (IsPing(snd_str))
+					ping_miss++;
+				else if (IsDisconnect(snd_str))
+					connected = false;
 			}
 
 			if (snd_str != "")
@@ -248,6 +274,7 @@ void* NetworkController::ClientCommunicate(void* ptr)
 			if (TestSocket(socket_id))
 			{
 
+	//std::cout << "269" << std::endl;
 				bytes_sent = send(socket_id, &(send_buf[send_buf_next]),
 								send_msg_size-send_buf_next, 0);
 
@@ -259,25 +286,30 @@ void* NetworkController::ClientCommunicate(void* ptr)
 
 				if (bytes_sent > 0)
 					send_buf_next += bytes_sent;
+
+				else if (bytes_sent < 0)
+				{
+					std::cout << "send" << bytes_sent << std::endl;
+				}
 			}
 			else
 			{
-				interface->StopClientThread();
 				forced_disconnect = true;
 				break;
 			}
 		}
 
+	//std::cout << "289" << std::endl;
 		// Sleep when things get boring
-		if (recv_idle && send_idle)
+		if (recv_idle && send_idle && connected)
 			usleep(10000);
 	}
 
-	if (!forced_disconnect)
-		SendDisconnect(socket_id);
-
-	delete interface;
+	if (forced_disconnect)
+		std::cout << "Forced disconnect" << std::endl;
+	std::cout << "295" << std::endl;
 	close(socket_id);
+	interface->MarkThreadClosed();
 }
 
 void NetworkController::SendDisconnect(int socket_id)
@@ -369,4 +401,34 @@ bool NetworkController::TestSocket(int socket_id)
 		return false;
 	}
 	return true;
+}
+
+void NetworkController::ReplyPing(int socket_id)
+{	
+	char msg[15] = "ping_response ";
+	char ext = (char)3;
+	msg[14] = ext;
+	int bytes = send(socket_id, &msg, 15, 0);
+
+	std::cout << "Sent to client " << socket_id << std::endl;
+	for (int i = 0; i < bytes; i++)
+		std::cout << msg[i];
+	std::cout << std::endl;
+	std::cout << std::endl;
+}
+
+bool NetworkController::IsPing(std::string msg)
+{
+	std::string ping = "ping ";
+	char ext = (char)3;
+	ping += ext;
+	return msg == ping;
+}
+
+bool NetworkController::IsDisconnect(std::string msg)
+{
+	std::string dis = "disconnect ";
+	char ext = (char)3;
+	dis += ext;
+	return msg == dis;
 }
