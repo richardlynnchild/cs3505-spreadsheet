@@ -148,24 +148,25 @@ bool Lobby::CheckForNewClient(){
   }
 
   if (!idle) {
+    Spreadsheet* new_sheet;
+    int id = new_client->GetClientSocketID();
     //Check if the desired spreadsheet is active 
     if(spreadsheets.count(name)<1){
       //Check if the spreadsheet is saved
       std::set<std::string>::iterator it = sheet_list.find(name);
       if(it == sheet_list.end()){
-        Spreadsheet new_sheet(name);  //not active, not saved
-        spreadsheets.insert(std::pair<std::string,Spreadsheet>(name,new_sheet));
+        new_sheet = new Spreadsheet(name);  //not active, not saved
+        spreadsheets.insert(std::pair<std::string,Spreadsheet*>(name,new_sheet));
       }
       else {
-        Spreadsheet new_sheet (name, name); //not active, but saved
-        spreadsheets.insert(std::pair<std::string,Spreadsheet>(name,new_sheet));
+        new_sheet = new Spreadsheet(name, name); //not active, but saved
+        spreadsheets.insert(std::pair<std::string,Spreadsheet*>(name,new_sheet));
       }
     }
-    std::string full_state = spreadsheets[name].GetFullState();
-    std::cout << "Sending full state message -> " << full_state << std::endl;
-    new_client->StartClientThread();
+    std::string full_state = new_sheet->GetFullState(id);
+	new_client->SetSpreadPointer(new_sheet);
     new_client->PushMessage(LOBBY, full_state);
-    
+    new_client->StartClientThread();
     //Add the client to the active client list
     //Should be done after 'full_state' message
     //is sent
@@ -181,15 +182,15 @@ bool Lobby::CheckForNewClient(){
  * Split the given string by the given delimiter.
  * Returns a vector of sub-strings.
  */
-std::vector<std::string> Lobby::SplitString(std::string str, char delim){
-  std::stringstream ss(str);
-  std::string token;
-  std::vector<std::string> tokens;
-  while(std::getline(ss,token,delim)){
-    tokens.push_back(token);
-  }
-  return tokens;
-}
+//std::vector<std::string> Lobby::SplitString(std::string str, char delim){
+//  std::stringstream ss(str);
+//  std::string token;
+//  std::vector<std::string> tokens;
+//  while(std::getline(ss,token,delim)){
+//    tokens.push_back(token);
+//  }
+//  return tokens;
+//}
 
 /*
  * Send a change command with the specified string to the
@@ -212,21 +213,21 @@ void Lobby::SendChangeMessage(std::string message, std::string sheet){
  * Send a focus message with the specified cell name
  * to the clients of the specified spreadsheet.
  */
-void Lobby::SendFocusMessage(std::string msg, std::string sheet, int id){
-  std::vector<std::string> tokens = SplitString(msg, ' ');
-  std::vector<std::string> smaller = SplitString(tokens[1], ((char)3));
-  std::string cell = smaller[0];
-  std::stringstream ss;
-  ss << id;
-  std::string usr_id = ss.str();
-  std::string focus = "focus "+ cell + ":" + usr_id + ((char)3);
-  std::vector<Interface*>::iterator it = clients.begin();
-    for(; it != clients.end(); ++it){
-      if((*it)->GetSprdName() == sheet){
-        (*it)->PushMessage(LOBBY, focus);
-      }
-    } 
-}
+//void Lobby::SendFocusMessage(std::string msg, std::string sheet, int id){
+//  std::vector<std::string> tokens = SplitString(msg, ' ');
+//  std::vector<std::string> smaller = SplitString(tokens[1], ((char)3));
+//  std::string cell = smaller[0];
+//  std::stringstream ss;
+//  ss << id;
+//  std::string usr_id = ss.str();
+//  std::string focus = "focus "+ cell + ":" + usr_id + ((char)3);
+//  std::vector<Interface*>::iterator it = clients.begin();
+//    for(; it != clients.end(); ++it){
+//      if((*it)->GetSprdName() == sheet){
+//        (*it)->PushMessage(LOBBY, focus);
+//      }
+//    } 
+//}
 
 /*
  * Send an unfocus message with the specified client name to the clients of the specified
@@ -272,62 +273,59 @@ void Lobby::SendUnfocusMessage(std::string sheet, int id)
  * Processes a single message from a client.
  */
 
-void Lobby::HandleMessage(std::string message, std::string sheet, int id){
-  //Split the message and get the command
-  std::cout << "Received from client -> " << message << std::endl;
-  char delim = ' ';
-  std::vector<std::string> tokens = SplitString(message, delim);
-  std::string command = tokens[0];
-
-  if(command == "edit"){
-    std::vector<std::string> cell = GetEditMsg(message);
-    spreadsheets[sheet].EditSheet(cell[0],cell[1]);
-    std::string rebuilt_msg = cell[0];
-    rebuilt_msg += ":";
-    rebuilt_msg += cell[1];
-    SendChangeMessage(rebuilt_msg, sheet); 
-  }
-  else if(command == "undo"){
-    std::pair<std::string,std::string> cell = spreadsheets[sheet].Undo();
-    if(cell.first == "NULL")
-      return;
-    std::string message = cell.first;
-    message += ":";
-    message += cell.second;
-    SendChangeMessage(message,sheet); 
-  }
-  else if(command == "revert"){
-    std::string message = tokens[1];
-    message += ":";
-    std::string revertedcell = spreadsheets[sheet].Revert(tokens[1]);
-    if(revertedcell == "NULL")
-      return;
-    message += revertedcell;
-    SendChangeMessage(message,sheet); 
-  }
-  //else if(command == "disconnect"){
-  //  std::vector<Interface*>::iterator it = clients.begin();
-  //  for(; it != clients.end(); ++it){
-  //    if(id == (*it)->GetClientSocketID()){
-  //      (*it)->StopClientThread();
-  //      clients.erase(it);  
-  //    }    
-  //  }    
-  //}
-  else if(command == "focus"){
-    SendFocusMessage(message, sheet, id);
-  }
-  else if(command == "unfocus"){
-    SendUnfocusMessage(sheet, id);
-  }
-  //else if(command == "ping"){
-  //  SendPingResponse(client);
-  //}
-  //else if(command == "ping_response"){
-  //  client->PingReset();
-  //}
-
-}
+//void Lobby::HandleMessage(std::string message, std::string sheet, int id){
+//  //Split the message and get the command
+//  char delim = ' ';
+//  std::vector<std::string> tokens = SplitString(message, delim);
+//  std::string command = tokens[0];
+//
+//  if(command == "edit"){
+//    std::vector<std::string> cell = GetEditMsg(message);
+//    spreadsheets[sheet].EditSheet(cell[0],cell[1]);
+//    std::string rebuilt_msg = cell[0] + cell[1];
+//    SendChangeMessage(rebuilt_msg, sheet); 
+//  }
+//  else if(command == "undo"){
+//    std::pair<std::string,std::string> cell = spreadsheets[sheet].Undo();
+//    if(cell.first == "NULL")
+//      return;
+//    std::string message = cell.first;
+//    message += ":";
+//    message += cell.second;
+//    SendChangeMessage(message,sheet); 
+//  }
+//  else if(command == "revert"){
+//    std::string message = tokens[1];
+//    message += ":";
+//    std::string revertedcell = spreadsheets[sheet].Revert(tokens[1]);
+//    if(revertedcell == "NULL")
+//      return;
+//    message += revertedcell;
+//    SendChangeMessage(message,sheet); 
+//  }
+//  //else if(command == "disconnect"){
+//  //  std::vector<Interface*>::iterator it = clients.begin();
+//  //  for(; it != clients.end(); ++it){
+//  //    if(id == (*it)->GetClientSocketID()){
+//  //      (*it)->StopClientThread();
+//  //      clients.erase(it);  
+//  //    }    
+//  //  }    
+//  //}
+//  else if(command == "focus"){
+//    SendFocusMessage(message, sheet, id);
+//  }
+//  else if(command == "unfocus"){
+//    SendUnfocusMessage(sheet, id);
+//  }
+//  //else if(command == "ping"){
+//  //  SendPingResponse(client);
+//  //}
+//  //else if(command == "ping_response"){
+//  //  client->PingReset();
+//  //}
+//
+//}
 
 /*
  * Returns true if a client sent a message, returns false
@@ -338,17 +336,17 @@ bool Lobby::CheckForMessages(){
   std::vector<Interface*>::iterator it = clients.begin();
   for(; it != clients.end(); ++it){
     //Pop next message off Interface incoming message queue
-    std::string message = (*it)->PullMessage(LOBBY);
-    std::string sheet = (*it)->GetSprdName();
-    int id = (*it)->GetClientSocketID();
-    if(message == ""){
+    //std::string message = (*it)->PullMessage(LOBBY);
+    //std::string sheet = (*it)->GetSprdName();
+    //int id = (*it)->GetClientSocketID();
+    //if(message == ""){
       if ((*it)->IsActive() == false)
         dead_clients.push(it);
-    }
-    else {
-      HandleMessage(message, sheet, id);
-      messages_handled++;
-    }
+    //}
+    //else {
+      //HandleMessage(message, sheet, id);
+      //messages_handled++;
+    //}
   }
   return messages_handled > 0;
 }
@@ -488,11 +486,12 @@ void Lobby::Shutdown(){
     delete interface;
   }
   //save each spreadsheet object to disk
-  std::map<std::string, Spreadsheet>::iterator s_it = spreadsheets.begin();
+  std::map<std::string, Spreadsheet*>::iterator s_it = spreadsheets.begin();
   for(; s_it != spreadsheets.end(); ++s_it){
-    std::string filename = s_it->first; 
-    s_it->second.WriteSpreadsheet(filename);
-  }
+    std::string filename = s_it->first;
+    (s_it->second)->WriteSpreadsheet(filename);
+  }   
+
 }
 
 

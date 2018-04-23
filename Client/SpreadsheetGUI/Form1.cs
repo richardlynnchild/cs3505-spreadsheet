@@ -72,6 +72,8 @@ namespace SpreadsheetGUI
             this.ServerTextBox.Enter += ServerTextBoxEntered;
             this.ServerTextBox.LostFocus += ServerTextBoxLeft;
             this.FormulaBox.GotFocus += HandleFomrulaBoxFocus;
+            this.CellNameOutput.GotFocus += HandleCellNameFocus;
+            this.CellValueOutput.GotFocus += HandleCellValueFocus;
 
             this.Width = 800;
             this.Height = 600;
@@ -312,9 +314,29 @@ namespace SpreadsheetGUI
         /// </summary>
         /// <param name="hWnd"></param>
         /// <returns></returns>
-        public void HandleFomrulaBoxFocus(object sender, EventArgs e)
+        private void HandleFomrulaBoxFocus(object sender, EventArgs e)
         {
             HideCaret(FormulaBox.Handle);
+            spreadsheetPanel1.Focus();
+        }
+        /// <summary>
+        /// Hides the caret for the cellValueOutput box and returns focus to the spreadsheet panel.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HandleCellValueFocus(object sender, EventArgs e)
+        {
+            HideCaret(CellValueOutput.Handle);
+            spreadsheetPanel1.Focus();
+        }
+        /// <summary>
+        /// Hides teh caret for the cellName box and returns focus to the spreadsheet panel.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HandleCellNameFocus(object sender, EventArgs e)
+        {
+            HideCaret(CellNameOutput.Handle);
             spreadsheetPanel1.Focus();
         }
 
@@ -393,7 +415,7 @@ namespace SpreadsheetGUI
                     _address = address;
                     connected = true;
                 }
-                catch (ArgumentException)
+                catch
                 {
                     MessageBox.Show("invalid server name");
                 }
@@ -420,6 +442,7 @@ namespace SpreadsheetGUI
                 ServerTextBox.Enabled = true;
                 ConnectButton.Enabled = true;
 
+                ss1 = new Spreadsheet();
                 spreadsheetPanel1.Clear();
 
                 MessageBox.Show("Disconnected Successfully");
@@ -487,13 +510,7 @@ namespace SpreadsheetGUI
             string message;
             lock (state) { message = state.builder.ToString(); }
             state.builder.Clear();
-            //SOOOO many bugs in this area!
-            //goes into line 364 like 5 times and comes out with a different message every time
-            //starts the if(message.Contains) with the right message, by the time it gets to else if ping,
-            //the message was ""
 
-            //ALSO half the time the message is just full state (char)3, and half of the time it has anywhere
-            //from 1 to like 6 ping messages included still...
             MethodInvoker FMInvoker = new MethodInvoker(() =>
             {
                 FilePanel.Visible = false;
@@ -920,8 +937,9 @@ namespace SpreadsheetGUI
             MethodInvoker FMInvoker = new MethodInvoker(() =>
             {
                 ShowFileMenu(message);
+                Open_FileMenu.Enabled = true;
             });
-            Open_FileMenu.Enabled = true;
+            //Open_FileMenu.Enabled = true;
             this.Invoke(FMInvoker);
 
             state.builder.Clear();
@@ -1044,6 +1062,7 @@ namespace SpreadsheetGUI
 
             string name = GetCellName(col, row);
 
+            CellNameOutput.Text = name;
             CellValueOutput.Text = value;
             string contents = ss1.GetCellContents(name).ToString();
 
