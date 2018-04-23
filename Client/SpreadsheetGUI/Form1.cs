@@ -401,8 +401,11 @@ namespace SpreadsheetGUI
             pingMisses++;
             if (pingMisses >= 6)
                 Disconnect();
-            string pingMsg = "ping " + ((char)3);
-            SendMessage(pingMsg);
+            else
+            {
+                string pingMsg = "ping " + ((char)3);
+                SendMessage(pingMsg);
+            } 
         }
 
 
@@ -531,7 +534,6 @@ namespace SpreadsheetGUI
                                 //timer reset -- not sure this is right
                                 //serverTimer.Stop();
                                 //serverTimer.Start();
-                                //pingMisses = 0;
                             //}
                             //break;
 
