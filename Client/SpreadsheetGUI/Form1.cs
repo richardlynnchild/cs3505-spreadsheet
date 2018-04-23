@@ -14,6 +14,7 @@ namespace SpreadsheetGUI
     {
         public Spreadsheet ss1;
         private Socket theServer;
+        private string _address;
         private bool connected;
         private Dictionary<string, string> clientFocus;
         private string previousSelection;
@@ -22,6 +23,21 @@ namespace SpreadsheetGUI
         //private System.Timers.Timer serverTimer;
         private SocketState serverSock;
         public Form1()
+        {
+            SpreadsheetSetUp();
+        }
+
+        public Form1(string address)
+        {
+            SpreadsheetSetUp();
+            Connect(address);
+            ServerTextBox.Text = address;
+        }
+
+        /// <summary>
+        /// Sets the default options for a new spreadsheet.
+        /// </summary>
+        private void SpreadsheetSetUp()
         {
             //
             //Set up for a new spreadsheet.
@@ -67,7 +83,6 @@ namespace SpreadsheetGUI
             pingTimer = new System.Timers.Timer();
             pingTimer.Interval = 10000;
             pingTimer.Elapsed += SendPing;
-
         }
 
         #region Spreadsheet Control
@@ -236,22 +251,7 @@ namespace SpreadsheetGUI
         /// <param name="e"></param>
         private void ConnectButton_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(ServerTextBox.Text))
-                MessageBox.Show("Please enter a server address.");
-            else
-            {
-                try
-                {
-                    theServer = Network.ConnectToServer(SendRegisterMessage, ServerTextBox.Text);
-                    ServerTextBox.Enabled = false;
-                    ConnectButton.Enabled = false;
-                    connected = true;
-                }
-                catch (ArgumentException)
-                {
-                    MessageBox.Show("invalid server name");
-                }
-            }
+            Connect(ServerTextBox.Text);
         }
 
 
@@ -330,10 +330,38 @@ namespace SpreadsheetGUI
 
         #region Networking Control
 
+        /// <summary>
+        /// Sends a disconnect message to the server, and disconnects the client.
+        /// </summary>
         private void Disconnect()
         {
             Network.Send(theServer, "disconnect " + (char)3);
             HandleDisconnect();
+        }
+
+        /// <summary>
+        /// Connects the client to the server at the given address.
+        /// </summary>
+        /// <param name="address"></param>
+        private void Connect(string address)
+        {
+            if (string.IsNullOrEmpty(address))
+                MessageBox.Show("Please enter a server address.");
+            else
+            {
+                try
+                {
+                    theServer = Network.ConnectToServer(SendRegisterMessage, address);
+                    ServerTextBox.Enabled = false;
+                    ConnectButton.Enabled = false;
+                    _address = address;
+                    connected = true;
+                }
+                catch (ArgumentException)
+                {
+                    MessageBox.Show("invalid server name");
+                }
+            }
         }
 
         private void HandleDisconnect()
@@ -1135,7 +1163,11 @@ namespace SpreadsheetGUI
 
         private void NewSpreadsheetButton_Click(object sender, EventArgs e)
         {
-            SpreadsheetApplicationContext.getAppContext().RunForm(new Form1());
+            if (connected)
+                SpreadsheetApplicationContext.getAppContext().RunForm(new Form1(_address));
+            else
+                SpreadsheetApplicationContext.getAppContext().RunForm(new Form1());
+
         }
 
 
