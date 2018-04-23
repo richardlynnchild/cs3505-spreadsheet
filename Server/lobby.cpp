@@ -487,28 +487,12 @@ void Lobby::Shutdown(){
     interface->StopClientThread();
     delete interface;
   }
-  
-  std::vector<std::string> new_sheets;
   //save each spreadsheet object to disk
   std::map<std::string, Spreadsheet>::iterator s_it = spreadsheets.begin();
   for(; s_it != spreadsheets.end(); ++s_it){
-    std::string filename = s_it->first;
-    if(sheet_list.insert(filename).second){
-      new_sheets.push_back(filename);
-    } 
+    std::string filename = s_it->first; 
     s_it->second.WriteSpreadsheet(filename);
   }
-
-  //save the newly created spreadsheet filenames to the sheet_list.txt file
-  std::ofstream out("sheet_list.txt", std::ofstream::out | std::ofstream::app);
-  std::vector<std::string>::iterator n_it = new_sheets.begin();
-  for(; n_it != new_sheets.end(); ++n_it){
-    out << *n_it;
-  }
-  out.close();
-  
-    
-
 }
 
 
