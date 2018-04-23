@@ -29,7 +29,7 @@ std::vector<std::string> GenSplitString(std::string input, char delim)
     else
     {
       split_sections.push_back(section);
-      split_sections.push_back(input.substr(index));
+      split_sections.push_back(input.substr(index+1));
       break;
     }
     index++;
@@ -162,6 +162,7 @@ bool Lobby::CheckForNewClient(){
       }
     }
     std::string full_state = spreadsheets[name].GetFullState();
+    std::cout << "Sending full state message -> " << full_state << std::endl;
     new_client->StartClientThread();
     new_client->PushMessage(LOBBY, full_state);
     
@@ -273,6 +274,7 @@ void Lobby::SendUnfocusMessage(std::string sheet, int id)
 
 void Lobby::HandleMessage(std::string message, std::string sheet, int id){
   //Split the message and get the command
+  std::cout << "Received from client -> " << message << std::endl;
   char delim = ' ';
   std::vector<std::string> tokens = SplitString(message, delim);
   std::string command = tokens[0];
@@ -280,7 +282,9 @@ void Lobby::HandleMessage(std::string message, std::string sheet, int id){
   if(command == "edit"){
     std::vector<std::string> cell = GetEditMsg(message);
     spreadsheets[sheet].EditSheet(cell[0],cell[1]);
-    std::string rebuilt_msg = cell[0] + cell[1];
+    std::string rebuilt_msg = cell[0];
+    rebuilt_msg += ":";
+    rebuilt_msg += cell[1];
     SendChangeMessage(rebuilt_msg, sheet); 
   }
   else if(command == "undo"){
@@ -473,6 +477,8 @@ void Lobby::Shutdown(){
 
   pthread_join(ping_thread, NULL);
   pthread_join(main_thread, NULL);
+
+  std::cout << "Shutdown initiated..." << std::endl;
   //send a disconnect message
   //to each client
   std::vector<Interface*>::iterator c_it = clients.begin();
@@ -481,14 +487,12 @@ void Lobby::Shutdown(){
     interface->StopClientThread();
     delete interface;
   }
-
   //save each spreadsheet object to disk
   std::map<std::string, Spreadsheet>::iterator s_it = spreadsheets.begin();
   for(; s_it != spreadsheets.end(); ++s_it){
-    std::string filename = s_it->first;
+    std::string filename = s_it->first; 
     s_it->second.WriteSpreadsheet(filename);
-  }   
-
+  }
 }
 
 
