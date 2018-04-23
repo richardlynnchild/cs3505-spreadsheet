@@ -82,6 +82,12 @@
             </summary>
             <param name="Validator">Function that returns true if the given token is a valid variable.</param>
         </member>
+        <member name="M:SpreadsheetUtilities.Formula.IsValidVariable(System.String)">
+            <summary>
+            Verifies that the variable given is valid.
+            </summary>
+            <param name="var"></param>
+        </member>
         <member name="M:SpreadsheetUtilities.Formula.MinOneTokenValidator">
             <summary>
             Verifies that there is at least one token in a given array.

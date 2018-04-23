@@ -27,25 +27,30 @@ void* NetworkController::ListenForClients(void* ptr){
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = INADDR_ANY;
 	address.sin_port = htons( PORT );
-	
-	if ((listen_socket = socket(AF_INET, SOCK_STREAM, 0)) == 0)
+
+
+	bool listening = true;	
+	if ((listen_socket = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0)) == 0)
 	{
 		std::cerr << "failed to build socket" << std::endl;
-		ptr_lobby->Shutdown();
+		listening = false;
 	}
 	if (bind(listen_socket, (struct sockaddr *)&address, sizeof(address)) < 0)
 	{
 		std::cerr << "failed to bind to localhost:" << PORT << std::endl;
-		ptr_lobby->Shutdown();
+		listening = false;
 	}
 	
 	if (listen(listen_socket, 10) < 0)
+	{
 		std::cerr << "socket listen failure" << std::endl;
+		listening = false;
+	}
 
-	while(ptr_lobby->IsRunning())
+	while(listening)
 	{  	
 		if ((new_client_socket = accept(listen_socket, (struct sockaddr *)&address, (socklen_t*)&address_length)) < 0)
-			std::cerr << "error accepting new client connection" << std::endl;
+			usleep(10000);
 
 		else
 		{
@@ -58,6 +63,7 @@ void* NetworkController::ListenForClients(void* ptr){
 
 			pthread_detach(handshake_thread);
 		}
+		listening = ptr_lobby->IsRunning();
 	}
 
 	close(listen_socket);
@@ -93,7 +99,7 @@ void* NetworkController::Handshake(void* ptr){
 	
 	} while(msg_str == "" && ptr_obj->IsRunning());	
 	
-	if (msg_str == "register")
+	if (msg_str == "register ")
 	{
 	  	std::string sprd_name = GetSpreadsheetChoice(id, ptr_obj);
 	  	if (sprd_name != "")
