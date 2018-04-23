@@ -14,6 +14,7 @@ class Spreadsheet
   std::map<std::string, std::stack<std::string> > revert_stacks;
   std::stack<std::pair <std::string,std::string> > undo_stack;
   std::string name;
+  std::vector<std::string> SplitString(std::string input, char delim);
   
  public:
   Spreadsheet(std::string name);

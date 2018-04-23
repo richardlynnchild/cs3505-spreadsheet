@@ -57,7 +57,7 @@ bool FileContains(std::string filename, std::string query)
 }
 
 //Splits a string into two parts on the first space character it encounters
-std::vector<std::string> SplitString(std::string input)
+std::vector<std::string> Spreadsheet::SplitString(std::string input, char delim)
 {
   std::string section = "";
   std::vector<std::string> split_sections;
@@ -65,7 +65,7 @@ std::vector<std::string> SplitString(std::string input)
 
   while (true)
   {
-    if (input[index] != ' ')
+    if (input[index] != delim)
     {
       section += input[index];
     }
@@ -137,7 +137,7 @@ bool Spreadsheet::ReadSpreadsheet(std::string filename)
     {
       if (line == "***FILE_END***")
         break;
-      cell_name_val = SplitString(line);
+      cell_name_val = SplitString(line, ' ');
 
       AddCell(cell_name_val[0], cell_name_val[1]);
     }
@@ -269,7 +269,8 @@ std::pair<std::string, std::string> Spreadsheet::Undo()
 std::string Spreadsheet::Revert(std::string cell_name)
 {
   if(revert_stacks[cell_name].size()<1){
-    return "NULL";  }
+    return "NULL";
+  }  
   undo_stack.push(std::pair<std::string,std::string>(cell_name,spreadsheet_state[cell_name]));
   std::string ret = revert_stacks[cell_name].top();
   revert_stacks[cell_name].pop();
