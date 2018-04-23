@@ -106,7 +106,7 @@
             this.FormulaBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.FormulaBox.Name = "FormulaBox";
             this.FormulaBox.ReadOnly = true;
-            this.FormulaBox.Size = new System.Drawing.Size(146, 20);
+            this.FormulaBox.Size = new System.Drawing.Size(192, 20);
             this.FormulaBox.TabIndex = 6;
             // 
             // CellName
@@ -286,9 +286,9 @@
             // 
             this.ServerTextBox.BackColor = System.Drawing.Color.WhiteSmoke;
             this.ServerTextBox.ForeColor = System.Drawing.SystemColors.MenuText;
-            this.ServerTextBox.Location = new System.Drawing.Point(552, 3);
+            this.ServerTextBox.Location = new System.Drawing.Point(536, 3);
             this.ServerTextBox.Name = "ServerTextBox";
-            this.ServerTextBox.Size = new System.Drawing.Size(142, 20);
+            this.ServerTextBox.Size = new System.Drawing.Size(128, 20);
             this.ServerTextBox.TabIndex = 27;
             this.ServerTextBox.Text = "Enter Hostname";
             // 
@@ -299,7 +299,7 @@
             this.ConnectButton.FlatAppearance.BorderColor = System.Drawing.Color.LightSteelBlue;
             this.ConnectButton.FlatAppearance.BorderSize = 0;
             this.ConnectButton.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ConnectButton.Location = new System.Drawing.Point(700, 3);
+            this.ConnectButton.Location = new System.Drawing.Point(670, 2);
             this.ConnectButton.Name = "ConnectButton";
             this.ConnectButton.Size = new System.Drawing.Size(73, 21);
             this.ConnectButton.TabIndex = 28;
@@ -408,7 +408,7 @@
             this.DisconnectButton.BackColor = System.Drawing.Color.Gainsboro;
             this.DisconnectButton.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("DisconnectButton.BackgroundImage")));
             this.DisconnectButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.DisconnectButton.Location = new System.Drawing.Point(520, 0);
+            this.DisconnectButton.Location = new System.Drawing.Point(748, 2);
             this.DisconnectButton.Margin = new System.Windows.Forms.Padding(2);
             this.DisconnectButton.Name = "DisconnectButton";
             this.DisconnectButton.Size = new System.Drawing.Size(27, 22);
