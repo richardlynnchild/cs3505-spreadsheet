@@ -408,7 +408,7 @@ namespace SpreadsheetGUI
             pingTimer.Stop();
             connected = false;
             previousSelection = "A1";
-            spreadsheetPanel1.SetSelection(0,0);
+            spreadsheetPanel1.SetSelection(0, 0);
 
             MethodInvoker FMInvoker = new MethodInvoker(() =>
             {
@@ -520,7 +520,7 @@ namespace SpreadsheetGUI
                 if (message.Contains("full_state "))
                 {
                     //empty full state message ("full_state char3") is 12
-                    if(message.Length > 12)
+                    if (message.Length > 12)
                     {
                         //full_state A6:3\nB4:2\n((char3))
                         //remove "full_state " and the terminating character
@@ -562,7 +562,7 @@ namespace SpreadsheetGUI
         private void ProcessMessage(SocketState state)
         {
             string message;
-            
+
             lock (state)
             {
                 message = state.builder.ToString();
@@ -573,10 +573,10 @@ namespace SpreadsheetGUI
                 {
                     if (msg == "")
                         break;
-              
+
                     string[] msg2 = msg.Split(' ');
                     string command = msg2[0];
-                    if(command == "change")
+                    if (command == "change")
                     {
                         //get cell name and contents from message
                         char[] delimiters = new char[] { ' ', ':' };
@@ -588,7 +588,7 @@ namespace SpreadsheetGUI
                         GetCellPosition(cell_name, out int row, out int col);
                         SetCell(row, col, contents);
                     }
-                    else if(command == "ping")
+                    else if (command == "ping")
                     {
                         //if (msg == "ping ")
                         //{
@@ -605,16 +605,16 @@ namespace SpreadsheetGUI
                         //break;
 
                     }
-                    else if(command == "ping_response")
+                    else if (command == "ping_response")
                     {
                         pingMisses = 0;
                     }
-                    else if(command == "disconnect")
+                    else if (command == "disconnect")
                     {
                         HandleDisconnect();
 
                     }
-                    else if(command == "unfocus")
+                    else if (command == "unfocus")
                     {
                         char[] delimiters2 = new char[] { ' ' };
                         string[] msg_parts2 = msg.Split(delimiters2);
@@ -627,7 +627,7 @@ namespace SpreadsheetGUI
                             spreadsheetPanel1.SetUnfocus(cell_name, row, col);
                         }
                     }
-                    else if(command == "focus")
+                    else if (command == "focus")
                     {
                         char[] delimiters3 = new char[] { ' ', ':' };
                         string[] msg_parts3 = msg.Split(delimiters3);
@@ -1148,30 +1148,30 @@ namespace SpreadsheetGUI
         /// </summary>
         private void SetCell(int row, int col, string cellVal)
         {
-                string cellName = GetCellName(col, row);
+            string cellName = GetCellName(col, row);
 
             HashSet<string> auxCells = new HashSet<string>(ss1.getDependentCells(cellName));
 
-                ss1.SetContentsOfCell(cellName, cellVal);
+            ss1.SetContentsOfCell(cellName, cellVal);
 
             //if the result is a formula error display a formula error message, otherwise set the cell with the result.
             Type a = ss1.GetCellValue(cellName).GetType();
-                if (ss1.GetCellValue(cellName).GetType() == typeof(FormulaError))
+            if (ss1.GetCellValue(cellName).GetType() == typeof(FormulaError))
+            {
+                FormulaError error = (FormulaError)ss1.GetCellValue(cellName);
+                if (error.Reason == "Circular dependency")
                 {
-                    FormulaError error = (FormulaError)ss1.GetCellValue(cellName);
-                    if (error.Reason == "Circular dependency")
-                    {
-                        spreadsheetPanel1.SetValue(col, row, "#REF");
-                    }
-                    else
-                        spreadsheetPanel1.SetValue(col, row, "Formula Error!");
+                    spreadsheetPanel1.SetValue(col, row, "#REF");
                 }
-
                 else
-                {
-                    spreadsheetPanel1.SetValue(col, row, ss1.GetCellValue(cellName).ToString());
-                    UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
-                }
+                    spreadsheetPanel1.SetValue(col, row, "Formula Error!");
+            }
+
+            else
+            {
+                spreadsheetPanel1.SetValue(col, row, ss1.GetCellValue(cellName).ToString());
+                UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
+            }
             UpdateCells(auxCells);
         }
 
