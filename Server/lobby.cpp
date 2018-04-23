@@ -13,6 +13,38 @@
 #include <set>
 #include <unistd.h>
 
+//Splits a string into two parts on the first space character it encounters
+std::vector<std::string> GenSplitString(std::string input, char delim)
+{
+  std::string section = "";
+  std::vector<std::string> split_sections;
+  int index = 0;
+
+  while (true)
+  {
+    if (input[index] != delim)
+    {
+      section += input[index];
+    }
+    else
+    {
+      split_sections.push_back(section);
+      split_sections.push_back(input.substr(index));
+      break;
+    }
+    index++;
+  }
+
+  return split_sections;
+}
+
+std::vector<std::string> GetEditMsg(std::string input)
+{
+  //remove "edit ""
+  std::string trimmed_input = input.substr(5);
+  std::vector<std::string> cellAndVal = GenSplitString(trimmed_input, ':');
+  return cellAndVal;
+}
 
 Lobby::Lobby()
 {
@@ -87,7 +119,13 @@ std::string Lobby::BuildConnectAccepted(){
  * Checks for and handles a new client if the new client
  * list is non-empty.
  *
- * Returns true if there was a new client to process, returns
+ * Returns true if there was a newstd::vector<std::string> GetEditMsg(std::string input)
+{
+  //remove "edit ""
+  std::string trimmed_input = input.substr(5);
+  std::vector<std::string> cellAndVal = GenSplitString(trimmed_input, ' ');
+  return cellAndVal;
+} client to process, returns
  * false otherwise.
  */
 bool Lobby::CheckForNewClient(){
@@ -237,10 +275,11 @@ void Lobby::HandleMessage(std::string message, std::string sheet, int id){
   std::cout<<"message: "<< command <<std::endl;
 
   if(command == "edit"){
-    char delim = ':';
-    std::vector<std::string> cell = SplitString(tokens[1], delim);
+    std::vector<std::string> cell = GetEditMsg(message);
     spreadsheets[sheet].EditSheet(cell[0],cell[1]);
-    SendChangeMessage(tokens[1], sheet); 
+    std::string rebuilt_msg = cell[0] + cell[1];
+    std::cout << "LOOK! HERE! THE MESSAGE -> " << rebuilt_msg << std::endl;
+    SendChangeMessage(rebuilt_msg, sheet); 
   }
   else if(command == "undo"){
     std::pair<std::string,std::string> cell = spreadsheets[sheet].Undo();
