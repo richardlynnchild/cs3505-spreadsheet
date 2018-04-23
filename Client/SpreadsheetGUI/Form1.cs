@@ -194,7 +194,19 @@ namespace SpreadsheetGUI
 
                     else if ((e.KeyData >= Keys.A && e.KeyData <= Keys.Z) || (e.KeyData >= Keys.D0 && e.KeyData <= Keys.D9) || (e.KeyData >= Keys.NumPad0 && e.KeyData <= Keys.NumPad9))
                     {
-                        StandardKey(e);
+                        if(e.Modifiers == Keys.Shift)
+                        {
+                            CapsKeys(e);
+                        }
+                        else
+                        {
+                            StandardKey(e);
+                        }
+                    }
+
+                    else if ((e.Modifiers == Keys.Shift) && (e.KeyData >= Keys.A && e.KeyData <= Keys.Z))
+                    {
+                        CapsKeys(e);
                     }
 
                     else
@@ -987,6 +999,16 @@ namespace SpreadsheetGUI
             spreadsheetPanel1.SetValue(col, row, newVal);
         }
 
+        private void CapsKeys(KeyEventArgs e)
+        {
+            spreadsheetPanel1.GetSelection(out int col, out int row);
+            KeysConverter kc = new KeysConverter();
+            string keyString = kc.ConvertToString(e.KeyData);
+            spreadsheetPanel1.GetValue(col, row, out string value);
+            string newVal = value + keyString;
+            spreadsheetPanel1.SetValue(col, row, newVal);
+        }
+
         /// <summary>
         /// Sets the value of a cell based on the text in the cell.
         /// </summary>
@@ -1217,8 +1239,31 @@ namespace SpreadsheetGUI
         }
 
 
+
         #endregion
 
+        private void LabelName_Click(object sender, EventArgs e)
+        {
 
+        }
+
+        private void revert_button_MouseClick(object sender, EventArgs e)
+        {
+            if (connected)
+            {
+                spreadsheetPanel1.GetSelection(out int col, out int row);
+                string cellName = GetCellName(col, row);
+
+                SendMessage("revert " + cellName + (char)3);
+            }
+        }
+
+        private void undo_button_MouseClick(object sender, EventArgs e)
+        {
+            if (connected)
+            {
+                SendMessage("undo " + (char)3);
+            }
+        }
     }
 }
