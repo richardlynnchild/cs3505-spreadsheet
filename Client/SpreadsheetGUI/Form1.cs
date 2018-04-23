@@ -47,9 +47,6 @@ namespace SpreadsheetGUI
         /// </summary>
         private void SpreadsheetSetUp()
         {
-            //
-            //Set up for a new spreadsheet.
-            //
 
             ss1 = new Spreadsheet(validVar, s => s.ToUpper(), "cs3505");
 
@@ -372,6 +369,9 @@ namespace SpreadsheetGUI
             }
         }
 
+        /// <summary>
+        /// Handles primary logic for network disconnection.
+        /// </summary>
         private void HandleDisconnect()
         {
             connected = false;
@@ -397,7 +397,7 @@ namespace SpreadsheetGUI
         }
 
         /// <summary>
-        /// Sends the server the name of the spreadsheet the 
+        /// Sends the server the name of the spreadsheet the client selected.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
