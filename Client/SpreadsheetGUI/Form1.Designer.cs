@@ -48,7 +48,6 @@
             this.HelpMoveText = new System.Windows.Forms.TextBox();
             this.HelpSetText = new System.Windows.Forms.TextBox();
             this.HelpOtherText = new System.Windows.Forms.TextBox();
-            this.LabelName = new System.Windows.Forms.Label();
             this.LabelValue = new System.Windows.Forms.Label();
             this.CellNameOutput = new System.Windows.Forms.TextBox();
             this.CellValueOutput = new System.Windows.Forms.TextBox();
@@ -65,21 +64,22 @@
             this.FileList = new System.Windows.Forms.ListView();
             this.NameColHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.menuStrip3 = new System.Windows.Forms.MenuStrip();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.NewSpreadsheetButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.undo_button = new System.Windows.Forms.ToolStripMenuItem();
-            this.revert_button = new System.Windows.Forms.ToolStripMenuItem();
             this.DisconnectButton = new System.Windows.Forms.Button();
             this.ColumnExit = new System.Windows.Forms.Button();
             this.RowExit = new System.Windows.Forms.Button();
             this.CloseSet = new System.Windows.Forms.Button();
             this.CloseOther = new System.Windows.Forms.Button();
             this.CloseMove = new System.Windows.Forms.Button();
+            this.NewSpreadsheetButton = new System.Windows.Forms.ToolStripMenuItem();
+            this.undo_button = new System.Windows.Forms.ToolStripMenuItem();
+            this.revert_button = new System.Windows.Forms.ToolStripMenuItem();
+            this.LabelName = new System.Windows.Forms.Label();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.menuStrip2.SuspendLayout();
             this.FilePanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MovementBox)).BeginInit();
             this.panel1.SuspendLayout();
-            this.menuStrip1.SuspendLayout();
+            this.menuStrip3.SuspendLayout();
             this.SuspendLayout();
             // 
             // spreadsheetPanel1
@@ -87,10 +87,10 @@
             this.spreadsheetPanel1.AutoSize = true;
             this.spreadsheetPanel1.BackColor = System.Drawing.Color.DimGray;
             this.spreadsheetPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.spreadsheetPanel1.Location = new System.Drawing.Point(0, 0);
+            this.spreadsheetPanel1.Location = new System.Drawing.Point(0, 48);
             this.spreadsheetPanel1.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.spreadsheetPanel1.Name = "spreadsheetPanel1";
-            this.spreadsheetPanel1.Size = new System.Drawing.Size(785, 487);
+            this.spreadsheetPanel1.Size = new System.Drawing.Size(785, 493);
             this.spreadsheetPanel1.TabIndex = 0;
             // 
             // openFileDialog1
@@ -219,20 +219,6 @@
             this.HelpOtherText.Text = resources.GetString("HelpOtherText.Text");
             this.HelpOtherText.Visible = false;
             // 
-            // LabelName
-            // 
-            this.LabelName.AutoSize = true;
-            this.LabelName.BackColor = System.Drawing.Color.DimGray;
-            this.LabelName.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LabelName.ForeColor = System.Drawing.Color.LightSteelBlue;
-            this.LabelName.Location = new System.Drawing.Point(29, 30);
-            this.LabelName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.LabelName.Name = "LabelName";
-            this.LabelName.Size = new System.Drawing.Size(67, 15);
-            this.LabelName.TabIndex = 0;
-            this.LabelName.Text = "Cell Name:";
-            this.LabelName.Click += new System.EventHandler(this.LabelName_Click);
-            // 
             // LabelValue
             // 
             this.LabelValue.AutoSize = true;
@@ -330,11 +316,12 @@
             this.FilePanel.Controls.Add(this.Open_FileMenu);
             this.FilePanel.Controls.Add(this.FileTextSelect);
             this.FilePanel.Controls.Add(this.FileList);
-            this.FilePanel.Location = new System.Drawing.Point(103, 88);
+            this.FilePanel.Location = new System.Drawing.Point(101, 135);
             this.FilePanel.Margin = new System.Windows.Forms.Padding(2);
             this.FilePanel.Name = "FilePanel";
             this.FilePanel.Size = new System.Drawing.Size(563, 383);
             this.FilePanel.TabIndex = 29;
+            this.FilePanel.Paint += new System.Windows.Forms.PaintEventHandler(this.FilePanel_Paint);
             // 
             // MovementBox
             // 
@@ -405,52 +392,16 @@
             // 
             // menuStrip3
             // 
-            this.menuStrip3.BackColor = System.Drawing.Color.DimGray;
-            this.menuStrip3.Location = new System.Drawing.Point(0, 24);
+            this.menuStrip3.BackColor = System.Drawing.Color.LightSteelBlue;
+            this.menuStrip3.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.NewSpreadsheetButton,
+            this.undo_button,
+            this.revert_button});
+            this.menuStrip3.Location = new System.Drawing.Point(0, 0);
             this.menuStrip3.Name = "menuStrip3";
             this.menuStrip3.Size = new System.Drawing.Size(785, 24);
             this.menuStrip3.TabIndex = 34;
             this.menuStrip3.Text = "menuStrip3";
-            // 
-            // menuStrip1
-            // 
-            this.menuStrip1.BackColor = System.Drawing.Color.LightSteelBlue;
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.NewSpreadsheetButton,
-            this.undo_button,
-            this.revert_button});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(785, 24);
-            this.menuStrip1.TabIndex = 35;
-            this.menuStrip1.Text = "menuStrip1";
-            // 
-            // NewSpreadsheetButton
-            // 
-            this.NewSpreadsheetButton.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.NewSpreadsheetButton.Image = global::SpreadsheetGUI.Properties.Resources.newspreadsheet;
-            this.NewSpreadsheetButton.Name = "NewSpreadsheetButton";
-            this.NewSpreadsheetButton.Size = new System.Drawing.Size(60, 20);
-            this.NewSpreadsheetButton.Text = "New";
-            this.NewSpreadsheetButton.Click += new System.EventHandler(this.NewSpreadsheetButton_Click);
-            // 
-            // undo_button
-            // 
-            this.undo_button.BackgroundImage = global::SpreadsheetGUI.Properties.Resources.Undo_icon;
-            this.undo_button.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.undo_button.Image = global::SpreadsheetGUI.Properties.Resources.Undo_icon;
-            this.undo_button.Name = "undo_button";
-            this.undo_button.Size = new System.Drawing.Size(64, 20);
-            this.undo_button.Text = "Undo";
-            this.undo_button.Click += new System.EventHandler(this.undo_button_MouseClick);
-            // 
-            // revert_button
-            // 
-            this.revert_button.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.revert_button.Name = "revert_button";
-            this.revert_button.Size = new System.Drawing.Size(56, 20);
-            this.revert_button.Text = "Revert";
-            this.revert_button.Click += new System.EventHandler(this.revert_button_MouseClick);
             // 
             // DisconnectButton
             // 
@@ -535,12 +486,61 @@
             this.CloseMove.Visible = false;
             this.CloseMove.Click += new System.EventHandler(this.CloseMove_Click_1);
             // 
+            // NewSpreadsheetButton
+            // 
+            this.NewSpreadsheetButton.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.NewSpreadsheetButton.Image = global::SpreadsheetGUI.Properties.Resources.newspreadsheet;
+            this.NewSpreadsheetButton.Name = "NewSpreadsheetButton";
+            this.NewSpreadsheetButton.Size = new System.Drawing.Size(60, 20);
+            this.NewSpreadsheetButton.Text = "New";
+            this.NewSpreadsheetButton.Click += new System.EventHandler(this.NewSpreadsheetButton_Click);
+            // 
+            // undo_button
+            // 
+            this.undo_button.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.undo_button.Image = global::SpreadsheetGUI.Properties.Resources.Undo_icon;
+            this.undo_button.Name = "undo_button";
+            this.undo_button.Size = new System.Drawing.Size(64, 20);
+            this.undo_button.Text = "Undo";
+            this.undo_button.Click += new System.EventHandler(this.undo_button_MouseClick);
+            // 
+            // revert_button
+            // 
+            this.revert_button.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.revert_button.Name = "revert_button";
+            this.revert_button.Size = new System.Drawing.Size(56, 20);
+            this.revert_button.Text = "Revert";
+            this.revert_button.Click += new System.EventHandler(this.revert_button_MouseClick);
+            // 
+            // LabelName
+            // 
+            this.LabelName.AutoSize = true;
+            this.LabelName.BackColor = System.Drawing.Color.DimGray;
+            this.LabelName.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.LabelName.ForeColor = System.Drawing.Color.LightSteelBlue;
+            this.LabelName.Location = new System.Drawing.Point(29, 28);
+            this.LabelName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.LabelName.Name = "LabelName";
+            this.LabelName.Size = new System.Drawing.Size(67, 15);
+            this.LabelName.TabIndex = 0;
+            this.LabelName.Text = "Cell Name:";
+            this.LabelName.Click += new System.EventHandler(this.LabelName_Click);
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.BackColor = System.Drawing.Color.DimGray;
+            this.menuStrip1.Location = new System.Drawing.Point(0, 24);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(785, 24);
+            this.menuStrip1.TabIndex = 35;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.ClientSize = new System.Drawing.Size(785, 487);
+            this.ClientSize = new System.Drawing.Size(785, 541);
             this.Controls.Add(this.DisconnectButton);
             this.Controls.Add(this.ConnectButton);
             this.Controls.Add(this.ServerTextBox);
@@ -556,20 +556,20 @@
             this.Controls.Add(this.LabelContents);
             this.Controls.Add(this.FormulaBox);
             this.Controls.Add(this.FilePanel);
-            this.Controls.Add(this.OutputColumnInfo);
-            this.Controls.Add(this.OutputRowInfo);
             this.Controls.Add(this.HelpMoveText);
             this.Controls.Add(this.HelpOtherText);
             this.Controls.Add(this.HelpSetText);
-            this.Controls.Add(this.menuStrip3);
-            this.Controls.Add(this.menuStrip1);
+            this.Controls.Add(this.OutputColumnInfo);
+            this.Controls.Add(this.OutputRowInfo);
             this.Controls.Add(this.spreadsheetPanel1);
+            this.Controls.Add(this.menuStrip1);
+            this.Controls.Add(this.menuStrip3);
             this.Controls.Add(this.menuStrip2);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Indiana Jones Spreadsheet";
             this.menuStrip2.ResumeLayout(false);
             this.menuStrip2.PerformLayout();
             this.FilePanel.ResumeLayout(false);
@@ -577,8 +577,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.MovementBox)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
+            this.menuStrip3.ResumeLayout(false);
+            this.menuStrip3.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -605,7 +605,6 @@
         private System.Windows.Forms.Button CloseMove;
         private System.Windows.Forms.Button CloseSet;
         private System.Windows.Forms.Button CloseOther;
-        private System.Windows.Forms.Label LabelName;
         private System.Windows.Forms.Label LabelValue;
         private System.Windows.Forms.TextBox CellNameOutput;
         private System.Windows.Forms.TextBox CellValueOutput;
@@ -625,10 +624,11 @@
         private System.Windows.Forms.PictureBox MovementBox;
         private System.Windows.Forms.Button DisconnectButton;
         private System.Windows.Forms.MenuStrip menuStrip3;
-        private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem NewSpreadsheetButton;
         private System.Windows.Forms.ToolStripMenuItem undo_button;
         private System.Windows.Forms.ToolStripMenuItem revert_button;
+        private System.Windows.Forms.Label LabelName;
+        private System.Windows.Forms.MenuStrip menuStrip1;
     }
 }
 

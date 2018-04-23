@@ -1284,5 +1284,10 @@ namespace SpreadsheetGUI
                 SendMessage("undo " + (char)3);
             }
         }
+
+        private void FilePanel_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
     }
 }
