@@ -57,6 +57,7 @@ Lobby::Lobby()
 	if (pthread_mutex_init(&client_list_mutex, NULL) != 0)
 		std::cerr << "mutex init failure" << std::endl;
 
+
 	InitSheetList();
 }
 
@@ -80,7 +81,6 @@ void Lobby::InitSheetList()
 	while(!in_file.eof() && !in_file.fail())
 	{
 	  getline(in_file, spreadsheet_name);
-	  std::cout << "Lobby constructor: adding " << spreadsheet_name << " to sheet_list" << std::endl;
 	  sheet_list.insert(spreadsheet_name);
 	}
 	
@@ -272,13 +272,10 @@ void Lobby::SendUnfocusMessage(std::string sheet, int id)
  */
 
 void Lobby::HandleMessage(std::string message, std::string sheet, int id){
-  std::cout<<"LOBBY: received" <<std::endl;
-
   //Split the message and get the command
   char delim = ' ';
   std::vector<std::string> tokens = SplitString(message, delim);
   std::string command = tokens[0];
-  std::cout<<"Received: "<< command <<std::endl;
 
   if(command == "edit"){
     std::vector<std::string> cell = GetEditMsg(message);
@@ -357,20 +354,17 @@ void Lobby::LobbyPing()
   std::string msg = "ping ";
   char end = (char) 3;
   msg += end;
-  int seconds;
-  while(running)
-  {   
+  while(IsRunning())
+  {  
     pthread_mutex_lock(&client_list_mutex);
     std::vector<Interface*>::iterator it = clients.begin();
     for(; it!= clients.end(); ++it)
     {
 	  int id = (*it)->GetClientSocketID();
       (*it)->PushMessage(LOBBY, msg);
-      std::cout << "LOBBY PING: " << id << std::endl;
     }
     pthread_mutex_unlock(&client_list_mutex);
-    if (seconds = sleep(10))
-      std::cout << "Slept for " << (10-seconds) << " seconds" << std::endl;
+    sleep(10);
   }
 }
 
@@ -386,30 +380,27 @@ void Lobby::Start(){
 	bool pinging = false;
 
 	// Start a new thread that continuosly listens and accepts new connections 
-	pthread_t listen_thread;
 	if (pthread_create(&listen_thread, NULL, NetworkController::ListenForClients, this)){
 		 std::cerr << "error creating thread for client listener" << std::endl;
         }
-	else{
+	else
+	{
 	  listening = true;
-          pthread_detach(listen_thread);
-        }
+	  pthread_detach(listen_thread);
+    }   
 	// Start timer thread for pinging clients
 	
-	pthread_t ping_thread;
 	if (pthread_create(&ping_thread, NULL, PingLoop, this))
 		 std::cerr << "error creating thread for pinging" << std::endl;
 	else
 		pinging = true;
 	
-	pthread_t main_thread;	
 	if (pthread_create(&main_thread, NULL, StartMainThread, this)){
 		 std::cerr << "error creating main lobby thread" << std::endl;
         }
-	else{
-	  loop_running = true;
-          pthread_detach(main_thread);
-        }
+	else
+	  loop_running = true;   
+        
 	running = (listening && loop_running);
 }
 
@@ -422,7 +413,7 @@ void Lobby::MainLoop()
 	//      - If they exist push a full state message into their interface
 	//      - Add them to client list
 	bool new_clients, new_messages;
-	while(running){
+	while(IsRunning()){
 	  new_clients = CheckForNewClient();
 	  new_messages = CheckForMessages();
       CleanDeadClients();
@@ -472,7 +463,6 @@ void Lobby::CleanDeadClients()
 		interface->StopClientThread();
 		clients.erase(it);
 		delete interface;
-        std::cout << "LOBBY CLEANED" << std::endl;
 	}
 	pthread_mutex_unlock(&client_list_mutex);
 }
@@ -481,14 +471,15 @@ void Lobby::Shutdown(){
   //stop the lobby main loop
   running = false;
 
+  pthread_join(ping_thread, NULL);
+  pthread_join(main_thread, NULL);
   //send a disconnect message
   //to each client
-  std::string msg = "disconnect ";
-  char end = (char)3;
-  msg += end;
   std::vector<Interface*>::iterator c_it = clients.begin();
   for(; c_it != clients.end(); ++c_it){
-    (*c_it)->PushMessage(LOBBY,msg);
+    Interface* interface = *c_it;
+    interface->StopClientThread();
+    delete interface;
   }
 
   //save each spreadsheet object to disk
@@ -496,13 +487,7 @@ void Lobby::Shutdown(){
   for(; s_it != spreadsheets.end(); ++s_it){
     std::string filename = s_it->first;
     s_it->second.WriteSpreadsheet(filename);
-  } 
-  
-  //stop each interface
-  c_it = clients.begin();
-  for(; c_it != clients.end(); ++c_it){
-    (*c_it)->StopClientThread();
-  }
+  }   
 
 }
 

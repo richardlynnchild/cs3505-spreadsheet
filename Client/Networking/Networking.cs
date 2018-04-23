@@ -7,14 +7,16 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Networking {
+namespace Networking
+{
     public delegate void NetworkAction(SocketState state);
 
     /// <summary>
     /// Static class that provides all necessary networking components
     /// to connect to a server, send, and receive data.
     /// </summary>
-    public static class Network {
+    public static class Network
+    {
         private const int DEFAULT_PORT = 2112;
 
         /// <summary>
@@ -24,29 +26,36 @@ namespace Networking {
         /// <param name="socket"></param>
         /// <param name="ipAddress"></param>
 
-        private static void MakeSocket(string hostName, out Socket socket, out IPAddress ipAddress) {
+        private static void MakeSocket(string hostName, out Socket socket, out IPAddress ipAddress)
+        {
             ipAddress = IPAddress.None;
             socket = null;
-            try {
+            try
+            {
                 // Establish the remote endpoint for the socket.
                 IPHostEntry ipHostInfo;
 
                 // Determine if the server address is a URL or an IP
-                try {
+                try
+                {
                     ipHostInfo = Dns.GetHostEntry(hostName);
                     bool foundIPV4 = false;
                     foreach (IPAddress addr in ipHostInfo.AddressList)
-                        if (addr.AddressFamily != AddressFamily.InterNetworkV6) {
+                        if (addr.AddressFamily != AddressFamily.InterNetworkV6)
+                        {
                             foundIPV4 = true;
                             ipAddress = addr;
                             break;
                         }
                     // Didn't find any IPV4 addresses
-                    if (!foundIPV4) {
+                    if (!foundIPV4)
+                    {
                         System.Diagnostics.Debug.WriteLine("Invalid addres: " + hostName);
                         throw new ArgumentException("Invalid address");
                     }
-                } catch (Exception) {
+                }
+                catch (Exception)
+                {
                     // see if host name is actually an ipaddress, i.e., 155.99.123.456
                     System.Diagnostics.Debug.WriteLine("using IP");
                     ipAddress = IPAddress.Parse(hostName);
@@ -61,7 +70,9 @@ namespace Networking {
                 // such as for a game
                 socket.NoDelay = true;
 
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 System.Diagnostics.Debug.WriteLine("Unable to create socket. Error occured: " + e);
                 throw new ArgumentException("Invalid address");
             }
@@ -75,7 +86,8 @@ namespace Networking {
         /// <param name="callbackFunction"></param>
         /// <param name="hostname"></param>
         /// <returns></returns>
-        public static Socket ConnectToServer(NetworkAction callbackFunction, string hostname) {
+        public static Socket ConnectToServer(NetworkAction callbackFunction, string hostname)
+        {
             IPAddress addr;
             Socket mySocket;
             MakeSocket(hostname, out mySocket, out addr);
@@ -93,7 +105,8 @@ namespace Networking {
         /// sending how it wishes.
         /// </summary>
         /// <param name="stateAsArObject"></param>
-        private static void ConnectedToServer(IAsyncResult stateAsArObject) {
+        private static void ConnectedToServer(IAsyncResult stateAsArObject)
+        {
             SocketState state = (SocketState)stateAsArObject.AsyncState;
             //finish connecting
             state.sock.EndConnect(stateAsArObject);
@@ -106,8 +119,10 @@ namespace Networking {
         /// After a connection with server has already been established, client asks server for data.
         /// </summary>
         /// <param name="state"></param>
-        public static void GetData(SocketState state) {
-            if (state.sock.Connected == false) {
+        public static void GetData(SocketState state)
+        {
+            if (state.sock.Connected == false)
+            {
                 state.sock.Close();
             }
             state.sock.BeginReceive(state.buffer, 0, state.buffer.Length, SocketFlags.None, ReceiveCallback, state);
@@ -119,18 +134,23 @@ namespace Networking {
         /// client provided delegate is called to process the data how client wishes.
         /// </summary>
         /// <param name="stateAsArObject"></param>
-        private static void ReceiveCallback(IAsyncResult stateAsArObject) {
+        private static void ReceiveCallback(IAsyncResult stateAsArObject)
+        {
             SocketState myState = (SocketState)stateAsArObject.AsyncState;
             int bytesRead = 0;
-            try {
+            try
+            {
                 bytesRead = myState.sock.EndReceive(stateAsArObject);
 
-            } catch (SocketException e) {
+            }
+            catch (SocketException e)
+            {
                 myState.sock.Close();
             }
 
             //If socket is still open and receiving data
-            if (bytesRead > 0) {
+            if (bytesRead > 0)
+            {
                 //Decode the data as a string
                 string message = Encoding.UTF8.GetString(myState.buffer, 0, bytesRead);
 
@@ -149,7 +169,8 @@ namespace Networking {
         /// </summary>
         /// <param name="socket"></param>
         /// <param name="data"></param>
-        public static void Send(Socket socket, String data) {
+        public static void Send(Socket socket, String data)
+        {
             byte[] messageBytes = Encoding.UTF8.GetBytes(data);
             socket.BeginSend(messageBytes, 0, messageBytes.Length, SocketFlags.None, SendCallback, socket);
 
@@ -160,7 +181,8 @@ namespace Networking {
         /// data and lets server deal with it.
         /// </summary>
         /// <param name="ar"></param>
-        private static void SendCallback(IAsyncResult ar) {
+        private static void SendCallback(IAsyncResult ar)
+        {
             Socket sock = (Socket)ar.AsyncState;
             sock.EndSend(ar);
         }
