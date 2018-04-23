@@ -365,26 +365,7 @@ namespace SpreadsheetGUI
             }
         }
 
-        /// <summary>
-        /// Requests the server to undo the most recent change.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void undo_button_MouseClick(object sender, MouseEventArgs e)
-        {
-            if (connected)
-            {
-                SendMessage("undo " + (char)3);
-            }
-        }
-
-        /// <summary>
-        /// Requests the server to revert the currently selected cell.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-
-        private void revert_button_MouseClick(object sender, MouseEventArgs e)
+        private void revert_button_MouseClick(object sender, EventArgs e)
         {
             if (connected)
             {
@@ -392,6 +373,14 @@ namespace SpreadsheetGUI
                 string cellName = GetCellName(col, row);
 
                 SendMessage("revert " + cellName + (char)3);
+            }
+        }
+
+        private void undo_button_MouseClick(object sender, EventArgs e)
+        {
+            if (connected)
+            {
+                SendMessage("undo " + (char)3);
             }
         }
 
@@ -1264,25 +1253,6 @@ namespace SpreadsheetGUI
         private void LabelName_Click(object sender, EventArgs e)
         {
 
-        }
-
-        private void revert_button_MouseClick(object sender, EventArgs e)
-        {
-            if (connected)
-            {
-                spreadsheetPanel1.GetSelection(out int col, out int row);
-                string cellName = GetCellName(col, row);
-
-                SendMessage("revert " + cellName + (char)3);
-            }
-        }
-
-        private void undo_button_MouseClick(object sender, EventArgs e)
-        {
-            if (connected)
-            {
-                SendMessage("undo " + (char)3);
-            }
         }
 
         private void FilePanel_Paint(object sender, PaintEventArgs e)
