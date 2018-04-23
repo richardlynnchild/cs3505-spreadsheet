@@ -569,7 +569,7 @@
             this.KeyPreview = true;
             this.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Indiana Jones Spreadsheet";
             this.menuStrip2.ResumeLayout(false);
             this.menuStrip2.PerformLayout();
             this.FilePanel.ResumeLayout(false);
