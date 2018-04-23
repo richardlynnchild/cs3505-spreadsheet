@@ -278,7 +278,6 @@ void Lobby::HandleMessage(std::string message, std::string sheet, int id){
     std::vector<std::string> cell = GetEditMsg(message);
     spreadsheets[sheet].EditSheet(cell[0],cell[1]);
     std::string rebuilt_msg = cell[0] + cell[1];
-    std::cout << "LOOK! HERE! THE MESSAGE -> " << rebuilt_msg << std::endl;
     SendChangeMessage(rebuilt_msg, sheet); 
   }
   else if(command == "undo"){
