@@ -393,7 +393,7 @@ namespace SpreadsheetGUI
                     _address = address;
                     connected = true;
                 }
-                catch (ArgumentException)
+                catch
                 {
                     MessageBox.Show("invalid server name");
                 }
