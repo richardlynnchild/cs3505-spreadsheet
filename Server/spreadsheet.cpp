@@ -1,4 +1,4 @@
-#include "spreadsheet.h"
+#include "interface.h"
 #include <iostream>
 #include <vector>
 #include <sstream>
@@ -8,33 +8,6 @@
 #include <bits/stdc++.h>
 #include <pthread.h>
 
-/*
-std::vector<std::string> SplitString(std::string input, char delimiter)
-{
-  int index = 0;
-  std::string section = "";
-  std::vector<std::string> split_sections;
-  std::cout << "input into splitstring: "<< input << std::endl;
-  while (index < input.length() - 1)
-  {
-    if (input[index] != delimiter[0])
-    {
-        section += input[index];
-    }
-
-    else
-    {
-        split_sections.push_back(section);
-        section = "";
-    }
-    index++;
-
-  }
-  section += input[index];
-  split_sections.push_back(section);
-  return split_sections;
-}
-*/
 
 bool FileContains(std::string filename, std::string query)
 {
@@ -91,6 +64,7 @@ std::vector<std::string> Spreadsheet::SplitString(std::string input, char delim)
 Spreadsheet::Spreadsheet(std::string sheet_name)
 {
   name = sheet_name;
+  ReadSpreadsheet(sheet_name);
 }
 
 /*
@@ -101,12 +75,6 @@ Spreadsheet::Spreadsheet()
   name = "";
 }
 
-//Constructor with filename to read spreadsheet state from.
-Spreadsheet::Spreadsheet(std::string sheet_name, std::string filename)
-{
-  name = sheet_name;
-  ReadSpreadsheet(filename);
-}
 
 //Adds a cell to spreadsheet state, bypasses additions to revert and undo stack. Used for loading a spreadhseet from a file.
 void Spreadsheet::AddCell(std::string cell_name, std::string contents)

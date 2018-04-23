@@ -13,38 +13,6 @@
 #include <set>
 #include <unistd.h>
 
-//Splits a string into two parts on the first space character it encounters
-std::vector<std::string> GenSplitString(std::string input, char delim)
-{
-  std::string section = "";
-  std::vector<std::string> split_sections;
-  int index = 0;
-
-  while (true)
-  {
-    if (input[index] != delim)
-    {
-      section += input[index];
-    }
-    else
-    {
-      split_sections.push_back(section);
-      split_sections.push_back(input.substr(index+1));
-      break;
-    }
-    index++;
-  }
-
-  return split_sections;
-}
-
-std::vector<std::string> GetEditMsg(std::string input)
-{
-  //remove "edit ""
-  std::string trimmed_input = input.substr(5);
-  std::vector<std::string> cellAndVal = GenSplitString(trimmed_input, ':');
-  return cellAndVal;
-}
 
 Lobby::Lobby()
 {
@@ -118,19 +86,6 @@ std::string Lobby::BuildConnectAccepted(){
 
 }
 
-/*
- * Checks for and handles a new client if the new client
- * list is non-empty.
- *
- * Returns true if there was a newstd::vector<std::string> GetEditMsg(std::string input)
-{
-  //remove "edit ""
-  std::string trimmed_input = input.substr(5);
-  std::vector<std::string> cellAndVal = GenSplitString(trimmed_input, ' ');
-  return cellAndVal;
-} client to process, returns
- * false otherwise.
- */
 bool Lobby::CheckForNewClient(){
   bool idle = true;
  
@@ -153,179 +108,23 @@ bool Lobby::CheckForNewClient(){
     //Check if the desired spreadsheet is active 
     if(spreadsheets.count(name)<1){
       //Check if the spreadsheet is saved
+      new_sheet = new Spreadsheet(name);  //not active, not saved
+      spreadsheets.insert(std::pair<std::string,Spreadsheet*>(name,new_sheet));
       std::set<std::string>::iterator it = sheet_list.find(name);
       if(it == sheet_list.end()){
-        new_sheet = new Spreadsheet(name);  //not active, not saved
-        spreadsheets.insert(std::pair<std::string,Spreadsheet*>(name,new_sheet));
-      }
-      else {
-        new_sheet = new Spreadsheet(name, name); //not active, but saved
-        spreadsheets.insert(std::pair<std::string,Spreadsheet*>(name,new_sheet));
+        sheet_list.insert(name);
       }
     }
     std::string full_state = new_sheet->GetFullState(id);
 	new_client->SetSpreadPointer(new_sheet);
     new_client->PushMessage(LOBBY, full_state);
     new_client->StartClientThread();
-    //Add the client to the active client list
-    //Should be done after 'full_state' message
-    //is sent
     pthread_mutex_lock(&client_list_mutex);
     clients.push_back(new_client);
     pthread_mutex_unlock(&client_list_mutex);
   } 
   return idle;
 }
-
-
-/*
- * Split the given string by the given delimiter.
- * Returns a vector of sub-strings.
- */
-//std::vector<std::string> Lobby::SplitString(std::string str, char delim){
-//  std::stringstream ss(str);
-//  std::string token;
-//  std::vector<std::string> tokens;
-//  while(std::getline(ss,token,delim)){
-//    tokens.push_back(token);
-//  }
-//  return tokens;
-//}
-
-/*
- * Send a change command with the specified string to the
- * clients of the specified spreadsheet.
- */
-void Lobby::SendChangeMessage(std::string message, std::string sheet){
-  std::string change = "change ";
-  change += message;
-  char end = (char) 3;
-  change += end;
-  std::vector<Interface*>::iterator it = clients.begin();
-    for(; it != clients.end(); ++it){
-      if((*it)->GetSprdName() == sheet){
-        (*it)->PushMessage(LOBBY, change);
-      }
-    } 
-}
-
-/*
- * Send a focus message with the specified cell name
- * to the clients of the specified spreadsheet.
- */
-//void Lobby::SendFocusMessage(std::string msg, std::string sheet, int id){
-//  std::vector<std::string> tokens = SplitString(msg, ' ');
-//  std::vector<std::string> smaller = SplitString(tokens[1], ((char)3));
-//  std::string cell = smaller[0];
-//  std::stringstream ss;
-//  ss << id;
-//  std::string usr_id = ss.str();
-//  std::string focus = "focus "+ cell + ":" + usr_id + ((char)3);
-//  std::vector<Interface*>::iterator it = clients.begin();
-//    for(; it != clients.end(); ++it){
-//      if((*it)->GetSprdName() == sheet){
-//        (*it)->PushMessage(LOBBY, focus);
-//      }
-//    } 
-//}
-
-/*
- * Send an unfocus message with the specified client name to the clients of the specified
- * spreadsheet.
- */
-void Lobby::SendUnfocusMessage(std::string sheet, int id)
-{
-  std::stringstream ss;
-  ss << id;
-  std::string usr_id = ss.str();
-  std::string msg = "unfocus "+ usr_id + ((char)3);
-  std::vector<Interface*>::iterator it = clients.begin();
-  for(; it != clients.end(); ++it)
-  {
-    if((*it)->GetSprdName() == sheet)
-    {
-      (*it)->PushMessage(LOBBY, msg);
-    }
-  }
-}
-
-//void Lobby::SendPingResponse(Interface* client)
-//{
-//  std::string msg = "ping_response ";
-//  char end = (char) 3;
-//  msg += end;
-//  client->PushMessage(LOBBY, msg);
-//}
-
-//void Lobby::ResetPingMiss(int id)
-//{
-//  std::vector<Interface*>::iterator it = clients.begin();
-//  for(; it!= clients.end(); ++it)
-//  {
-//    if((*it)->GetClientSocketID() == id)
-//    {
-//      (*it)->PingReset();
-//    }
-//  }
-//}
-
-/*
- * Processes a single message from a client.
- */
-
-//void Lobby::HandleMessage(std::string message, std::string sheet, int id){
-//  //Split the message and get the command
-//  char delim = ' ';
-//  std::vector<std::string> tokens = SplitString(message, delim);
-//  std::string command = tokens[0];
-//
-//  if(command == "edit"){
-//    std::vector<std::string> cell = GetEditMsg(message);
-//    spreadsheets[sheet].EditSheet(cell[0],cell[1]);
-//    std::string rebuilt_msg = cell[0] + cell[1];
-//    SendChangeMessage(rebuilt_msg, sheet); 
-//  }
-//  else if(command == "undo"){
-//    std::pair<std::string,std::string> cell = spreadsheets[sheet].Undo();
-//    if(cell.first == "NULL")
-//      return;
-//    std::string message = cell.first;
-//    message += ":";
-//    message += cell.second;
-//    SendChangeMessage(message,sheet); 
-//  }
-//  else if(command == "revert"){
-//    std::string message = tokens[1];
-//    message += ":";
-//    std::string revertedcell = spreadsheets[sheet].Revert(tokens[1]);
-//    if(revertedcell == "NULL")
-//      return;
-//    message += revertedcell;
-//    SendChangeMessage(message,sheet); 
-//  }
-//  //else if(command == "disconnect"){
-//  //  std::vector<Interface*>::iterator it = clients.begin();
-//  //  for(; it != clients.end(); ++it){
-//  //    if(id == (*it)->GetClientSocketID()){
-//  //      (*it)->StopClientThread();
-//  //      clients.erase(it);  
-//  //    }    
-//  //  }    
-//  //}
-//  else if(command == "focus"){
-//    SendFocusMessage(message, sheet, id);
-//  }
-//  else if(command == "unfocus"){
-//    SendUnfocusMessage(sheet, id);
-//  }
-//  //else if(command == "ping"){
-//  //  SendPingResponse(client);
-//  //}
-//  //else if(command == "ping_response"){
-//  //  client->PingReset();
-//  //}
-//
-//}
 
 /*
  * Returns true if a client sent a message, returns false
@@ -335,18 +134,8 @@ bool Lobby::CheckForMessages(){
   int messages_handled = 0;
   std::vector<Interface*>::iterator it = clients.begin();
   for(; it != clients.end(); ++it){
-    //Pop next message off Interface incoming message queue
-    //std::string message = (*it)->PullMessage(LOBBY);
-    //std::string sheet = (*it)->GetSprdName();
-    //int id = (*it)->GetClientSocketID();
-    //if(message == ""){
       if ((*it)->IsActive() == false)
         dead_clients.push(it);
-    //}
-    //else {
-      //HandleMessage(message, sheet, id);
-      //messages_handled++;
-    //}
   }
   return messages_handled > 0;
 }
@@ -408,12 +197,6 @@ void Lobby::Start(){
 
 void Lobby::MainLoop()
 {
-	// Enter main loop:
-	//
-	//
-	// 1. Check for new clients in the new client queue
-	//      - If they exist push a full state message into their interface
-	//      - Add them to client list
 	bool new_clients, new_messages;
 	while(IsRunning()){
 	  new_clients = CheckForNewClient();
@@ -425,15 +208,6 @@ void Lobby::MainLoop()
 	      usleep(ten_ms); 
 	  }
 	} 
-	// 2. For each client, process incoming messages in a Round Robin fashion
-	//      - Get message
-	//      - Update spreadsheet object
-	//      - Push change command to all client interfaces
-	
-
-	// 3. Check to see if program should be shutdown
-	//
-	//
 }
 
 void* Lobby::StartMainThread(void* ptr)
