@@ -403,6 +403,7 @@ namespace SpreadsheetGUI
         /// </summary>
         private void HandleDisconnect()
         {
+            pingTimer.Stop();
             connected = false;
             previousSelection = "A1";
             spreadsheetPanel1.SetSelection(0,0);
@@ -445,7 +446,8 @@ namespace SpreadsheetGUI
         /// <param name="msg"></param>
         private void SendMessage(string msg)
         {
-            Network.Send(theServer, msg);
+            if (connected)
+                Network.Send(theServer, msg);
         }
 
 
