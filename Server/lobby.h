@@ -26,7 +26,7 @@ class Lobby {
     std::vector<Interface*> clients;
 	std::queue<std::vector<Interface*>::iterator> dead_clients;
     std::queue<Interface*> new_clients;
-    std::map<std::string, Spreadsheet> spreadsheets;
+    std::map<std::string, Spreadsheet*> spreadsheets;
     std::set<std::string> sheet_list;
     void InitSheetList();
     bool CheckForNewClient();
@@ -38,7 +38,7 @@ class Lobby {
     bool CheckForMessages();
     void HandleMessage(std::string message, std::string sheet, int id);
 	void CleanDeadClients();
-    std::vector<std::string> SplitString(std::string str, char delim);
+    //std::vector<std::string> SplitString(std::string str, char delim);
     void SendChangeMessage(std::string message, std::string sheet);
     void SendFocusMessage(std::string cell, std::string sheet, int id);
     void SendUnfocusMessage(std::string sheet, int id);
