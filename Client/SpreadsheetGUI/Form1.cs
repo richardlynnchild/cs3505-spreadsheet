@@ -72,6 +72,8 @@ namespace SpreadsheetGUI
             this.ServerTextBox.Enter += ServerTextBoxEntered;
             this.ServerTextBox.LostFocus += ServerTextBoxLeft;
             this.FormulaBox.GotFocus += HandleFomrulaBoxFocus;
+            this.CellNameOutput.GotFocus += HandleCellNameFocus;
+            this.CellValueOutput.GotFocus += HandleCellValueFocus;
 
             this.Width = 800;
             this.Height = 600;
@@ -312,9 +314,29 @@ namespace SpreadsheetGUI
         /// </summary>
         /// <param name="hWnd"></param>
         /// <returns></returns>
-        public void HandleFomrulaBoxFocus(object sender, EventArgs e)
+        private void HandleFomrulaBoxFocus(object sender, EventArgs e)
         {
             HideCaret(FormulaBox.Handle);
+            spreadsheetPanel1.Focus();
+        }
+        /// <summary>
+        /// Hides the caret for the cellValueOutput box and returns focus to the spreadsheet panel.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HandleCellValueFocus(object sender, EventArgs e)
+        {
+            HideCaret(CellValueOutput.Handle);
+            spreadsheetPanel1.Focus();
+        }
+        /// <summary>
+        /// Hides teh caret for the cellName box and returns focus to the spreadsheet panel.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HandleCellNameFocus(object sender, EventArgs e)
+        {
+            HideCaret(CellNameOutput.Handle);
             spreadsheetPanel1.Focus();
         }
 
