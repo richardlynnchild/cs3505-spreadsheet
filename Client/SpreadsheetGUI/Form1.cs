@@ -20,6 +20,7 @@ namespace SpreadsheetGUI
         private string previousSelection;
         private System.Timers.Timer pingTimer;
         private int pingMisses;
+        private HashSet<string> visited;
         //private System.Timers.Timer serverTimer;
         private SocketState serverSock;
 
@@ -47,6 +48,7 @@ namespace SpreadsheetGUI
         /// </summary>
         private void SpreadsheetSetUp()
         {
+            visited = new HashSet<string>();
 
             ss1 = new Spreadsheet(validVar, s => s.ToUpper(), "cs3505");
 
@@ -458,7 +460,7 @@ namespace SpreadsheetGUI
         private void SendRegisterMessage(SocketState state)
         {
             state.callMe = ActivateFileMenu;
-            string message = "register" + (char)3;
+            string message = "register " + (char)3;
             Network.Send(state.sock, message);
 
             Network.GetData(state);
@@ -1126,7 +1128,15 @@ namespace SpreadsheetGUI
             string value = ss1.GetCellValue(cellName).ToString();
 
             if (ss1.GetCellValue(cellName).GetType() == typeof(FormulaError))
-                spreadsheetPanel1.SetValue(col, row, "Formula Error!");
+            {
+                FormulaError error = (FormulaError)ss1.GetCellValue(cellName);
+                if (error.Reason == "Circular dependency")
+                {
+                    spreadsheetPanel1.SetValue(col, row, "#REF");
+                }
+                else
+                    spreadsheetPanel1.SetValue(col, row, "Formula Error!");
+            }
             else
                 spreadsheetPanel1.SetValue(col, row, ss1.GetCellValue(cellName).ToString());
 
@@ -1138,31 +1148,36 @@ namespace SpreadsheetGUI
         /// </summary>
         private void SetCell(int row, int col, string cellVal)
         {
-            try
-            {
                 string cellName = GetCellName(col, row);
+
+            HashSet<string> auxCells = new HashSet<string>(ss1.getDependentCells(cellName));
+
                 ss1.SetContentsOfCell(cellName, cellVal);
 
-                //if the result is a formula error display a formula error message, otherwise set the cell with the result.
+            //if the result is a formula error display a formula error message, otherwise set the cell with the result.
+            Type a = ss1.GetCellValue(cellName).GetType();
                 if (ss1.GetCellValue(cellName).GetType() == typeof(FormulaError))
-                    spreadsheetPanel1.SetValue(col, row, "Formula Error!");
+                {
+                    FormulaError error = (FormulaError)ss1.GetCellValue(cellName);
+                    if (error.Reason == "Circular dependency")
+                    {
+                        spreadsheetPanel1.SetValue(col, row, "#REF");
+                    }
+                    else
+                        spreadsheetPanel1.SetValue(col, row, "Formula Error!");
+                }
 
                 else
                 {
                     spreadsheetPanel1.SetValue(col, row, ss1.GetCellValue(cellName).ToString());
                     UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
                 }
-            }
+            UpdateCells(auxCells);
+        }
 
-            catch (CircularException)
-            {
-                spreadsheetPanel1.SetValue(col, row, "Formula Error!");
-            }
+        private void SetFromNetwork(int row, int col, string cellVal)
+        {
 
-            catch (FormulaFormatException)
-            {
-                spreadsheetPanel1.SetValue(col, row, "Formula Error!");
-            }
         }
 
 
@@ -1178,8 +1193,16 @@ namespace SpreadsheetGUI
                 int col = Convert.ToChar(cellName.Substring(0, 1)) - 65;
                 int row = Convert.ToInt16(cellName.Substring(1)) - 1;
 
+                if (visited.Contains(cellName))
+                {
+                    visited.Clear();
+                    break;
+                }
+
                 //update the cell state in the spreadsheet
                 ss1.UpdateCell(cellName);
+
+                visited.Add(cellName);
 
                 //update the GUI
                 if (ss1.GetCellValue(cellName).GetType() != typeof(FormulaError))
@@ -1188,7 +1211,8 @@ namespace SpreadsheetGUI
                     spreadsheetPanel1.SetValue(col, row, "Formula Error!");
 
                 //update all dependent cells
-                UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
+                HashSet<string> dependents = new HashSet<string>(ss1.getDependentCells(cellName));
+                UpdateCells(dependents);
             }
         }
 
