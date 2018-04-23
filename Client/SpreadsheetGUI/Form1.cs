@@ -578,7 +578,7 @@ namespace SpreadsheetGUI
                     {
                         //get cell name and contents from message
                         char[] delimiters = new char[] { ' ', ':' };
-                        string[] msg_parts = msg.Split(delimiters, 2);
+                        string[] msg_parts = msg.Split(delimiters, 3);
                         string cell_name = msg_parts[1];
                         string contents = msg_parts[2];
 
