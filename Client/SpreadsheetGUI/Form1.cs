@@ -506,7 +506,10 @@ namespace SpreadsheetGUI
         {
             pingMisses++;
             if (pingMisses >= 6)
+            {
+                MessageBox.Show("Server Terminated Connection - Window " + winNum);
                 Disconnect();
+            }
             string pingMsg = "ping " + ((char)3);
             SendMessage(pingMsg);
         }
@@ -641,8 +644,8 @@ namespace SpreadsheetGUI
                     }
                     else if (command == "disconnect")
                     {
+                        MessageBox.Show("Server terminated connection - Window " + winNum);
                         HandleDisconnect();
-
                     }
                     else if (command == "unfocus")
                     {
