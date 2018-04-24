@@ -110,10 +110,16 @@ bool Lobby::CheckForNewClient(){
       //Check if the spreadsheet is saved
       new_sheet = new Spreadsheet(name);  //not active, not saved
       spreadsheets.insert(std::pair<std::string,Spreadsheet*>(name,new_sheet));
+      pthread_mutex_lock(&list_mutex);
       std::set<std::string>::iterator it = sheet_list.find(name);
       if(it == sheet_list.end()){
         sheet_list.insert(name);
       }
+      pthread_mutex_unlock(&list_mutex);
+    }
+    else
+    {
+      new_sheet = spreadsheets[name];
     }
     std::string full_state = new_sheet->GetFullState(id);
 	new_client->SetSpreadPointer(new_sheet);
@@ -263,7 +269,9 @@ void Lobby::Shutdown(){
   std::map<std::string, Spreadsheet*>::iterator s_it = spreadsheets.begin();
   for(; s_it != spreadsheets.end(); ++s_it){
     std::string filename = s_it->first;
-    (s_it->second)->WriteSpreadsheet(filename);
+    Spreadsheet* spread = (s_it->second);
+    spread->WriteSpreadsheet(filename);
+    delete spread;
   }   
 
 }
