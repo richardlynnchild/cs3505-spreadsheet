@@ -64,15 +64,15 @@
             this.FileList = new System.Windows.Forms.ListView();
             this.NameColHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.menuStrip3 = new System.Windows.Forms.MenuStrip();
+            this.NewSpreadsheetButton = new System.Windows.Forms.ToolStripMenuItem();
+            this.undo_button = new System.Windows.Forms.ToolStripMenuItem();
+            this.revert_button = new System.Windows.Forms.ToolStripMenuItem();
             this.DisconnectButton = new System.Windows.Forms.Button();
             this.ColumnExit = new System.Windows.Forms.Button();
             this.RowExit = new System.Windows.Forms.Button();
             this.CloseSet = new System.Windows.Forms.Button();
             this.CloseOther = new System.Windows.Forms.Button();
             this.CloseMove = new System.Windows.Forms.Button();
-            this.NewSpreadsheetButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.undo_button = new System.Windows.Forms.ToolStripMenuItem();
-            this.revert_button = new System.Windows.Forms.ToolStripMenuItem();
             this.LabelName = new System.Windows.Forms.Label();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.menuStrip2.SuspendLayout();
@@ -309,7 +309,7 @@
             // 
             // FilePanel
             // 
-            this.FilePanel.BackColor = System.Drawing.SystemColors.MenuBar;
+            this.FilePanel.BackColor = System.Drawing.Color.DimGray;
             this.FilePanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.FilePanel.Controls.Add(this.MovementBox);
             this.FilePanel.Controls.Add(this.panel1);
@@ -347,16 +347,18 @@
             // FileMenuLabel
             // 
             this.FileMenuLabel.AutoSize = true;
-            this.FileMenuLabel.Font = new System.Drawing.Font("Cambria", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.FileMenuLabel.BackColor = System.Drawing.SystemColors.Window;
+            this.FileMenuLabel.Font = new System.Drawing.Font("Cambria", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FileMenuLabel.Location = new System.Drawing.Point(200, 3);
             this.FileMenuLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.FileMenuLabel.Name = "FileMenuLabel";
-            this.FileMenuLabel.Size = new System.Drawing.Size(148, 26);
+            this.FileMenuLabel.Size = new System.Drawing.Size(144, 25);
             this.FileMenuLabel.TabIndex = 0;
             this.FileMenuLabel.Text = "Spreadsheets";
             // 
             // Open_FileMenu
             // 
+            this.Open_FileMenu.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Open_FileMenu.Location = new System.Drawing.Point(381, 347);
             this.Open_FileMenu.Margin = new System.Windows.Forms.Padding(2);
             this.Open_FileMenu.Name = "Open_FileMenu";
@@ -402,6 +404,32 @@
             this.menuStrip3.Size = new System.Drawing.Size(785, 24);
             this.menuStrip3.TabIndex = 34;
             this.menuStrip3.Text = "menuStrip3";
+            // 
+            // NewSpreadsheetButton
+            // 
+            this.NewSpreadsheetButton.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.NewSpreadsheetButton.Image = global::SpreadsheetGUI.Properties.Resources.newspreadsheet;
+            this.NewSpreadsheetButton.Name = "NewSpreadsheetButton";
+            this.NewSpreadsheetButton.Size = new System.Drawing.Size(60, 20);
+            this.NewSpreadsheetButton.Text = "New";
+            this.NewSpreadsheetButton.Click += new System.EventHandler(this.NewSpreadsheetButton_Click);
+            // 
+            // undo_button
+            // 
+            this.undo_button.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.undo_button.Image = global::SpreadsheetGUI.Properties.Resources.Undo_icon;
+            this.undo_button.Name = "undo_button";
+            this.undo_button.Size = new System.Drawing.Size(64, 20);
+            this.undo_button.Text = "Undo";
+            this.undo_button.Click += new System.EventHandler(this.undo_button_MouseClick);
+            // 
+            // revert_button
+            // 
+            this.revert_button.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.revert_button.Name = "revert_button";
+            this.revert_button.Size = new System.Drawing.Size(56, 20);
+            this.revert_button.Text = "Revert";
+            this.revert_button.Click += new System.EventHandler(this.revert_button_MouseClick);
             // 
             // DisconnectButton
             // 
@@ -485,32 +513,6 @@
             this.CloseMove.UseVisualStyleBackColor = true;
             this.CloseMove.Visible = false;
             this.CloseMove.Click += new System.EventHandler(this.CloseMove_Click_1);
-            // 
-            // NewSpreadsheetButton
-            // 
-            this.NewSpreadsheetButton.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.NewSpreadsheetButton.Image = global::SpreadsheetGUI.Properties.Resources.newspreadsheet;
-            this.NewSpreadsheetButton.Name = "NewSpreadsheetButton";
-            this.NewSpreadsheetButton.Size = new System.Drawing.Size(60, 20);
-            this.NewSpreadsheetButton.Text = "New";
-            this.NewSpreadsheetButton.Click += new System.EventHandler(this.NewSpreadsheetButton_Click);
-            // 
-            // undo_button
-            // 
-            this.undo_button.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.undo_button.Image = global::SpreadsheetGUI.Properties.Resources.Undo_icon;
-            this.undo_button.Name = "undo_button";
-            this.undo_button.Size = new System.Drawing.Size(64, 20);
-            this.undo_button.Text = "Undo";
-            this.undo_button.Click += new System.EventHandler(this.undo_button_MouseClick);
-            // 
-            // revert_button
-            // 
-            this.revert_button.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.revert_button.Name = "revert_button";
-            this.revert_button.Size = new System.Drawing.Size(56, 20);
-            this.revert_button.Text = "Revert";
-            this.revert_button.Click += new System.EventHandler(this.revert_button_MouseClick);
             // 
             // LabelName
             // 

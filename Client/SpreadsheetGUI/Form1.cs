@@ -444,6 +444,9 @@ namespace SpreadsheetGUI
             connected = false;
             previousSelection = "A1";
             spreadsheetPanel1.SetSelection(0, 0);
+            FormulaBox.Text = "";
+            CellValueOutput.Text = "";
+            CellNameOutput.Text = "A1";
 
             MethodInvoker FMInvoker = new MethodInvoker(() =>
             {
