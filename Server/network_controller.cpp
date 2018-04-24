@@ -286,7 +286,6 @@ void NetworkController::SendFullState(Interface* interface)
 	int id = interface->GetClientSocketID();
 	std::string full_state = interface->PullMessage(CLIENT);
 	int buf_size = 2048;
-std::cout << full_state << std::endl;
 	int msg_size = 0;
 	int buf_i = 0;
 	char buf[buf_size];

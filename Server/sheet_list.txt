@@ -7,3 +7,6 @@ newwwwwwwww
 richard_1
 anew
 anewspred
+new1
+new2
+white_space
