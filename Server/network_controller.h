@@ -24,9 +24,12 @@ private:
 	static void SetSocketTimeout(int socket_id);
 	static bool TestSocket(int socket_id);
 	static void SendDisconnect(int socket_id);
+	static void SendPing(int socket_id);
 	static void ReplyPing(int socket_id);
 	static bool IsDisconnect(std::string msg);
 	static bool IsPing(std::string msg);
+	static void SendFullState(Interface* interface);
+	static void HandlePipeFail(int sig);
 
 public:
     

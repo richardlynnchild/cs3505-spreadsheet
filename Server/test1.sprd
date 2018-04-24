@@ -1,3 +1,12 @@
-A1 We need data to test with
-A2 JUST TRY AND SET THIS CELL
-A3 =99 + 1
+A1   We need data to test with
+A2   JUST TRY AND SET THIS CELL
+A3   =99 + 1
+B1 =1
+B11  :hello world
+D10 :dsd
+D7 :fd
+E13  :3434
+F12 :helllos
+F8  :54
+G13 :df
+***FILE_END***

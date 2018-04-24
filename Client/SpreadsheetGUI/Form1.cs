@@ -20,6 +20,8 @@ namespace SpreadsheetGUI
         private string previousSelection;
         private System.Timers.Timer pingTimer;
         private int pingMisses;
+        private HashSet<string> visited;
+        private int winNum;
         //private System.Timers.Timer serverTimer;
         private SocketState serverSock;
 
@@ -28,18 +30,29 @@ namespace SpreadsheetGUI
         /// </summary>
         public Form1()
         {
+            this.winNum = 1;
             SpreadsheetSetUp();
+            this.Text = "Spreadsheet - Window " + winNum;
+        }
+
+        public Form1(int windowNum)
+        {
+            this.winNum = windowNum;
+            SpreadsheetSetUp();
+            this.Text = "Spreadsheet - Window " + windowNum;
         }
 
         /// <summary>
         /// pre-connected constructor.
         /// </summary>
         /// <param name="address"></param>
-        public Form1(string address)
+        public Form1(string address, int windowNum)
         {
+            this.winNum = windowNum;
             SpreadsheetSetUp();
             Connect(address);
             ServerTextBox.Text = address;
+            this.Text = "Spreadsheet - Window " + windowNum;
         }
 
         /// <summary>
@@ -47,6 +60,7 @@ namespace SpreadsheetGUI
         /// </summary>
         private void SpreadsheetSetUp()
         {
+            visited = new HashSet<string>();
 
             ss1 = new Spreadsheet(validVar, s => s.ToUpper(), "cs3505");
 
@@ -70,6 +84,8 @@ namespace SpreadsheetGUI
             this.ServerTextBox.Enter += ServerTextBoxEntered;
             this.ServerTextBox.LostFocus += ServerTextBoxLeft;
             this.FormulaBox.GotFocus += HandleFomrulaBoxFocus;
+            this.CellNameOutput.GotFocus += HandleCellNameFocus;
+            this.CellValueOutput.GotFocus += HandleCellValueFocus;
 
             this.Width = 800;
             this.Height = 600;
@@ -192,7 +208,19 @@ namespace SpreadsheetGUI
 
                     else if ((e.KeyData >= Keys.A && e.KeyData <= Keys.Z) || (e.KeyData >= Keys.D0 && e.KeyData <= Keys.D9) || (e.KeyData >= Keys.NumPad0 && e.KeyData <= Keys.NumPad9))
                     {
-                        StandardKey(e);
+                        if(e.Modifiers == Keys.Shift)
+                        {
+                            CapsKeys(e);
+                        }
+                        else
+                        {
+                            StandardKey(e);
+                        }
+                    }
+
+                    else if ((e.Modifiers == Keys.Shift) && (e.KeyData >= Keys.A && e.KeyData <= Keys.Z))
+                    {
+                        CapsKeys(e);
                     }
 
                     else
@@ -269,9 +297,9 @@ namespace SpreadsheetGUI
         private void NewSpreadsheetButton_Click(object sender, EventArgs e)
         {
             if (connected)
-                SpreadsheetApplicationContext.getAppContext().RunForm(new Form1(_address));
+                SpreadsheetApplicationContext.getAppContext().RunForm(new Form1(_address, winNum + 1));
             else
-                SpreadsheetApplicationContext.getAppContext().RunForm(new Form1());
+                SpreadsheetApplicationContext.getAppContext().RunForm(new Form1(winNum + 1));
 
         }
 
@@ -310,9 +338,29 @@ namespace SpreadsheetGUI
         /// </summary>
         /// <param name="hWnd"></param>
         /// <returns></returns>
-        public void HandleFomrulaBoxFocus(object sender, EventArgs e)
+        private void HandleFomrulaBoxFocus(object sender, EventArgs e)
         {
             HideCaret(FormulaBox.Handle);
+            spreadsheetPanel1.Focus();
+        }
+        /// <summary>
+        /// Hides the caret for the cellValueOutput box and returns focus to the spreadsheet panel.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HandleCellValueFocus(object sender, EventArgs e)
+        {
+            HideCaret(CellValueOutput.Handle);
+            spreadsheetPanel1.Focus();
+        }
+        /// <summary>
+        /// Hides teh caret for the cellName box and returns focus to the spreadsheet panel.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HandleCellNameFocus(object sender, EventArgs e)
+        {
+            HideCaret(CellNameOutput.Handle);
             spreadsheetPanel1.Focus();
         }
 
@@ -329,26 +377,7 @@ namespace SpreadsheetGUI
             }
         }
 
-        /// <summary>
-        /// Requests the server to undo the most recent change.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void undo_button_MouseClick(object sender, MouseEventArgs e)
-        {
-            if (connected)
-            {
-                SendMessage("undo " + (char)3);
-            }
-        }
-
-        /// <summary>
-        /// Requests the server to revert the currently selected cell.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-
-        private void revert_button_MouseClick(object sender, MouseEventArgs e)
+        private void revert_button_MouseClick(object sender, EventArgs e)
         {
             if (connected)
             {
@@ -356,6 +385,14 @@ namespace SpreadsheetGUI
                 string cellName = GetCellName(col, row);
 
                 SendMessage("revert " + cellName + (char)3);
+            }
+        }
+
+        private void undo_button_MouseClick(object sender, EventArgs e)
+        {
+            if (connected)
+            {
+                SendMessage("undo " + (char)3);
             }
         }
 
@@ -391,7 +428,7 @@ namespace SpreadsheetGUI
                     _address = address;
                     connected = true;
                 }
-                catch (ArgumentException)
+                catch
                 {
                     MessageBox.Show("invalid server name");
                 }
@@ -406,7 +443,7 @@ namespace SpreadsheetGUI
             pingTimer.Stop();
             connected = false;
             previousSelection = "A1";
-            spreadsheetPanel1.SetSelection(0,0);
+            spreadsheetPanel1.SetSelection(0, 0);
 
             MethodInvoker FMInvoker = new MethodInvoker(() =>
             {
@@ -418,9 +455,10 @@ namespace SpreadsheetGUI
                 ServerTextBox.Enabled = true;
                 ConnectButton.Enabled = true;
 
+                ss1 = new Spreadsheet();
                 spreadsheetPanel1.Clear();
 
-                MessageBox.Show("Disconnected Successfully");
+                MessageBox.Show("Disconnected Successfully - Window " + winNum);
             });
 
             this.Invoke(FMInvoker);
@@ -468,7 +506,10 @@ namespace SpreadsheetGUI
         {
             pingMisses++;
             if (pingMisses >= 6)
+            {
+                MessageBox.Show("Server Terminated Connection - Window " + winNum);
                 Disconnect();
+            }
             string pingMsg = "ping " + ((char)3);
             SendMessage(pingMsg);
         }
@@ -485,13 +526,7 @@ namespace SpreadsheetGUI
             string message;
             lock (state) { message = state.builder.ToString(); }
             state.builder.Clear();
-            //SOOOO many bugs in this area!
-            //goes into line 364 like 5 times and comes out with a different message every time
-            //starts the if(message.Contains) with the right message, by the time it gets to else if ping,
-            //the message was ""
 
-            //ALSO half the time the message is just full state (char)3, and half of the time it has anywhere
-            //from 1 to like 6 ping messages included still...
             MethodInvoker FMInvoker = new MethodInvoker(() =>
             {
                 FilePanel.Visible = false;
@@ -518,7 +553,7 @@ namespace SpreadsheetGUI
                 if (message.Contains("full_state "))
                 {
                     //empty full state message ("full_state char3") is 12
-                    if(message.Length > 12)
+                    if (message.Length > 12)
                     {
                         //full_state A6:3\nB4:2\n((char3))
                         //remove "full_state " and the terminating character
@@ -560,7 +595,7 @@ namespace SpreadsheetGUI
         private void ProcessMessage(SocketState state)
         {
             string message;
-            
+
             lock (state)
             {
                 message = state.builder.ToString();
@@ -571,10 +606,10 @@ namespace SpreadsheetGUI
                 {
                     if (msg == "")
                         break;
-              
+
                     string[] msg2 = msg.Split(' ');
                     string command = msg2[0];
-                    if(command == "change")
+                    if (command == "change")
                     {
                         //get cell name and contents from message
                         char[] delimiters = new char[] { ' ', ':' };
@@ -586,7 +621,7 @@ namespace SpreadsheetGUI
                         GetCellPosition(cell_name, out int row, out int col);
                         SetCell(row, col, contents);
                     }
-                    else if(command == "ping")
+                    else if (command == "ping")
                     {
                         //if (msg == "ping ")
                         //{
@@ -603,16 +638,16 @@ namespace SpreadsheetGUI
                         //break;
 
                     }
-                    else if(command == "ping_response")
+                    else if (command == "ping_response")
                     {
                         pingMisses = 0;
                     }
-                    else if(command == "disconnect")
+                    else if (command == "disconnect")
                     {
+                        MessageBox.Show("Server terminated connection - Window " + winNum);
                         HandleDisconnect();
-
                     }
-                    else if(command == "unfocus")
+                    else if (command == "unfocus")
                     {
                         char[] delimiters2 = new char[] { ' ' };
                         string[] msg_parts2 = msg.Split(delimiters2);
@@ -625,7 +660,7 @@ namespace SpreadsheetGUI
                             spreadsheetPanel1.SetUnfocus(cell_name, row, col);
                         }
                     }
-                    else if(command == "focus")
+                    else if (command == "focus")
                     {
                         char[] delimiters3 = new char[] { ' ', ':' };
                         string[] msg_parts3 = msg.Split(delimiters3);
@@ -918,8 +953,9 @@ namespace SpreadsheetGUI
             MethodInvoker FMInvoker = new MethodInvoker(() =>
             {
                 ShowFileMenu(message);
+                Open_FileMenu.Enabled = true;
             });
-            Open_FileMenu.Enabled = true;
+            //Open_FileMenu.Enabled = true;
             this.Invoke(FMInvoker);
 
             state.builder.Clear();
@@ -985,6 +1021,16 @@ namespace SpreadsheetGUI
             spreadsheetPanel1.SetValue(col, row, newVal);
         }
 
+        private void CapsKeys(KeyEventArgs e)
+        {
+            spreadsheetPanel1.GetSelection(out int col, out int row);
+            KeysConverter kc = new KeysConverter();
+            string keyString = kc.ConvertToString(e.KeyData);
+            spreadsheetPanel1.GetValue(col, row, out string value);
+            string newVal = value + keyString;
+            spreadsheetPanel1.SetValue(col, row, newVal);
+        }
+
         /// <summary>
         /// Sets the value of a cell based on the text in the cell.
         /// </summary>
@@ -1042,6 +1088,7 @@ namespace SpreadsheetGUI
 
             string name = GetCellName(col, row);
 
+            CellNameOutput.Text = name;
             CellValueOutput.Text = value;
             string contents = ss1.GetCellContents(name).ToString();
 
@@ -1126,7 +1173,15 @@ namespace SpreadsheetGUI
             string value = ss1.GetCellValue(cellName).ToString();
 
             if (ss1.GetCellValue(cellName).GetType() == typeof(FormulaError))
-                spreadsheetPanel1.SetValue(col, row, "Formula Error!");
+            {
+                FormulaError error = (FormulaError)ss1.GetCellValue(cellName);
+                if (error.Reason == "Circular dependency")
+                {
+                    spreadsheetPanel1.SetValue(col, row, "#REF");
+                }
+                else
+                    spreadsheetPanel1.SetValue(col, row, "Formula Error!");
+            }
             else
                 spreadsheetPanel1.SetValue(col, row, ss1.GetCellValue(cellName).ToString());
 
@@ -1138,31 +1193,36 @@ namespace SpreadsheetGUI
         /// </summary>
         private void SetCell(int row, int col, string cellVal)
         {
-            try
+            string cellName = GetCellName(col, row);
+
+            HashSet<string> auxCells = new HashSet<string>(ss1.getDependentCells(cellName));
+
+            ss1.SetContentsOfCell(cellName, cellVal);
+
+            //if the result is a formula error display a formula error message, otherwise set the cell with the result.
+            Type a = ss1.GetCellValue(cellName).GetType();
+            if (ss1.GetCellValue(cellName).GetType() == typeof(FormulaError))
             {
-                string cellName = GetCellName(col, row);
-                ss1.SetContentsOfCell(cellName, cellVal);
-
-                //if the result is a formula error display a formula error message, otherwise set the cell with the result.
-                if (ss1.GetCellValue(cellName).GetType() == typeof(FormulaError))
-                    spreadsheetPanel1.SetValue(col, row, "Formula Error!");
-
-                else
+                FormulaError error = (FormulaError)ss1.GetCellValue(cellName);
+                if (error.Reason == "Circular dependency")
                 {
-                    spreadsheetPanel1.SetValue(col, row, ss1.GetCellValue(cellName).ToString());
-                    UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
+                    spreadsheetPanel1.SetValue(col, row, "#REF");
                 }
+                else
+                    spreadsheetPanel1.SetValue(col, row, "Formula Error!");
             }
 
-            catch (CircularException)
+            else
             {
-                spreadsheetPanel1.SetValue(col, row, "Formula Error!");
+                spreadsheetPanel1.SetValue(col, row, ss1.GetCellValue(cellName).ToString());
+                UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
             }
+            UpdateCells(auxCells);
+        }
 
-            catch (FormulaFormatException)
-            {
-                spreadsheetPanel1.SetValue(col, row, "Formula Error!");
-            }
+        private void SetFromNetwork(int row, int col, string cellVal)
+        {
+
         }
 
 
@@ -1178,8 +1238,16 @@ namespace SpreadsheetGUI
                 int col = Convert.ToChar(cellName.Substring(0, 1)) - 65;
                 int row = Convert.ToInt16(cellName.Substring(1)) - 1;
 
+                if (visited.Contains(cellName))
+                {
+                    visited.Clear();
+                    break;
+                }
+
                 //update the cell state in the spreadsheet
                 ss1.UpdateCell(cellName);
+
+                visited.Add(cellName);
 
                 //update the GUI
                 if (ss1.GetCellValue(cellName).GetType() != typeof(FormulaError))
@@ -1188,13 +1256,23 @@ namespace SpreadsheetGUI
                     spreadsheetPanel1.SetValue(col, row, "Formula Error!");
 
                 //update all dependent cells
-                UpdateCells(new HashSet<string>(ss1.getDependentCells(cellName)));
+                HashSet<string> dependents = new HashSet<string>(ss1.getDependentCells(cellName));
+                UpdateCells(dependents);
             }
         }
 
 
+
         #endregion
 
+        private void LabelName_Click(object sender, EventArgs e)
+        {
 
+        }
+
+        private void FilePanel_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
     }
 }

@@ -1,36 +1,13 @@
-#include "spreadsheet.h"
+#include "interface.h"
 #include <iostream>
 #include <vector>
+#include <sstream>
 #include <fstream>
+#include <string>
+#include <cstring>
 #include <bits/stdc++.h>
+#include <pthread.h>
 
-/*
-std::vector<std::string> SplitString(std::string input, char delimiter)
-{
-  int index = 0;
-  std::string section = "";
-  std::vector<std::string> split_sections;
-  std::cout << "input into splitstring: "<< input << std::endl;
-  while (index < input.length() - 1)
-  {
-    if (input[index] != delimiter[0])
-    {
-        section += input[index];
-    }
-
-    else
-    {
-        split_sections.push_back(section);
-        section = "";
-    }
-    index++;
-
-  }
-  section += input[index];
-  split_sections.push_back(section);
-  return split_sections;
-}
-*/
 
 bool FileContains(std::string filename, std::string query)
 {
@@ -63,7 +40,7 @@ std::vector<std::string> Spreadsheet::SplitString(std::string input, char delim)
   std::vector<std::string> split_sections;
   int index = 0;
 
-  while (true)
+  while (index < input.length())
   {
     if (input[index] != delim)
     {
@@ -72,7 +49,7 @@ std::vector<std::string> Spreadsheet::SplitString(std::string input, char delim)
     else
     {
       split_sections.push_back(section);
-      split_sections.push_back(input.substr(index));
+      split_sections.push_back(input.substr(index+1));
       break;
     }
     index++;
@@ -86,7 +63,15 @@ std::vector<std::string> Spreadsheet::SplitString(std::string input, char delim)
  */
 Spreadsheet::Spreadsheet(std::string sheet_name)
 {
+  if (pthread_rwlock_init(&msg_lock, NULL))
+    std::cout << "RWLOCK FAILURE" << std::endl;
   name = sheet_name;
+  ReadSpreadsheet(sheet_name);
+}
+
+Spreadsheet::~Spreadsheet()
+{
+  pthread_rwlock_destroy(&msg_lock);
 }
 
 /*
@@ -97,12 +82,6 @@ Spreadsheet::Spreadsheet()
   name = "";
 }
 
-//Constructor with filename to read spreadsheet state from.
-Spreadsheet::Spreadsheet(std::string sheet_name, std::string filename)
-{
-  name = sheet_name;
-  ReadSpreadsheet(filename);
-}
 
 //Adds a cell to spreadsheet state, bypasses additions to revert and undo stack. Used for loading a spreadhseet from a file.
 void Spreadsheet::AddCell(std::string cell_name, std::string contents)
@@ -126,7 +105,7 @@ bool Spreadsheet::ReadSpreadsheet(std::string filename)
 
   if ( ! file)
   {
-    std::cout << "File could not be opened. Does it exit, or ts it currently being written too or read from?" << std::endl;
+    std::cout << "Created new spreadsheet" << std::endl;
     std::cout << "Filename: " << filename << std::endl;
     return false;
   }
@@ -224,8 +203,9 @@ std::string Spreadsheet::GetState(std::string cell_name)
 /*
  * Return "full_state" message for this Spreadsheet
  */
-std::string Spreadsheet::GetFullState(){
+std::string Spreadsheet::GetFullState(int id){
   std::string msg = "full_state ";
+  pthread_rwlock_rdlock(&msg_lock);
   std::map<std::string,std::string>::iterator it = spreadsheet_state.begin();
   for(; it != spreadsheet_state.end(); ++it){
     msg += it->first;
@@ -235,6 +215,8 @@ std::string Spreadsheet::GetFullState(){
   }
   char end = (char) 3;
   msg += end;
+  clients[id] = msgs.size();
+  pthread_rwlock_unlock(&msg_lock);
   return msg;
 }
 
@@ -277,3 +259,115 @@ std::string Spreadsheet::Revert(std::string cell_name)
   spreadsheet_state[cell_name] = ret;
   return ret;
 }
+
+int Spreadsheet::GetMessages(int id, char* buf, int size)
+{
+  int msg_i = clients[id];
+  int buf_i = 0;
+  std::string message = "";
+  std::string str = "";
+  pthread_rwlock_rdlock(&msg_lock);
+  while (msg_i < msgs.size())
+  {
+    str = msgs[msg_i];
+    buf_i += str.length();
+    if (buf_i < size)
+    {
+      message += str;
+      msg_i++;
+    }
+    else
+    {
+      buf_i -=str.length();
+      break;
+    }
+  }
+  pthread_rwlock_unlock(&msg_lock);
+  std::strcpy(buf, message.c_str());
+  clients[id] = msg_i;
+  return buf_i;
+} 
+
+void Spreadsheet::HandleMessage(std::string message, int id){
+  //Split the message and get the command
+  char delim = ' ';
+  char end = (char)3;
+  std::vector<std::string> tokens = SplitString(message, delim);
+  if (tokens.empty())
+    return;
+  std::string command = tokens[0];
+
+  if(command == "edit"){
+    std::vector<std::string> cell = GetEditMsg(message);
+    if (cell.empty())
+      return;
+    pthread_rwlock_wrlock(&msg_lock);
+    EditSheet(cell[0],cell[1]);
+    message = "change ";
+    message += cell[0];
+    message += ":";
+    message += cell[1];
+    message += end;
+    msgs.push_back(message);
+    pthread_rwlock_unlock(&msg_lock);
+  }
+  else if(command == "undo"){
+    pthread_rwlock_wrlock(&msg_lock);
+    std::pair<std::string,std::string> cell = Undo();
+    if(cell.first != "NULL")
+    {
+      message = "change ";
+      message += cell.first;
+      message += ":";
+      message += cell.second;
+      message += end;
+      msgs.push_back(message);
+    }
+    pthread_rwlock_unlock(&msg_lock);
+  }
+  else if(command == "revert"){
+    if (tokens.size() < 2)
+      return;
+    pthread_rwlock_wrlock(&msg_lock);
+    std::string revertedcell = Revert(tokens[1]);
+    if(revertedcell != "NULL")
+    {
+      message = "change ";
+      message += tokens[1];
+      message += ":";
+      message += revertedcell;
+      message += end;
+      msgs.push_back(message);
+    }
+    pthread_rwlock_unlock(&msg_lock);
+  }
+  else if(command == "focus"){
+    message += ":";
+    std::stringstream ss;
+    ss << id;
+    message += ss.str();
+    message += end;
+    pthread_rwlock_wrlock(&msg_lock);
+    msgs.push_back(message);
+    pthread_rwlock_unlock(&msg_lock); 
+  }
+  else if(command == "unfocus"){
+    std::stringstream ss;
+    ss << id;
+    message += ss.str();
+    message += end;
+    pthread_rwlock_wrlock(&msg_lock);
+    msgs.push_back(message);
+    pthread_rwlock_unlock(&msg_lock); 
+  }
+
+}
+
+std::vector<std::string> Spreadsheet::GetEditMsg(std::string input)
+{
+  //remove "edit ""
+  std::string trimmed_input = input.substr(5);
+  std::vector<std::string> cellAndVal = SplitString(trimmed_input, ':');
+  return cellAndVal;
+}
+
