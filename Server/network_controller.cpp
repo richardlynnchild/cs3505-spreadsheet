@@ -5,6 +5,7 @@
 #include <netinet/in.h>
 #include <errno.h>
 #include <pthread.h>
+#include <signal.h>
 #include <unistd.h>
 #include "network_controller.h"
 #include "lobby.h"
@@ -24,6 +25,7 @@ void* NetworkController::ListenForClients(void* ptr){
 	int new_client_socket;
 	struct sockaddr_in address;
 	int address_length = sizeof(address);
+
 	
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = INADDR_ANY;
@@ -49,13 +51,16 @@ void* NetworkController::ListenForClients(void* ptr){
 	}
 
 	while(listening)
-	{  	
+	{  
+		errno = 0;
 		if ((new_client_socket = accept(listen_socket, (struct sockaddr *)&address, (socklen_t*)&address_length)) < 0)
+		{
+			listening = !(errno == EPIPE);
 			usleep(10000);
+		}
 
 		else
 		{       
-                        std::cout << "New client connected -> " << new_client_socket << std::endl;
 			pthread_t handshake_thread;
 			struct socket_data* sdata = new socket_data;
 			(*sdata).client_socket = new_client_socket;
@@ -205,36 +210,33 @@ void* NetworkController::ClientCommunicate(void* ptr)
 			break;
 		}
 
+		errno = 0;
 		// Receive messages from client
-		if (TestSocket(socket_id))
+		bytes_received = recv(socket_id, &rcv_buf[rcv_buf_next], 
+							rcv_buf_size-rcv_buf_next, MSG_NOSIGNAL);
+		if (bytes_received > 0)
 		{
-			bytes_received = recv(socket_id, &rcv_buf[rcv_buf_next], 
-								rcv_buf_size-rcv_buf_next, 0);
-			if (bytes_received > 0)
-			{
-				rcv_buf_next += bytes_received;
-				recv_idle = false;
-			}
-			// Push through interface if message is complete
-			rcv_str = GetMessage(&rcv_buf[0], rcv_buf_next);
-			if (rcv_str == "ping ")
-				ReplyPing(socket_id);
-			else if (rcv_str == "ping_response ")
-				ping_miss = 0;
-			else if (rcv_str == "disconnect ")
-			{
-				connected = false;
-				break;
-			}
-			else
-				spreadsheet->HandleMessage(rcv_str, socket_id);
-			
+			rcv_buf_next += bytes_received;
+			recv_idle = false;
 		}
-		else
+		else if (errno == EPIPE)
 		{
-			forced_disconnect = true;
+			connected = false;
 			break;
 		}
+		// Push through interface if message is complete
+		rcv_str = GetMessage(&rcv_buf[0], rcv_buf_next);
+		if (rcv_str == "ping ")
+			ReplyPing(socket_id);
+		else if (rcv_str == "ping_response ")
+			ping_miss = 0;
+		else if (rcv_str == "disconnect ")
+		{
+			connected = false;
+			break;
+		}
+		else
+			spreadsheet->HandleMessage(rcv_str, socket_id);
 
 		// Check for outgoing messages
 		if (send_msg_size - send_buf_next <= 0)
@@ -243,52 +245,23 @@ void* NetworkController::ClientCommunicate(void* ptr)
 			send_buf_next = 0;	
 			
 			send_msg_size = spreadsheet->GetMessages(socket_id, &send_buf[0], send_buf_size-1);
-		//	if (snd_str == "")
-		//	{
-		//		snd_str = interface->PullMessage(CLIENT);
-		//		if (IsPing(snd_str))
-		//			ping_miss++;
-		//		else if (IsDisconnect(snd_str))
-		//			connected = false;
-		//	}
-
-		//	if (snd_str != "")
-		//	{
-		//		if (snd_str.length() > send_buf_size-1)
-		//		{
-		//			std::string sub_str = snd_str.substr(0, send_buf_size-1);
-		//			send_msg_size = sub_str.length();
-		//			std::strcpy(send_buf, sub_str.c_str());
-		//			snd_str = snd_str.substr(send_buf_size-1);
-		//		}
-		//		else
-		//		{
-		//			std::strcpy(send_buf, snd_str.c_str());
-		//			send_msg_size = snd_str.length();
-		//			snd_str = "";
-		//		}
-		//		send_idle = false;
-		//	}	
 		}
 
 		// Send any data in buffer
 		if (send_msg_size - send_buf_next > 0)
 		{
-			if (TestSocket(socket_id))
-			{
+			errno = 0;
+			bytes_sent = send(socket_id, &(send_buf[send_buf_next]),
+							send_msg_size-send_buf_next, MSG_NOSIGNAL);
 
-				bytes_sent = send(socket_id, &(send_buf[send_buf_next]),
-								send_msg_size-send_buf_next, 0);
-
-				if (bytes_sent > 0)
-				{
-					send_buf_next += bytes_sent;
-					send_idle = false;
-				}
-			}	
-			else
+			if (bytes_sent > 0)
 			{
-				forced_disconnect = true;
+				send_buf_next += bytes_sent;
+				send_idle = false;
+			}
+			else if (errno == EPIPE)
+			{
+				connected = false;
 				break;
 			}
 		}
@@ -303,11 +276,17 @@ void* NetworkController::ClientCommunicate(void* ptr)
 }
 
 
+void NetworkController::HandlePipeFail(int sig)
+{
+	std::cout << "Caught SIGPIPE" << std::endl;
+}
+
 void NetworkController::SendFullState(Interface* interface)
 {
 	int id = interface->GetClientSocketID();
 	std::string full_state = interface->PullMessage(CLIENT);
 	int buf_size = 2048;
+std::cout << full_state << std::endl;
 	int msg_size = 0;
 	int buf_i = 0;
 	char buf[buf_size];
@@ -337,9 +316,12 @@ void NetworkController::SendFullState(Interface* interface)
 	
 		if (msg_size - buf_i > 0)
 		{
-			int bytes = send(id, &buf[buf_i], msg_size-buf_i,0);
+			errno = 0;
+			int bytes = send(id, &buf[buf_i], msg_size-buf_i, MSG_NOSIGNAL);
 			if (bytes > 0)
 				buf_i += bytes;
+			else if (errno == EPIPE)
+				return;
 		}
 	}	
 }
@@ -350,14 +332,19 @@ void NetworkController::SendDisconnect(int socket_id)
 	discon_msg[11] = (char) 3;
 	int bytes = 0;
 	while (bytes < 12)
-		bytes += send(socket_id, &discon_msg[bytes],12-bytes, 0);
+	{
+		errno = 0;
+		bytes += send(socket_id, &discon_msg[bytes],12-bytes, MSG_NOSIGNAL);
+		if (errno == EPIPE)
+			return;
+	}
 }
 
 void NetworkController::SendPing(int socket_id)
 {
 	char ping_msg[6] = "ping ";
 	ping_msg[5] = (char) 3;
-	send(socket_id, &ping_msg[0],6, 0);
+	send(socket_id, &ping_msg[0],6, MSG_NOSIGNAL);
 }
 
 //helper method that returns a message and removes it from the messages string buffer, only if the message is complete ('\n' found).

@@ -63,8 +63,15 @@ std::vector<std::string> Spreadsheet::SplitString(std::string input, char delim)
  */
 Spreadsheet::Spreadsheet(std::string sheet_name)
 {
+  if (pthread_rwlock_init(&msg_lock, NULL))
+    std::cout << "RWLOCK FAILURE" << std::endl;
   name = sheet_name;
   ReadSpreadsheet(sheet_name);
+}
+
+Spreadsheet::~Spreadsheet()
+{
+  pthread_rwlock_destroy(&msg_lock);
 }
 
 /*
@@ -98,7 +105,7 @@ bool Spreadsheet::ReadSpreadsheet(std::string filename)
 
   if ( ! file)
   {
-    std::cout << "File could not be opened. Does it exit, or ts it currently being written too or read from?" << std::endl;
+    std::cout << "Created new spreadsheet" << std::endl;
     std::cout << "Filename: " << filename << std::endl;
     return false;
   }

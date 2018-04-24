@@ -32,6 +32,7 @@ class Spreadsheet
  public:
   Spreadsheet(std::string name);
   Spreadsheet();
+  ~Spreadsheet();
   Spreadsheet(std::string name, std::string filename);
   bool ReadSpreadsheet(std::string filename);
   bool WriteSpreadsheet(std::string filename);

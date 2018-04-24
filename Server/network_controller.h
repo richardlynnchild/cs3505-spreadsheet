@@ -29,6 +29,7 @@ private:
 	static bool IsDisconnect(std::string msg);
 	static bool IsPing(std::string msg);
 	static void SendFullState(Interface* interface);
+	static void HandlePipeFail(int sig);
 
 public:
     
