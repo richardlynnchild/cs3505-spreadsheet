@@ -374,6 +374,7 @@ namespace SpreadsheetGUI
             if (connected)
             {
                 SendMessage("disconnect " + (char)3);
+                connected = false;
             }
         }
 
@@ -511,7 +512,7 @@ namespace SpreadsheetGUI
             if (pingMisses >= 6)
             {
                 MessageBox.Show("Server Terminated Connection - Window " + winNum);
-                Disconnect();
+                HandleDisconnect();
             }
             string pingMsg = "ping " + ((char)3);
             SendMessage(pingMsg);
