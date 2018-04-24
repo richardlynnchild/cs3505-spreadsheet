@@ -21,6 +21,7 @@ namespace SpreadsheetGUI
         private System.Timers.Timer pingTimer;
         private int pingMisses;
         private HashSet<string> visited;
+        private int winNum;
         //private System.Timers.Timer serverTimer;
         private SocketState serverSock;
 
@@ -29,18 +30,29 @@ namespace SpreadsheetGUI
         /// </summary>
         public Form1()
         {
+            this.winNum = 1;
             SpreadsheetSetUp();
+            this.Text = "Spreadsheet - Window " + winNum;
+        }
+
+        public Form1(int windowNum)
+        {
+            this.winNum = windowNum;
+            SpreadsheetSetUp();
+            this.Text = "Spreadsheet - Window " + windowNum;
         }
 
         /// <summary>
         /// pre-connected constructor.
         /// </summary>
         /// <param name="address"></param>
-        public Form1(string address)
+        public Form1(string address, int windowNum)
         {
+            this.winNum = windowNum;
             SpreadsheetSetUp();
             Connect(address);
             ServerTextBox.Text = address;
+            this.Text = "Spreadsheet - Window " + windowNum;
         }
 
         /// <summary>
@@ -285,9 +297,9 @@ namespace SpreadsheetGUI
         private void NewSpreadsheetButton_Click(object sender, EventArgs e)
         {
             if (connected)
-                SpreadsheetApplicationContext.getAppContext().RunForm(new Form1(_address));
+                SpreadsheetApplicationContext.getAppContext().RunForm(new Form1(_address, winNum + 1));
             else
-                SpreadsheetApplicationContext.getAppContext().RunForm(new Form1());
+                SpreadsheetApplicationContext.getAppContext().RunForm(new Form1(winNum + 1));
 
         }
 
@@ -446,7 +458,7 @@ namespace SpreadsheetGUI
                 ss1 = new Spreadsheet();
                 spreadsheetPanel1.Clear();
 
-                MessageBox.Show("Disconnected Successfully");
+                MessageBox.Show("Disconnected Successfully - Window " + winNum);
             });
 
             this.Invoke(FMInvoker);
